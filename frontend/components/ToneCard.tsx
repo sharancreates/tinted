@@ -7,6 +7,41 @@ import { Orb } from "@/components/ui/Orb";
 import { ToneRibbon } from "@/components/ui/ToneRibbon";
 import { cn } from "@/lib/utils";
 
+const NEXT = [
+  { href: "/quiz", title: "Build a routine", meta: "Skincare quiz · 2 min", aura: "aura-quiz" },
+  { href: "/vanity", title: "Save your shades", meta: "My vanity", aura: "aura-vanity" },
+] as const;
+
+/** Compact shortcut rows, in the style of a now-playing card. */
+function NextSteps() {
+  return (
+    <div className="flex w-full flex-col gap-2 text-left">
+      <p className="text-label uppercase text-text-muted">Next for you</p>
+      {NEXT.map((n) => (
+        <Link
+          key={n.href}
+          href={n.href}
+          className="group glass-strong flex items-center gap-3 rounded-pill p-2 pr-3 transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-px hover:shadow-lift"
+        >
+          <span aria-hidden="true" className={cn("aura aura-thumb h-11 w-11 shrink-0 rounded-full", n.aura)} />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-small font-semibold text-text">{n.title}</span>
+            <span className="block truncate text-[0.75rem] text-text-muted">{n.meta}</span>
+          </span>
+          <span
+            aria-hidden="true"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-accent-vivid shadow-card transition-[background-color,color] duration-(--duration-fast) group-hover:bg-accent-vivid group-hover:text-white"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 17 17 7M9 7h8v8" />
+            </svg>
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 const UNDERTONE_LABEL: Record<string, string> = {
   warm: "warm",
   cool: "cool",
@@ -25,7 +60,7 @@ export function ToneCard({ className }: { className?: string }) {
     <aside
       aria-label="Your tone"
       className={cn(
-        "glass dots flex flex-col items-center gap-5 rounded-card px-6 py-8 text-center",
+        "tone-panel dots flex flex-col items-center gap-5 rounded-card px-6 py-8 text-center",
         className,
       )}
     >
@@ -38,7 +73,7 @@ export function ToneCard({ className }: { className?: string }) {
         </div>
       ) : profile ? (
         <>
-          <Orb tone={profile.avgHex} size="lg" settle label={`Your measured tone, ${profile.avgHex}`} />
+          <Orb tone={profile.avgHex} size="xl" settle label={`Your measured tone, ${profile.avgHex}`} />
           <h2 className="text-title font-normal text-text">
             Your tone is <span className="font-semibold">Monk {profile.mstLevel},</span>{" "}
             {UNDERTONE_LABEL[profile.undertone] ?? profile.undertone}
@@ -56,9 +91,10 @@ export function ToneCard({ className }: { className?: string }) {
             <dt className="text-text-muted">Measured</dt>
             <dd className="text-right font-semibold">{profileAge(profile)}</dd>
           </dl>
+          <NextSteps />
           <Link
             href="/match"
-            className="inline-flex min-h-12 w-full items-center justify-center rounded-pill bg-text px-6 text-small font-semibold text-white shadow-card transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-px hover:shadow-lift"
+            className="mt-auto inline-flex min-h-12 w-full items-center justify-center rounded-pill bg-text px-6 text-small font-semibold text-white shadow-card transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-px hover:shadow-lift"
           >
             Match again
           </Link>
@@ -66,7 +102,7 @@ export function ToneCard({ className }: { className?: string }) {
         </>
       ) : (
         <>
-          <Orb size="lg" />
+          <Orb size="xl" />
           <h2 className="text-title font-normal text-text">
             What&apos;s <span className="font-semibold">your tone?</span>
           </h2>
@@ -75,9 +111,10 @@ export function ToneCard({ className }: { className?: string }) {
             ten-point Monk scale. The photo is analysed and discarded.
           </p>
           <ToneRibbon className="w-full" />
+          <NextSteps />
           <Link
             href="/match"
-            className="inline-flex min-h-12 w-full items-center justify-center rounded-pill bg-text px-6 text-small font-semibold text-white shadow-card transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-px hover:shadow-lift"
+            className="mt-auto inline-flex min-h-12 w-full items-center justify-center rounded-pill bg-text px-6 text-small font-semibold text-white shadow-card transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-px hover:shadow-lift"
           >
             Find my shade
           </Link>

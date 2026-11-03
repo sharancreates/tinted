@@ -179,9 +179,20 @@ h1, h2, h3 {
   box-shadow: var(--shadow-lift), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
+/* The tone panel: more see-through than a card, tinted by the mist, so the
+   dot texture and the orb's glow carry it. */
+@utility tone-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.28) 70%, rgba(222, 210, 241, 0.35));
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
 /* Faint dot grid, used only behind the tone panel. */
 @utility dots {
-  background-image: radial-gradient(rgba(98, 91, 107, 0.16) 1px, transparent 1.2px);
+  background-image: radial-gradient(rgba(98, 91, 107, 0.22) 1px, transparent 1.3px);
   background-size: 12px 12px;
 }
 
@@ -195,17 +206,21 @@ h1, h2, h3 {
   isolation: isolate;
   background: var(--a0);
 }
+/* Painterly streaks: long, soft ellipses smeared at a slight angle, like a
+   long-exposure photo of colour. Light Monk tones sit among the pastels. */
 .aura::before {
   content: "";
   position: absolute;
-  inset: -20%;
+  inset: -25%;
   z-index: -2;
-  filter: blur(28px) saturate(115%);
+  transform: rotate(-9deg);
+  filter: blur(22px) saturate(135%);
   background:
-    radial-gradient(40% 35% at 20% 30%, var(--a1), transparent 70%),
-    radial-gradient(45% 40% at 75% 25%, var(--a2), transparent 70%),
-    radial-gradient(50% 45% at 55% 75%, var(--a3), transparent 70%),
-    radial-gradient(35% 30% at 15% 85%, var(--a4), transparent 70%);
+    radial-gradient(70% 22% at 40% 22%, var(--a1), transparent 70%),
+    radial-gradient(60% 26% at 70% 42%, var(--a2), transparent 70%),
+    radial-gradient(80% 20% at 30% 58%, var(--a3), transparent 70%),
+    radial-gradient(45% 30% at 80% 70%, var(--a4), transparent 70%),
+    radial-gradient(50% 18% at 20% 38%, var(--a2), transparent 70%);
 }
 /* White lift at the bottom so the label reads on any aura. */
 .aura::after {
@@ -213,12 +228,15 @@ h1, h2, h3 {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 55%);
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.55) 22%, rgba(255, 255, 255, 0) 48%);
 }
-.aura-match  { --a0: var(--color-mst-3); --a1: #f4a6b8; --a2: var(--color-mst-6); --a3: #f6c9a8; --a4: var(--color-mst-8); }
-.aura-quiz   { --a0: #e6efe4; --a1: #b9dcae; --a2: var(--color-mst-4); --a3: #f2d2bd; --a4: #a8c99a; }
-.aura-vanity { --a0: var(--color-mst-2); --a1: #d9c7f2; --a2: var(--color-mst-5); --a3: #f1b9a1; --a4: var(--color-mst-7); }
-.aura-looks  { --a0: #f6e4dc; --a1: #f0a17e; --a2: #f7d6c4; --a3: var(--color-mst-6); --a4: #e9b8d6; }
+/* Small thumbnails carry no label, so they skip the white lift. */
+.aura-thumb::after { display: none; }
+
+.aura-match  { --a0: #f1d6e4; --a1: #f29bc0; --a2: #c7a0ea; --a3: #f7c3a1; --a4: var(--color-mst-5); }
+.aura-quiz   { --a0: #e4f0df; --a1: #96d08f; --a2: #f5b384; --a3: #fbe6c6; --a4: var(--color-mst-4); }
+.aura-vanity { --a0: #ebe2f6; --a1: #b3a2ef; --a2: #f2a58b; --a3: #f8dccb; --a4: var(--color-mst-5); }
+.aura-looks  { --a0: #fbe2d4; --a1: #f2976a; --a2: #f4c46b; --a3: #eba6ca; --a4: var(--color-mst-4); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Utilities

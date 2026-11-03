@@ -118,8 +118,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 );
               })}
             </nav>
-            <div className="mt-auto flex items-center gap-3 px-2">
-              <AuthButton />
+            <div className="flex flex-col gap-3">
+              <p className="px-4 text-label uppercase text-text-muted">Account</p>
+              <div className="px-2">
+                <AuthButton />
+              </div>
             </div>
           </div>
         </aside>

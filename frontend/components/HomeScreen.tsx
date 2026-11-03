@@ -29,15 +29,15 @@ const TILES: Tile[] = [
 
 const TRUST = [
   {
-    heading: "Built on the Monk Skin Tone scale",
+    heading: "Monk Skin Tone scale",
     body: "Ten measured tones, designed to be more inclusive than the Fitzpatrick scale. Most shade finders fail on deep and neutral skin; this scale takes them seriously.",
   },
   {
-    heading: "It says when it can't be sure",
+    heading: "Says when it's unsure",
     body: "Bad light, motion blur and a turned head corrupt a colour reading. Tinted checks first and tells you which problem it found.",
   },
   {
-    heading: "Your photo isn't stored",
+    heading: "Photos aren't stored",
     body: "It's analysed and discarded. No account is needed to get a result.",
   },
 ];
@@ -67,9 +67,10 @@ export function HomeScreen() {
       className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]"
     >
       <div className="flex min-w-0 flex-col gap-8">
-        <motion.header variants={item} className="flex flex-col gap-3">
-          <p className="text-label uppercase text-text-muted">Foundation matching for every skin tone</p>
-          <h1 className="max-w-[16ch] text-hero font-semibold text-text">Find the shade that matches you</h1>
+        <motion.header variants={item} className="flex flex-col gap-2">
+          <h1 className="text-[clamp(2.25rem,4vw,3rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-text">
+            Find your shade
+          </h1>
           <p className="max-w-prose text-text-soft">
             Tinted measures the colour of your skin from a photo, tells you how
             confident it is, and matches you to real products.
@@ -106,7 +107,7 @@ export function HomeScreen() {
           <h2 id="trust-heading" className="text-heading font-semibold text-text">
             Why the match is worth trusting
           </h2>
-          <ul className="mt-5 grid gap-5 md:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))]">
+          <ul className="mt-5 grid gap-5 md:grid-cols-3">
             {TRUST.map((t) => (
               <li key={t.heading} className="flex gap-3">
                 <span aria-hidden="true" className="mt-2 h-2 w-2 shrink-0 rounded-full bg-accent-vivid" />
@@ -120,8 +121,8 @@ export function HomeScreen() {
         </motion.section>
       </div>
 
-      <motion.div variants={item} className="xl:sticky xl:top-10 xl:self-start">
-        <ToneCard />
+      <motion.div variants={item} className="flex">
+        <ToneCard className="w-full" />
       </motion.div>
     </motion.div>
   );

@@ -21,10 +21,13 @@ Design notes
 from __future__ import annotations
 
 import asyncio
+import os
 import random
+import re
 import threading
 import time
 
+import httpx
 from ddgs import DDGS
 
 # How long a resolved URL stays good. Product imagery does not churn quickly and
@@ -125,7 +128,46 @@ _PREFERRED_HOSTS = (
 _BAD_TITLE_WORDS = (
     "nail", "nails", "manicure", "hairstyle", "outfit", "tattoo", "meme",
     "wallpaper", "drawing", "aesthetic", "tutorial", "vs ", "dupe",
+    # Shade charts and swatch grids match the brand and the product type but
+    # show forty colours instead of the bottle. "Black Opal True Color" was
+    # shown as a "100+ shades of black" chart.
+    "shades of", "swatch", "chart", "shade range", "all shades", "collage",
+    "comparison", "before and after", "review",
 )
+
+# Brand words that say nothing about which brand it is. "Fenty Beauty" is
+# identified by "fenty"; requiring "beauty" would only lose real listings.
+_GENERIC_BRAND_WORDS = {
+    "beauty", "cosmetics", "cosmetic", "makeup", "professional", "pro", "paris",
+    "london", "new", "york", "by", "the", "and", "co", "labs", "skincare", "skin",
+}
+
+# Product types. A result that names a *different* type than the one
+# recommended (a mascara photo for a foundation) is the wrong product even
+# when the brand matches.
+_PRODUCT_TYPES = {
+    "foundation", "concealer", "blush", "bronzer", "highlighter", "lipstick",
+    "gloss", "liner", "mascara", "brow", "powder", "palette", "eyeshadow",
+    "primer", "serum", "cleanser", "moisturizer", "moisturiser", "sunscreen",
+    "contour", "tint", "balm",
+}
+
+# Banners and shade charts are wide; product shots are square or portrait.
+_MAX_ASPECT = 1.8
+_MIN_SIDE_PX = 150
+
+
+def _words(text: str) -> set[str]:
+    """Lower-cased words with punctuation removed, so "M·A·C" reads as "mac"."""
+    text = re.sub(r"(?<=\w)[·.](?=\w)", "", text.lower())
+    return set(re.findall(r"[a-z0-9']+", text))
+
+
+def _brand_matches(brand: str, title_words: set[str]) -> bool:
+    words = [w for w in _words(brand) if w not in _GENERIC_BRAND_WORDS]
+    if not words:
+        words = sorted(_words(brand))[:1]
+    return bool(words) and all(w in title_words for w in words)
 
 # Below this, we would rather show no photo than a wrong one — the card is
 # built to look complete without an image.
@@ -145,15 +187,29 @@ def _score_candidate(image: dict, brand: str, product: str) -> int:
     if any(word in title for word in _BAD_TITLE_WORDS):
         return -1
 
-    # The brand appearing in the title is the single strongest signal that the
-    # result is the product rather than something worn with it.
-    brand_first = brand.lower().split()[0] if brand.split() else ""
-    relevance = 3 if brand_first and brand_first in title else 0
+    width, height = image.get("width"), image.get("height")
+    if isinstance(width, (int, float)) and isinstance(height, (int, float)) and width and height:
+        if width / height > _MAX_ASPECT or min(width, height) < _MIN_SIDE_PX:
+            return -1
+
+    title_words = _words(title)
+    product_words = _words(product)
+
+    wanted_types = product_words & _PRODUCT_TYPES
+    shown_types = title_words & _PRODUCT_TYPES
+    if wanted_types and shown_types and not (wanted_types & shown_types):
+        return -1
+
+    # The whole brand appearing in the title is the strongest signal that the
+    # result is the product rather than something worn with it. Only the
+    # distinctive words count, all of them: matching on the first word alone
+    # let "Black Opal" match anything titled "black".
+    relevance = 3 if _brand_matches(brand, title_words) else 0
 
     # Overlap on the distinguishing words of the product name.
-    words = [w for w in product.lower().split() if len(w) > 3]
+    words = [w for w in product_words if len(w) > 3]
     if words:
-        relevance += min(sum(1 for w in words if w in title), 3)
+        relevance += min(sum(1 for w in words if w in title_words), 3)
 
     # A trusted host is a tie-breaker, never a substitute for relevance. Without
     # this guard a well-known retailer CDN could clear the bar on host score
@@ -165,6 +221,43 @@ def _score_candidate(image: dict, brand: str, product: str) -> int:
         relevance += 2
 
     return relevance
+
+
+SERPER_URL = "https://google.serper.dev/images"
+
+
+def _search_images(query: str) -> list[dict]:
+    """Image search results as {image, title, width, height} dicts.
+
+    Uses Serper (Google Images through an API) when SERPER_API_KEY is set,
+    because scraping DuckDuckGo from a data-centre IP is throttled into
+    returning unrelated results. Without a key, or if Serper fails, it falls
+    back to DuckDuckGo. Raises only if every source fails.
+    """
+    key = os.environ.get("SERPER_API_KEY", "").strip()
+    if key:
+        try:
+            response = httpx.post(
+                SERPER_URL,
+                headers={"X-API-KEY": key, "Content-Type": "application/json"},
+                json={"q": query, "num": 10},
+                timeout=8.0,
+            )
+            response.raise_for_status()
+            return [
+                {
+                    "image": item.get("imageUrl", ""),
+                    "title": item.get("title", ""),
+                    "width": item.get("imageWidth"),
+                    "height": item.get("imageHeight"),
+                }
+                for item in response.json().get("images", [])
+            ]
+        except Exception as exc:
+            print(f"[product-images] serper failed for {query!r}, using ddgs: {exc}")
+
+    with DDGS() as ddgs:
+        return list(ddgs.images(query, max_results=12, safesearch="moderate"))
 
 
 def _lookup_one(brand: str, product: str) -> str | None:
@@ -197,10 +290,7 @@ def _lookup_one(brand: str, product: str) -> str | None:
         if index:
             time.sleep(0.9 * index)
         try:
-            with DDGS() as ddgs:
-                candidates = list(
-                    ddgs.images(attempt, max_results=12, safesearch="moderate")
-                )
+            candidates = _search_images(attempt)
         except Exception as exc:
             print(f"[product-images] lookup failed for {attempt!r}: {exc}")
             continue

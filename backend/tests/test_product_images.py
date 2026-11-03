@@ -126,3 +126,58 @@ def test_cache_key_is_case_and_whitespace_insensitive():
 
 def test_cache_key_separates_distinct_products():
     assert cache_key("NARS", "Sheer Glow") != cache_key("NARS", "Light Reflecting")
+
+
+# ── Seen in production: wrong photo for a real product ────────────────────────
+
+def test_shade_chart_sharing_a_brand_word_is_rejected():
+    """Black Opal True Color was shown as a '100+ shades of black' chart."""
+    assert not accepted(
+        "https://shop.example/x.jpg",
+        "100+ Shades of Black colour chart",
+        brand="Black Opal",
+        product="True Color Flawless Liquid Foundation",
+    )
+
+
+def test_one_brand_word_is_not_a_brand_match():
+    """Only the whole distinctive brand counts, so 'black' alone earns nothing."""
+    partial = score("https://shop.example/x.jpg", "Black liquid", brand="Black Opal",
+                    product="True Color Flawless Liquid Foundation")
+    full = score("https://shop.example/x.jpg", "Black Opal liquid", brand="Black Opal",
+                 product="True Color Flawless Liquid Foundation")
+    assert full > partial
+
+
+def test_generic_brand_words_are_not_required():
+    assert accepted(
+        "https://media.ulta.com/x.jpg",
+        "Fenty Pro Filt'r Soft Matte Longwear Foundation",
+        brand="Fenty Beauty",
+        product="Pro Filt'r Soft Matte Longwear Foundation",
+    )
+
+
+def test_punctuated_brand_matches():
+    assert accepted(
+        "https://shop.example/x.jpg",
+        "M·A·C Face and Body Foundation 120ml",
+        brand="MAC",
+        product="Face and Body Foundation",
+    )
+
+
+def test_a_different_product_type_is_rejected():
+    assert not accepted("https://media.ulta.com/x.jpg", "Maybelline Fit Me Mascara")
+
+
+def test_wide_banner_is_rejected_when_size_is_known():
+    image = {"image": "https://media.ulta.com/x.jpg",
+             "title": "Maybelline Fit Me Liquid Foundation", "width": 1600, "height": 500}
+    assert _score_candidate(image, BRAND, PRODUCT) < _MIN_SCORE
+
+
+def test_portrait_product_shot_is_accepted_when_size_is_known():
+    image = {"image": "https://media.ulta.com/x.jpg",
+             "title": "Maybelline Fit Me Liquid Foundation", "width": 800, "height": 1000}
+    assert _score_candidate(image, BRAND, PRODUCT) >= _MIN_SCORE

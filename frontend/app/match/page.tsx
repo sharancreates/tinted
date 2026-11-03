@@ -46,12 +46,16 @@ export default function Home() {
       setAppState("live-analyzing")
       return
     }
+    setLiveBudget(budget)
     setAppState("analyzing")
     setQualityErrors(null)
 
     const fd = new FormData()
     fd.append("file", file)
     fd.append("budget", budget)
+    // The measurement comes back in about a second; ResultsScreen fetches the
+    // product picks separately so nobody waits on Claude to see their tone.
+    fd.append("recommendations", "false")
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
@@ -158,7 +162,7 @@ export default function Home() {
           key="results"
           {...SCREEN}
         >
-          <ResultsScreen results={results} onReset={handleReset} />
+          <ResultsScreen results={results} budget={liveBudget} onReset={handleReset} />
         </motion.div>
       )}
     </AnimatePresence>

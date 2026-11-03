@@ -51,6 +51,10 @@ async def analyze(
     request: Request,
     file: UploadFile = File(...),
     budget: str = Form(default="all"),
+    # The frontend sends "false" and fetches /recommendations separately, so the
+    # measurement shows in about a second instead of after the ~20s Claude call.
+    # Defaults to true so older clients keep working.
+    recommendations: bool = Form(default=True),
 ) -> dict:
     limiter.check(client_key(request), "analyze", ANALYZE_RULES)
     spend_guard.check()
@@ -95,17 +99,19 @@ async def analyze(
         match_shades, mst_level, result["undertone"], result["avg_hex"]
     )
 
-    try:
-        beauty_recs = await asyncio.to_thread(
-            get_full_beauty_recommendations,
-            monk_scale=result["monk_scale"],
-            undertone=result["undertone"],
-            avg_hex=result["avg_hex"],
-            budget=budget,
-        )
-    except Exception as e:
-        print(f"Claude recommendations failed: {e}")
-        beauty_recs = {}
+    beauty_recs: dict = {}
+    if recommendations:
+        try:
+            beauty_recs = await asyncio.to_thread(
+                get_full_beauty_recommendations,
+                monk_scale=result["monk_scale"],
+                undertone=result["undertone"],
+                avg_hex=result["avg_hex"],
+                budget=budget,
+            )
+        except Exception as e:
+            print(f"Claude recommendations failed: {e}")
+            beauty_recs = {}
 
     return {
         "pixel_count":     sample.patch_count,
@@ -123,7 +129,9 @@ def _sse(data: dict) -> str:
     return f"data: {json.dumps(data)}\n\n"
 
 
-def _run_streaming_pipeline(image_bytes: bytes, budget: str, q: thread_queue.Queue) -> None:
+def _run_streaming_pipeline(
+    image_bytes: bytes, budget: str, q: thread_queue.Queue, with_recs: bool = True
+) -> None:
     """Synchronous pipeline that emits SSE-formatted dicts into *q*.
 
     Runs in a daemon thread so it can block freely.  The async generator in
@@ -204,16 +212,18 @@ def _run_streaming_pipeline(image_bytes: bytes, budget: str, q: thread_queue.Que
         emit({"stage": "matching", "shades": matched_shades})
 
         # ── Stage 8: beauty recs → complete ──────────────────────────────────
-        try:
-            beauty_recs = get_full_beauty_recommendations(
-                monk_scale=classification["monk_scale"],
-                undertone=classification["undertone"],
-                avg_hex=classification["avg_hex"],
-                budget=budget,
-            )
-        except Exception as exc:
-            print(f"[analyze-stream] beauty recs failed: {exc}")
-            beauty_recs = {}
+        beauty_recs: dict = {}
+        if with_recs:
+            try:
+                beauty_recs = get_full_beauty_recommendations(
+                    monk_scale=classification["monk_scale"],
+                    undertone=classification["undertone"],
+                    avg_hex=classification["avg_hex"],
+                    budget=budget,
+                )
+            except Exception as exc:
+                print(f"[analyze-stream] beauty recs failed: {exc}")
+                beauty_recs = {}
 
         emit({
             "stage": "complete",
@@ -236,6 +246,7 @@ async def analyze_stream(
     request: Request,
     file: UploadFile = File(...),
     budget: str = Form(default="all"),
+    recommendations: bool = Form(default=True),
 ) -> StreamingResponse:
     """Run the analysis pipeline and stream each stage as a server-sent event."""
     # Same cost profile as /analyze, so it shares the bucket — a client can't
@@ -247,7 +258,7 @@ async def analyze_stream(
     q: thread_queue.Queue = thread_queue.Queue()
 
     def _run() -> None:
-        _run_streaming_pipeline(image_bytes, budget, q)
+        _run_streaming_pipeline(image_bytes, budget, q, recommendations)
         q.put(None)  # sentinel
 
     threading.Thread(target=_run, daemon=True).start()
@@ -265,6 +276,32 @@ async def analyze_stream(
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
+# ── Recommendations ───────────────────────────────────────────────────────────
+
+class RecommendationsRequest(BaseModel):
+    monk_scale: str
+    undertone:  str
+    budget:     str = "all"
+
+
+@router.post("/recommendations")
+async def recommendations_endpoint(request: Request, req: RecommendationsRequest) -> dict:
+    """Product picks for a measured tone, fetched after /analyze returns.
+
+    Cached per (Monk level, undertone, budget), so after the first request for
+    a combination this answers instantly and costs nothing.
+    """
+    limiter.check(client_key(request), "recommendations", ANALYZE_RULES)
+    spend_guard.check()
+    recs = await asyncio.to_thread(
+        get_full_beauty_recommendations,
+        monk_scale=req.monk_scale[:16],
+        undertone=req.undertone[:16],
+        budget=req.budget[:16],
+    )
+    return {"recommendations": recs}
 
 
 # ── Foundation match ──────────────────────────────────────────────────────────

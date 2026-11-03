@@ -85,25 +85,30 @@ export function ProductCard({
             loading="lazy"
             decoding="async"
             onError={() => setFailed(true)}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain p-4 mix-blend-multiply"
           />
         ) : imageLoading ? (
           <div className="absolute inset-0 overflow-hidden bg-mst-1/60" aria-busy="true">
           </div>
         ) : (
+          // No trustworthy photo: a designed placeholder rather than a gap. We
+          // would rather show this than someone else's product.
           <div
-            className="flex h-full w-full items-center justify-center bg-linear-to-br from-raised to-surface"
+            className="aura aura-looks aura-thumb flex h-full w-full flex-col items-center justify-center gap-3 p-4 text-center"
             aria-hidden="true"
           >
             {product.hex ? (
               <span
-                className="h-16 w-16 rounded-full border border-line-strong shadow-card"
+                className="h-16 w-16 rounded-full shadow-card ring-4 ring-white"
                 style={{ backgroundColor: product.hex }}
               />
             ) : (
-              <span className="text-[2.5rem] font-semibold leading-none text-text-muted/50">
+              <span className="glass-strong grid h-16 w-16 place-items-center rounded-full text-title font-semibold text-text">
                 {monogram}
               </span>
+            )}
+            {product.brand && (
+              <span className="clamp-2 text-small font-semibold text-text">{product.brand}</span>
             )}
           </div>
         )}

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { parsePriceToCents, updateInventoryItem, updateProductLifespanEstimate } from "@/lib/vanity";
 import { PRODUCT_STATUSES, PRODUCT_STATUS_LABELS, type InventoryItem } from "@/lib/vanity";
 
-const FIELD = "min-h-11 w-full rounded-card border border-line bg-surface px-3 text-small text-text focus:border-accent focus:outline-none";
+import { FIELD, TEXTAREA, CHECKBOX } from "@/components/ui/field";
 
 export function EditProduct({
   item,
@@ -62,43 +62,43 @@ export function EditProduct({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay p-0 sm:items-center sm:p-4" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section role="dialog" aria-modal="true" aria-labelledby="edit-product-title" className="max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-t-card border border-line bg-surface p-5 shadow-lift sm:rounded-card sm:p-7">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay p-0 backdrop-blur-sm sm:items-center sm:p-4" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section role="dialog" aria-modal="true" aria-labelledby="edit-product-title" className="max-h-[90dvh] w-full max-w-lg overflow-y-auto glass-strong rounded-t-card bg-white/90 p-5 shadow-lift sm:rounded-card sm:p-8">
         <p className="text-label uppercase text-accent">Update your shelf</p>
-        <h2 id="edit-product-title" className="mt-1 font-display text-heading text-text">{item.brand} {item.product}</h2>
+        <h2 id="edit-product-title" className="mt-1 text-title font-semibold text-text">{item.brand} {item.product}</h2>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <label className="text-label uppercase text-text-muted">Status
-            <select className={`mt-1 ${FIELD}`} value={status} onChange={(e) => setStatus(e.target.value as typeof status)}>
+            <select className={`mt-2 normal-case tracking-normal ${FIELD}`} value={status} onChange={(e) => setStatus(e.target.value as typeof status)}>
               {PRODUCT_STATUSES.map((value) => <option key={value} value={value}>{PRODUCT_STATUS_LABELS[value]}</option>)}
             </select>
           </label>
           <label className="text-label uppercase text-text-muted">Purchase date
-            <input className={`mt-1 ${FIELD}`} type="date" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
+            <input className={`mt-2 normal-case tracking-normal ${FIELD}`} type="date" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
           </label>
           <label className="text-label uppercase text-text-muted">Opened date
-            <input className={`mt-1 ${FIELD}`} type="date" value={openedDate} onChange={(e) => setOpenedDate(e.target.value)} />
+            <input className={`mt-2 normal-case tracking-normal ${FIELD}`} type="date" value={openedDate} onChange={(e) => setOpenedDate(e.target.value)} />
           </label>
           <label className="text-label uppercase text-text-muted">What you paid
-            <input className={`mt-1 ${FIELD}`} type="text" inputMode="decimal" value={purchasePrice} onChange={(e) => setPurchasePrice(e.target.value)} placeholder="24.00" />
+            <input className={`mt-2 normal-case tracking-normal ${FIELD}`} type="text" inputMode="decimal" value={purchasePrice} onChange={(e) => setPurchasePrice(e.target.value)} placeholder="24.00" />
           </label>
           <label className="text-label uppercase text-text-muted">Product photo URL
-            <input className={`mt-1 ${FIELD}`} type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://…" />
+            <input className={`mt-2 normal-case tracking-normal ${FIELD}`} type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://…" />
           </label>
           <label className="text-label uppercase text-text-muted">Estimated use, in days
-            <input className={`mt-1 ${FIELD}`} type="number" min="1" step="1" value={lifespanText} onChange={(e) => setLifespanText(e.target.value)} placeholder="Category estimate" />
+            <input className={`mt-2 normal-case tracking-normal ${FIELD}`} type="number" min="1" step="1" value={lifespanText} onChange={(e) => setLifespanText(e.target.value)} placeholder="Category estimate" />
           </label>
         </div>
-        <label className="mt-3 flex min-h-11 items-center gap-2 text-small text-text-soft">
-          <input type="checkbox" checked={repurchase} onChange={(e) => setRepurchase(e.target.checked)} />
+        <label className="mt-3 flex min-h-11 cursor-pointer items-center gap-3 text-small text-text-soft">
+          <input type="checkbox" className={CHECKBOX} checked={repurchase} onChange={(e) => setRepurchase(e.target.checked)} />
           I would buy this again
         </label>
-        <label className="flex min-h-11 items-center gap-2 text-small text-text-soft">
-          <input type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
+        <label className="flex min-h-11 cursor-pointer items-center gap-3 text-small text-text-soft">
+          <input type="checkbox" className={CHECKBOX} checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
           Show this product on my public profile
         </label>
         <label className="mt-3 block text-label uppercase text-text-muted">Notes
-          <textarea className={`mt-1 min-h-24 ${FIELD} py-2`} value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={1000} />
+          <textarea className={`mt-2 normal-case tracking-normal ${TEXTAREA}`} value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={1000} />
         </label>
         {error && <p className="mt-3 text-small text-danger" role="alert">{error}</p>}
         <div className="mt-5 flex justify-end gap-2">

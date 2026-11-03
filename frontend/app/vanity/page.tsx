@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Page } from "@/components/ui/Page";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { FIELD, FIELD_LABEL } from "@/components/ui/field";
 import { SignInGate } from "@/components/vanity/SignInGate";
 import { InventoryGrid } from "@/components/vanity/InventoryGrid";
 import { AddProduct } from "@/components/vanity/AddProduct";
@@ -31,17 +34,15 @@ import {
 export default function VanityPage() {
   return (
     <Page width="grid">
-      <header className="mb-(--space-section)">
-        <p className="text-label uppercase text-accent">Your vanity</p>
-        <h1 className="mt-2 font-display text-display text-text">
-          Everything you own, in one place.
-        </h1>
-        <p className="mt-3 max-w-prose text-text-soft">
-          Add what&apos;s on your shelf, then group products into looks you can
-          repeat — and share, with the cost worked out.
-        </p>
-        <Link href="/profile" className="mt-3 inline-block text-small font-medium text-accent hover:underline">Public profile settings →</Link>
-      </header>
+      <PageHeader
+        label="Your vanity"
+        title="Everything you own, in one place."
+        description="Add what's on your shelf, then group products into looks you can repeat and share, with the cost worked out."
+      >
+        <Link href="/profile" className="inline-flex min-h-11 items-center text-small font-medium text-accent underline-offset-4 hover:underline">
+          Public profile settings <span aria-hidden="true" className="ml-1">→</span>
+        </Link>
+      </PageHeader>
 
       <SignInGate
         title="Sign in to build your vanity"
@@ -55,6 +56,7 @@ export default function VanityPage() {
 
 function VanityContent() {
   const { user } = useAuth();
+  const router = useRouter();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [alerts, setAlerts] = useState<ReplenishmentAlert[]>([]);
@@ -138,9 +140,9 @@ function VanityContent() {
           { label: "Categories", value: String(byCategory.length) },
           { label: "Looks", value: String(routines.length) },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-card border border-line bg-surface p-4 shadow-card">
+          <div key={stat.label} className="glass rounded-card p-5">
             <p className="text-label uppercase text-text-muted">{stat.label}</p>
-            <p className="mt-1 font-display text-title text-text tabular-nums">
+            <p className="mt-1 text-title font-semibold text-text tabular-nums">
               {stat.value}
             </p>
           </div>
@@ -173,7 +175,7 @@ function VanityContent() {
         )}
 
         {shelf.length === 0 && !adding ? (
-          <div className="rounded-card border border-dashed border-line-strong bg-surface p-10 text-center">
+          <div className="rounded-card border border-dashed border-line-strong bg-white/40 p-10 text-center">
             <p className="font-medium text-text">Your shelf is empty</p>
             <p className="mx-auto mt-2 max-w-prose text-small text-text-soft">
               Add the products you already own. Once a few are in, you can group
@@ -186,15 +188,15 @@ function VanityContent() {
         ) : (
           <>
             <div className="mb-5 grid gap-3 sm:grid-cols-2">
-              <label className="text-label uppercase text-text-muted">Status
-                <select className="mt-1 min-h-11 w-full rounded-card border border-line bg-surface px-3 text-small text-text" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as ProductStatus | "all" | "alerts")}>
+              <label className={FIELD_LABEL}>Status
+                <select className={`mt-2 ${FIELD}`} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as ProductStatus | "all" | "alerts")}>
                   <option value="all">All statuses</option>
                   <option value="alerts">Running low or empty</option>
                   {PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{PRODUCT_STATUS_LABELS[status]}</option>)}
                 </select>
               </label>
-              <label className="text-label uppercase text-text-muted">Category
-                <select className="mt-1 min-h-11 w-full rounded-card border border-line bg-surface px-3 text-small text-text" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+              <label className={FIELD_LABEL}>Category
+                <select className={`mt-2 ${FIELD}`} value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
                   <option value="all">All categories</option>
                   {categories.map((category) => <option key={category} value={category}>{category}</option>)}
                 </select>
@@ -205,8 +207,8 @@ function VanityContent() {
                 {(categoryFilter === "all" ? categories : [categoryFilter]).map((category) => {
                   const categoryItems = filteredShelf.filter((item) => (item.category || "other") === category);
                   if (!categoryItems.length) return null;
-                  return <details key={category} open className="rounded-card border border-line bg-surface p-4">
-                    <summary className="cursor-pointer list-none font-display text-heading text-text">{category} <span className="ml-2 font-sans text-small text-text-muted">{categoryItems.length}</span></summary>
+                  return <details key={category} open className="glass group rounded-card p-4 md:p-5">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-heading font-semibold capitalize text-text"><span>{category} <span className="ml-2 text-small font-normal text-text-muted">{categoryItems.length}</span></span><span aria-hidden="true" className="text-text-muted transition-transform duration-(--duration-fast) group-open:rotate-180">⌄</span></summary>
                     <div className="mt-4"><InventoryGrid items={categoryItems} flags={flags} onEdit={setEditing} onFlag={async (item) => {
                       if (!user) return;
                       const current = alerts.find((alert) => alert.product_id === item.id);
@@ -235,27 +237,27 @@ function VanityContent() {
       <Section
         id="looks"
         title="Your looks"
-        description="Group products from your shelf into a routine — for going out, for everyday — and share it with the cost worked out."
+        description="Group products from your shelf into a look, for going out or for every day, and share it with the cost worked out."
         aside={
           <Link
             href="/vanity/looks"
-            className="text-small font-medium text-accent hover:underline"
+            className="inline-flex min-h-11 items-center text-small font-medium text-accent underline-offset-4 hover:underline"
           >
-            Manage looks →
+            Manage looks <span aria-hidden="true" className="ml-1">→</span>
           </Link>
         }
       >
         {routines.length === 0 ? (
-          <div className="rounded-card border border-dashed border-line-strong bg-surface p-8 text-center">
+          <div className="rounded-card border border-dashed border-line-strong bg-white/40 p-8 text-center">
             <p className="text-small text-text-soft">
               {shelf.length === 0
                 ? "Add a few products first, then build your first look."
                 : "No looks yet."}
             </p>
             {shelf.length > 0 && (
-              <Link href="/vanity/looks" className="mt-4 inline-block">
-                <Button size="sm">Build a look</Button>
-              </Link>
+              <Button size="sm" className="mt-4" onClick={() => router.push("/vanity/looks")}>
+                Build a look
+              </Button>
             )}
           </div>
         ) : (
@@ -264,7 +266,7 @@ function VanityContent() {
               <li key={routine.id}>
                 <Link
                   href={`/vanity/looks?id=${routine.id}`}
-                  className="flex h-full flex-col rounded-card border border-line bg-surface p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-lift"
+                  className="flex h-full flex-col glass rounded-card p-5 transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-0.5 hover:shadow-lift"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-medium text-text">{routine.title}</p>

@@ -103,7 +103,7 @@ QUESTIONS: tuple[Question, ...] = (
         id="routine_depth",
         prompt="How much of a routine do you have now?",
         multi=False,
-        help_text="This sets how many steps we recommend — no judgement either way.",
+        help_text="This sets how many steps we recommend. No judgement either way.",
         options=(
             Option("none", "Nothing regular", {"gentle": 2}, "Water, maybe soap"),
             Option("minimal", "Minimal", {"gentle": 1}, "Cleanser and moisturiser"),

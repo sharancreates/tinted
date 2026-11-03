@@ -61,26 +61,26 @@ export function InventoryGrid({
                   }
                 : {})}
               className={cn(
-                "group relative flex h-full w-full flex-col overflow-hidden rounded-card border text-left",
-                "transition-all duration-(--duration-base) ease-(--ease-out-soft)",
+                "group relative flex h-full w-full flex-col overflow-hidden rounded-tile border p-1.5 text-left",
+                "transition-[transform,box-shadow,border-color] duration-(--duration-fast) ease-(--ease-out-soft)",
                 selected
-                  ? "border-accent ring-2 ring-accent/30"
-                  : "border-line hover:border-line-strong hover:shadow-lift",
-                item.is_finished ? "bg-raised opacity-70" : "bg-surface shadow-card",
+                  ? "border-accent-vivid shadow-lift ring-2 ring-accent-vivid/30"
+                  : "border-white hover:-translate-y-0.5 hover:shadow-lift",
+                item.is_finished ? "bg-white/40 opacity-70" : "bg-white/60 shadow-card",
               )}
             >
               {/* The shade, at a size that makes the shelf scannable by colour. */}
               <div
-                className="relative h-24 w-full bg-swatch-ground"
+                className="relative h-28 w-full overflow-hidden rounded-sm bg-swatch-ground"
                 style={item.hex && !item.image_url ? { backgroundColor: item.hex } : undefined}
               >
                 {item.image_url && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.image_url} alt="" className="absolute inset-0 h-full w-full object-contain" loading="lazy" />
+                  <img src={item.image_url} alt="" className="absolute inset-0 h-full w-full object-contain p-2" loading="lazy" />
                 )}
                 {!item.hex && !item.image_url && (
                   <span
-                    className="flex h-full w-full items-center justify-center font-display text-title text-text-muted/40"
+                    className="flex h-full w-full items-center justify-center text-title font-semibold text-text-muted/40"
                     aria-hidden="true"
                   >
                     {item.brand.charAt(0).toUpperCase()}
@@ -88,7 +88,7 @@ export function InventoryGrid({
                 )}
                 {selected && (
                   <span
-                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white"
+                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent-vivid text-white"
                     aria-hidden="true"
                   >
                     <svg viewBox="0 0 12 12" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">
@@ -123,12 +123,12 @@ export function InventoryGrid({
             </Interactive>
 
             {onDelete && (
-              <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                {onEdit && <button type="button" onClick={() => onEdit(item)} className="text-label uppercase text-accent">Edit</button>}
-                {onFlag && <button type="button" onClick={() => onFlag(item)} aria-label={`${flags[item.id] === "low" ? "Mark empty" : flags[item.id] === "empty" ? "Clear replenishment flag" : "Mark running low"}: ${item.brand} ${item.product}`} className={`min-h-10 text-label uppercase ${flags[item.id] === "empty" ? "text-danger" : flags[item.id] === "low" ? "text-amber-700" : "text-text-muted"}`}>
+              <div className="mt-1 flex flex-wrap gap-x-4 px-1">
+                {onEdit && <button type="button" onClick={() => onEdit(item)} className="min-h-10 cursor-pointer text-small font-medium text-accent hover:underline underline-offset-4">Edit</button>}
+                {onFlag && <button type="button" onClick={() => onFlag(item)} aria-label={`${flags[item.id] === "low" ? "Mark empty" : flags[item.id] === "empty" ? "Clear replenishment flag" : "Mark running low"}: ${item.brand} ${item.product}`} className={`min-h-10 cursor-pointer text-small ${flags[item.id] === "empty" ? "text-danger" : flags[item.id] === "low" ? "text-warn" : "text-text-muted"}`}>
                   {flags[item.id] === "empty" ? "● Empty" : flags[item.id] === "low" ? "● Running low" : "⚑ Flag"}
                 </button>}
-                <button type="button" onClick={() => onDelete(item)} className="text-label uppercase text-text-muted hover:text-danger">Remove</button>
+                <button type="button" onClick={() => onDelete(item)} className="min-h-10 cursor-pointer text-small text-text-muted hover:text-danger">Remove</button>
               </div>
             )}
           </li>

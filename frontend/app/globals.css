@@ -232,6 +232,7 @@ h1, h2, h3 {
 }
 /* Small thumbnails carry no label, so they skip the white lift. */
 .aura-thumb::after { display: none; }
+.aura-thumb::before { inset: -10%; filter: blur(4px) saturate(140%); }
 
 .aura-match  { --a0: #f1d6e4; --a1: #f29bc0; --a2: #c7a0ea; --a3: #f7c3a1; --a4: var(--color-mst-5); }
 .aura-quiz   { --a0: #e4f0df; --a1: #96d08f; --a2: #f5b384; --a3: #fbe6c6; --a4: var(--color-mst-4); }

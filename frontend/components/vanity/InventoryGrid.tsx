@@ -16,31 +16,34 @@ export function InventoryGrid({
   selectable = false,
   selectedIds = [],
   onToggle,
-  onDelete,
-  onEdit,
-  onFlag,
+  onOpen,
+  activeId,
   flags = {},
 }: {
   items: InventoryItem[];
+  /** Tap toggles membership (the look editor). */
   selectable?: boolean;
   selectedIds?: string[];
   onToggle?: (item: InventoryItem) => void;
-  onDelete?: (item: InventoryItem) => void;
-  onEdit?: (item: InventoryItem) => void;
-  onFlag?: (item: InventoryItem) => void;
+  /** Tap opens the product's detail panel (the shelf). */
+  onOpen?: (item: InventoryItem) => void;
+  activeId?: string | null;
   flags?: Record<string, "low" | "empty">;
 }) {
   if (items.length === 0) return null;
 
   return (
-    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    // Columns follow the space the grid actually has, not the window, because
+    // on the shelf a detail panel takes part of the width.
+    <div className="@container">
+    <ul className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @4xl:grid-cols-4">
       {items.map((item) => {
-        const selected = selectedIds.includes(item.id);
-        const Interactive = selectable ? "button" : "div";
+        const selected = selectedIds.includes(item.id) || activeId === item.id;
+        const Interactive = selectable || onOpen ? "button" : "div";
         const statusStyle: Record<string, string> = {
           using: "border-accent/40 bg-accent-dim text-accent",
           backup: "border-line-strong bg-raised text-text-soft",
-          wishlist: "border-amber-300 bg-amber-50 text-amber-800",
+          wishlist: "border-warn/30 bg-warn/10 text-warn",
           panning: "border-success/40 bg-success/10 text-success",
           finished: "border-line bg-raised text-text-muted opacity-70",
           destash: "border-danger/30 bg-danger/5 text-danger",
@@ -59,14 +62,21 @@ export function InventoryGrid({
                     onClick: () => onToggle?.(item),
                     "aria-pressed": selected,
                   }
-                : {})}
+                : onOpen
+                  ? {
+                      type: "button" as const,
+                      onClick: () => onOpen(item),
+                      "aria-expanded": activeId === item.id,
+                      "aria-label": `${item.brand} ${item.product}${item.shade ? `, ${item.shade}` : ""}: show details`,
+                    }
+                  : {})}
               className={cn(
-                "group relative flex h-full w-full flex-col overflow-hidden rounded-tile border p-1.5 text-left",
+                "group relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-tile border p-1.5 text-left",
                 "transition-[transform,box-shadow,border-color] duration-(--duration-fast) ease-(--ease-out-soft)",
                 selected
                   ? "border-accent-vivid shadow-lift ring-2 ring-accent-vivid/30"
                   : "border-white hover:-translate-y-0.5 hover:shadow-lift",
-                item.is_finished ? "bg-white/40 opacity-70" : "bg-white/60 shadow-card",
+                item.is_finished ? "bg-white/70 opacity-70" : "bg-white shadow-card",
               )}
             >
               {/* The shade, at a size that makes the shelf scannable by colour. */}
@@ -84,6 +94,11 @@ export function InventoryGrid({
                     aria-hidden="true"
                   >
                     {item.brand.charAt(0).toUpperCase()}
+                  </span>
+                )}
+                {flags[item.id] && (
+                  <span className={`absolute left-2 top-2 rounded-pill px-2 py-0.5 text-[0.6875rem] font-semibold text-white ${flags[item.id] === "empty" ? "bg-danger" : "bg-warn"}`}>
+                    {flags[item.id] === "empty" ? "Empty" : "Low"}
                   </span>
                 )}
                 {selected && (
@@ -122,18 +137,10 @@ export function InventoryGrid({
               </div>
             </Interactive>
 
-            {onDelete && (
-              <div className="mt-1 flex flex-wrap gap-x-4 px-1">
-                {onEdit && <button type="button" onClick={() => onEdit(item)} className="min-h-10 cursor-pointer text-small font-medium text-accent hover:underline underline-offset-4">Edit</button>}
-                {onFlag && <button type="button" onClick={() => onFlag(item)} aria-label={`${flags[item.id] === "low" ? "Mark empty" : flags[item.id] === "empty" ? "Clear replenishment flag" : "Mark running low"}: ${item.brand} ${item.product}`} className={`min-h-10 cursor-pointer text-small ${flags[item.id] === "empty" ? "text-danger" : flags[item.id] === "low" ? "text-warn" : "text-text-muted"}`}>
-                  {flags[item.id] === "empty" ? "● Empty" : flags[item.id] === "low" ? "● Running low" : "⚑ Flag"}
-                </button>}
-                <button type="button" onClick={() => onDelete(item)} className="min-h-10 cursor-pointer text-small text-text-muted hover:text-danger">Remove</button>
-              </div>
-            )}
           </li>
         );
       })}
     </ul>
+    </div>
   );
 }

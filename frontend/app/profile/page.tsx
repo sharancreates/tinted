@@ -9,6 +9,7 @@ import { Orb } from "@/components/ui/Orb";
 import { FIELD, FIELD_LABEL, TEXTAREA, CHECKBOX } from "@/components/ui/field";
 import { SignInGate } from "@/components/vanity/SignInGate";
 import { useAuth } from "@/hooks/useAuth";
+import { createClient } from "@/lib/supabase";
 import { ToneRibbon, MONK_TONES } from "@/components/ui/ToneRibbon";
 import { getMyPublicProfile, listInventory, savePublicProfile, type InventoryItem, type PublicProfile } from "@/lib/vanity";
 import { loadToneProfile, TONE_EVENT } from "@/lib/toneProfile";
@@ -206,6 +207,11 @@ export default function ProfilePage() {
         </div>
       </section>
       <p className="mt-5 text-small text-text-muted">Your inventory notes, purchase dates, prices and unlisted products stay private.</p>
+
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line-strong pt-6">
+        <p className="min-w-0 truncate text-small text-text-muted">Signed in as {user.email}</p>
+        <Button variant="secondary" size="sm" onClick={() => void createClient().auth.signOut()}>Sign out</Button>
+      </div>
     </Page>
   );
 }

@@ -13,7 +13,11 @@ import { FIELD, FIELD_LABEL } from "@/components/ui/field";
 import { SignInGate } from "@/components/vanity/SignInGate";
 import { InventoryGrid } from "@/components/vanity/InventoryGrid";
 import { AddProduct } from "@/components/vanity/AddProduct";
-import { EditProduct } from "@/components/vanity/EditProduct";
+import { ProductPanel } from "@/components/vanity/ProductPanel";
+import { Aura } from "@/components/ui/Aura";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { EASE } from "@/lib/motion";
 import {
   deleteInventoryItem,
   formatCents,
@@ -63,7 +67,9 @@ function VanityContent() {
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
-  const [editing, setEditing] = useState<InventoryItem | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const reduced = useReducedMotion() ?? false;
   const [statusFilter, setStatusFilter] = useState<ProductStatus | "all" | "alerts">("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
 
@@ -130,8 +136,58 @@ function VanityContent() {
     );
   }
 
+  const openItem = items.find((item) => item.id === openId) ?? null;
+  const lifespanFor = (item: InventoryItem) =>
+    alerts.find((alert) => alert.product_id === item.id)?.estimated_lifespan_days ??
+    CATEGORY_LIFESPANS[item.category?.toLowerCase() ?? ""] ??
+    null;
+  const flagged = items.filter((item) => flags[item.id]);
+
+  const toggleFlag = async (item: InventoryItem) => {
+    if (!user) return;
+    const current = alerts.find((alert) => alert.product_id === item.id);
+    try {
+      const updated = await cycleReplenishmentFlag(item, current, user.id);
+      setAlerts((prev) =>
+        updated
+          ? [...prev.filter((alert) => alert.product_id !== item.id), updated]
+          : prev.filter((alert) => alert.product_id !== item.id),
+      );
+    } catch {
+      setError("Couldn't update the replenishment flag.");
+    }
+  };
+
+  const remove = async (item: InventoryItem) => {
+    setOpenId(null);
+    setItems((prev) => prev.filter((i) => i.id !== item.id));
+    try { await deleteInventoryItem(item.id); } catch { void load(); }
+  };
+
+  const panel = (headingId: string) =>
+    openItem && user ? (
+      <ProductPanel
+        key={openItem.id}
+        headingId={headingId}
+        item={openItem}
+        userId={user.id}
+        lifespanDays={lifespanFor(openItem)}
+        flag={flags[openItem.id]}
+        onFlag={() => void toggleFlag(openItem)}
+        onSaved={(updated) => {
+          setItems((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+          void listReplenishmentAlerts().then(setAlerts).catch(() => undefined);
+        }}
+        onDelete={() => void remove(openItem)}
+        onAdded={(added) => setItems((prev) => [added, ...prev])}
+        onClose={() => setOpenId(null)}
+      />
+    ) : null;
+
   return (
     <>
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div className="min-w-0">
       {/* At-a-glance numbers, so the page opens with something other than text. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
@@ -203,23 +259,13 @@ function VanityContent() {
               </label>
             </div>
             {filteredShelf.length === 0 ? <p className="py-8 text-center text-small text-text-muted">No products match these filters.</p> : (
-              <div className="space-y-3">
+              <div className="space-y-8">
                 {(categoryFilter === "all" ? categories : [categoryFilter]).map((category) => {
                   const categoryItems = filteredShelf.filter((item) => (item.category || "other") === category);
                   if (!categoryItems.length) return null;
-                  return <details key={category} open className="glass group rounded-card p-4 md:p-5">
-                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-heading font-semibold capitalize text-text"><span>{category} <span className="ml-2 text-small font-normal text-text-muted">{categoryItems.length}</span></span><span aria-hidden="true" className="text-text-muted transition-transform duration-(--duration-fast) group-open:rotate-180">⌄</span></summary>
-                    <div className="mt-4"><InventoryGrid items={categoryItems} flags={flags} onEdit={setEditing} onFlag={async (item) => {
-                      if (!user) return;
-                      const current = alerts.find((alert) => alert.product_id === item.id);
-                      try {
-                        const updated = await cycleReplenishmentFlag(item, current, user.id);
-                        setAlerts((prev) => updated ? [...prev.filter((alert) => alert.product_id !== item.id), updated] : prev.filter((alert) => alert.product_id !== item.id));
-                      } catch { setError("Couldn't update the replenishment flag."); }
-                    }} onDelete={async (item) => {
-                      setItems((prev) => prev.filter((i) => i.id !== item.id));
-                      try { await deleteInventoryItem(item.id); } catch { void load(); }
-                    }} /></div>
+                  return <details key={category} open className="group">
+                    <summary className="mb-3 flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 border-b border-line-strong text-heading font-semibold capitalize text-text"><span>{category} <span className="ml-2 text-small font-normal text-text-muted">{categoryItems.length}</span></span><span aria-hidden="true" className="text-text-muted transition-transform duration-(--duration-fast) group-open:rotate-180">⌄</span></summary>
+                    <div><InventoryGrid items={categoryItems} flags={flags} activeId={openId} onOpen={(item) => setOpenId(item.id)} /></div>
                   </details>;
                 })}
               </div>
@@ -228,11 +274,6 @@ function VanityContent() {
         )}
       </Section>
 
-      {editing && <EditProduct item={editing} userId={user?.id ?? ""} lifespanDays={alerts.find((alert) => alert.product_id === editing.id)?.estimated_lifespan_days ?? CATEGORY_LIFESPANS[editing.category?.toLowerCase() ?? ""] ?? null} onClose={() => setEditing(null)} onSaved={(updated) => {
-        setItems((prev) => prev.map((item) => item.id === updated.id ? updated : item));
-        void listReplenishmentAlerts().then(setAlerts).catch(() => undefined);
-        setEditing(null);
-      }} />}
 
       <Section
         id="looks"
@@ -283,6 +324,131 @@ function VanityContent() {
           </ul>
         )}
       </Section>
+    </div>
+
+      <aside aria-label="Product details" className="hidden lg:block">
+        <div className="tone-panel sticky top-6 max-h-[calc(100dvh-3rem)] overflow-y-auto rounded-card p-5">
+          {isDesktop && openItem ? panel("product-panel-title") : (
+            <ShelfSummary
+              flagged={flagged}
+              flags={flags}
+              onOpen={(item) => setOpenId(item.id)}
+              hasItems={items.length > 0}
+            />
+          )}
+        </div>
+      </aside>
+    </div>
+
+      <AnimatePresence>
+        {!isDesktop && openItem && (
+          <ProductSheet onClose={() => setOpenId(null)} reduced={reduced}>
+            {panel("product-sheet-title")}
+          </ProductSheet>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+/** What the right column shows before a product is picked. */
+function ShelfSummary({
+  flagged,
+  flags,
+  onOpen,
+  hasItems,
+}: {
+  flagged: InventoryItem[];
+  flags: Record<string, "low" | "empty">;
+  onOpen: (item: InventoryItem) => void;
+  hasItems: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-5">
+      <Aura variant="vanity" className="flex min-h-32 items-end p-5">
+        <p className="text-heading font-semibold text-text">
+          {hasItems ? "Tap a product" : "Your shelf starts here"}
+        </p>
+      </Aura>
+      <p className="text-small text-text-soft">
+        {hasItems
+          ? "Details, status, replenishment and cheaper dupes open here, so you can move along the shelf without losing your place."
+          : "Add what you own and each product's details, status and cheaper dupes will open here."}
+      </p>
+      {flagged.length > 0 && (
+        <div>
+          <p className="text-label uppercase text-text-muted">Running low</p>
+          <ul className="mt-3 flex flex-col gap-2">
+            {flagged.map((item) => (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  onClick={() => onOpen(item)}
+                  className="flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-tile border border-white bg-white/70 px-3 py-2 text-left transition-[background-color,box-shadow] duration-(--duration-fast) hover:bg-white hover:shadow-card"
+                >
+                  <span aria-hidden="true" className={`h-2.5 w-2.5 shrink-0 rounded-full ${flags[item.id] === "empty" ? "bg-danger" : "bg-warn"}`} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block clamp-1 text-small font-medium text-text">{item.product}</span>
+                    <span className="block text-small text-text-muted">{item.brand}</span>
+                  </span>
+                  <span className="shrink-0 text-small text-text-muted">{flags[item.id] === "empty" ? "Empty" : "Low"}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Phones and tablets: the product panel as a bottom sheet. */
+function ProductSheet({
+  children,
+  onClose,
+  reduced,
+}: {
+  children: React.ReactNode;
+  onClose: () => void;
+  reduced: boolean;
+}) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    document.getElementById("product-sheet-title")?.focus({ preventScroll: true });
+    return () => {
+      document.body.style.overflow = overflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  const transition = { duration: reduced ? 0.12 : 0.36, ease: EASE };
+  return (
+    <>
+      <motion.div
+        className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={transition}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <motion.section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="product-sheet-title"
+        className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[88dvh] max-w-xl overflow-y-auto rounded-t-window border border-white bg-white/95 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 shadow-lift backdrop-blur-xl"
+        initial={reduced ? { opacity: 0 } : { y: "100%" }}
+        animate={reduced ? { opacity: 1 } : { y: 0 }}
+        exit={reduced ? { opacity: 0 } : { y: "100%" }}
+        transition={transition}
+      >
+        <div aria-hidden="true" className="mx-auto mb-4 h-1.5 w-10 rounded-pill bg-line-strong" />
+        {children}
+      </motion.section>
     </>
   );
 }

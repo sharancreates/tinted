@@ -168,7 +168,9 @@ export function parsePriceToCents(input: string): number | null {
 
 export function formatCents(cents: number | null, currency = "USD"): string {
   if (cents === null) return "—";
-  return new Intl.NumberFormat(undefined, {
+  // A fixed locale, not the browser's: the server renders this too, and a
+  // different locale there ("US$40" vs "$40") breaks hydration.
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
     // Whole amounts read better without trailing zeroes in a list of many.

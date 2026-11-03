@@ -9,13 +9,15 @@ import { AuthButton } from "@/components/layout/AuthButton";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/lib/supabase";
 
-type NavItem = { href: string; label: string; short: string; icon: React.ReactNode };
+type NavItem = { href: string; label: string; short: string; icon: React.ReactNode; group: "discover" | "collection" | "account"; mobile?: boolean };
 
 const ICON = "h-[18px] w-[18px] shrink-0";
 
 const NAV: NavItem[] = [
   {
     href: "/",
+    group: "discover",
+    mobile: true,
     label: "Home",
     short: "Home",
     icon: (
@@ -29,6 +31,8 @@ const NAV: NavItem[] = [
   },
   {
     href: "/match",
+    group: "discover",
+    mobile: true,
     label: "Shade match",
     short: "Match",
     icon: (
@@ -40,6 +44,8 @@ const NAV: NavItem[] = [
   },
   {
     href: "/quiz",
+    group: "discover",
+    mobile: true,
     label: "Skincare quiz",
     short: "Quiz",
     icon: (
@@ -49,7 +55,22 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    href: "/vanity",
+    group: "collection",
+    mobile: true,
+    label: "Vanity",
+    short: "Vanity",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" className={ICON} aria-hidden="true">
+        <rect x="4" y="5" width="16" height="15" rx="3" />
+        <path d="M4 11h16M9 5v6" />
+      </svg>
+    ),
+  },
+  {
     href: "/routine",
+    group: "collection",
+    mobile: true,
     label: "Routine builder",
     short: "Routine",
     icon: (
@@ -59,20 +80,41 @@ const NAV: NavItem[] = [
     ),
   },
   {
-    href: "/vanity",
-    label: "My vanity",
-    short: "Vanity",
+    href: "/vanity/looks",
+    group: "collection",
+    label: "Looks",
+    short: "Looks",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" className={ICON} aria-hidden="true">
-        <rect x="4" y="5" width="16" height="15" rx="3" />
-        <path d="M4 11h16M9 5v6" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={ICON} aria-hidden="true">
+        <circle cx="8" cy="9" r="4" /><circle cx="16" cy="9" r="4" /><circle cx="12" cy="16" r="4" />
+      </svg>
+    ),
+  },
+  {
+    href: "/profile",
+    group: "account",
+    label: "Profile",
+    short: "Profile",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className={ICON} aria-hidden="true">
+        <circle cx="12" cy="8" r="4" /><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" />
       </svg>
     ),
   },
 ];
 
+const GROUPS = [
+  { id: "discover", label: "Discover" },
+  { id: "collection", label: "My collection" },
+  { id: "account", label: "Account" },
+] as const;
+
 function isActive(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  if (href === "/") return pathname === "/";
+  // Looks lives under /vanity but has its own entry, so Vanity must not
+  // light up there too.
+  if (href === "/vanity") return pathname === "/vanity";
+  return pathname.startsWith(href);
 }
 
 function Brand({ className }: { className?: string }) {
@@ -124,35 +166,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <aside className="hidden lg:block">
           <div className="sticky top-6 flex h-[calc(100dvh-3rem)] flex-col gap-8 px-6 py-8">
             <Brand />
-            <nav aria-label="Main" className="flex flex-col gap-1">
-              <p className="mb-2 px-4 text-label uppercase text-text-muted">Discover</p>
-              {NAV.map((item) => {
-                const active = isActive(pathname, item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "flex min-h-12 items-center gap-3 rounded-pill px-4 text-body font-medium",
-                      "transition-[background-color,box-shadow,color] duration-(--duration-fast) ease-(--ease-out-soft)",
-                      active
-                        ? "bg-raised font-semibold text-text shadow-card [&_svg]:text-accent-vivid"
-                        : "text-text-soft hover:bg-white/50 hover:text-text",
-                    )}
-                  >
-                    <span className="relative">{item.icon}{item.href === "/vanity" && hasAlerts && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-surface bg-warn" aria-label="Products need replenishment" />}</span>
-                    {item.label}
-                  </Link>
-                );
-              })}
+            <nav aria-label="Main" className="flex flex-1 flex-col gap-6 overflow-y-auto">
+              {GROUPS.map((group) => (
+                <div key={group.id} className="flex flex-col gap-1">
+                  <p className="mb-1 px-4 text-label uppercase text-text-muted">{group.label}</p>
+                  {NAV.filter((item) => item.group === group.id).map((item) => {
+                    const active = isActive(pathname, item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "flex min-h-11 items-center gap-3 rounded-pill px-4 text-body font-medium",
+                          "transition-[background-color,box-shadow,color] duration-(--duration-fast) ease-(--ease-out-soft)",
+                          active
+                            ? "bg-raised font-semibold text-text shadow-card [&_svg]:text-accent-vivid"
+                            : "text-text-soft hover:bg-white/50 hover:text-text",
+                        )}
+                      >
+                        <span className="relative">{item.icon}{item.href === "/vanity" && hasAlerts && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-surface bg-warn" aria-label="Products need replenishment" />}</span>
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                  {group.id === "account" && <AccountRow />}
+                </div>
+              ))}
             </nav>
-            <div className="flex flex-col gap-3">
-              <p className="px-4 text-label uppercase text-text-muted">Account</p>
-              <div className="px-2">
-                <AuthButton />
-              </div>
-            </div>
           </div>
         </aside>
 
@@ -167,7 +208,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden"
       >
           <ul className="glass-strong mx-auto grid max-w-lg grid-cols-5 rounded-pill p-1.5">
-          {NAV.map((item) => {
+          {NAV.filter((item) => item.mobile).map((item) => {
             const active = isActive(pathname, item.href);
             return (
               <li key={item.href}>
@@ -188,6 +229,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </ul>
       </nav>
+    </div>
+  );
+}
+
+/** Sign in when signed out; who you are and a way out when signed in. */
+function AccountRow() {
+  const { user, loading } = useAuth();
+  const [busy, setBusy] = useState(false);
+  if (loading) return <div className="mx-2 mt-1 h-11 rounded-pill bg-raised" aria-hidden="true" />;
+  if (!user) return <div className="mt-1 px-2"><AuthButton /></div>;
+  return (
+    <div className="mt-1 flex items-center gap-3 px-4">
+      <span className="min-w-0 flex-1 truncate text-small text-text-muted" title={user.email ?? undefined}>
+        {user.email}
+      </span>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={async () => { setBusy(true); await createClient().auth.signOut(); setBusy(false); }}
+        className="min-h-11 shrink-0 cursor-pointer text-small font-medium text-accent underline-offset-4 hover:underline disabled:opacity-50"
+      >
+        Sign out
+      </button>
     </div>
   );
 }

@@ -1,13 +1,14 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { DURATION, EASE, STAGGER } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { QuizQuestion } from "@/lib/api";
 
 /**
  * One question, one screen.
  *
- * Single-select advances on click — an extra "next" tap per question is pure
+ * Single-select advances on click: an extra "next" tap per question is pure
  * friction. Multi-select can't, since there is no way to know the user is done
  * picking, so it gets an explicit continue button from the parent.
  */
@@ -20,11 +21,12 @@ export function QuestionStep({
   selected: string[];
   onSelect: (value: string) => void;
 }) {
+  const reduced = useReducedMotion() ?? false;
   return (
     <div>
-      <h1 className="font-display text-title text-text">{question.prompt}</h1>
+      <h2 className="text-display font-semibold text-text">{question.prompt}</h2>
       {question.help_text && (
-        <p className="mt-2 text-small text-text-muted">{question.help_text}</p>
+        <p className="mt-2 text-text-soft">{question.help_text}</p>
       )}
 
       <div
@@ -43,15 +45,15 @@ export function QuestionStep({
               role={question.multi ? "checkbox" : "radio"}
               aria-checked={isSelected}
               onClick={() => onSelect(option.value)}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: reduced ? 0 : 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.03, duration: 0.2 }}
+              transition={{ delay: reduced ? 0 : index * STAGGER, duration: reduced ? DURATION.reduced : DURATION.base, ease: EASE }}
               className={cn(
-                "flex min-h-14 flex-col justify-center rounded-card border p-4 text-left",
-                "transition-colors duration-(--duration-fast)",
+                "flex min-h-16 cursor-pointer flex-col justify-center rounded-tile border p-4 text-left",
+                "transition-[transform,box-shadow,background-color,border-color] duration-(--duration-fast) ease-(--ease-out-soft)",
                 isSelected
-                  ? "border-accent bg-accent-dim"
-                  : "border-line bg-surface hover:border-line-strong hover:bg-raised",
+                  ? "border-accent-vivid bg-white shadow-lift"
+                  : "border-white bg-white/60 shadow-card hover:-translate-y-0.5 hover:bg-white hover:shadow-lift",
               )}
             >
               <span className="flex items-center gap-2.5">
@@ -59,9 +61,10 @@ export function QuestionStep({
                   className={cn(
                     "flex h-5 w-5 shrink-0 items-center justify-center border",
                     question.multi ? "rounded-[0.3rem]" : "rounded-full",
+                    "transition-colors duration-(--duration-fast)",
                     isSelected
-                      ? "border-accent bg-accent text-white"
-                      : "border-line-strong",
+                      ? "border-accent-vivid bg-accent-vivid text-white"
+                      : "border-line-strong bg-white",
                   )}
                   aria-hidden="true"
                 >

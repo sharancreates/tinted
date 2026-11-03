@@ -24,7 +24,7 @@ export function AuthButton({ className }: { className?: string }) {
     const initial = (user.email?.[0] ?? "?").toUpperCase();
     return (
       <Link
-        href="/vanity"
+        href="/profile"
         className={cn(
           "flex h-11 w-11 items-center justify-center rounded-full",
           "glass-strong text-small font-semibold text-text",
@@ -34,7 +34,7 @@ export function AuthButton({ className }: { className?: string }) {
         // The email is the tooltip, but the label has to stand alone for
         // anyone who never sees a tooltip.
         title={user.email ?? "Profile"}
-        aria-label={`Open your vanity, signed in as ${user.email ?? "your account"}`}
+        aria-label={`Your profile, signed in as ${user.email ?? "your account"}`}
       >
         {initial}
       </Link>

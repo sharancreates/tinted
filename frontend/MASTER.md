@@ -99,4 +99,6 @@ Framer Motion variants live in `lib/motion.ts`.
 - **Orb** (`Orb`): radial-gradient sphere with highlight and a shadow in its own tone. Takes `tone` (hex).
 - **Button**: pill. `primary` ink / white, `secondary` raised glass, `ghost` transparent, `danger` outlined. Five states: default, hover (lift 1px + `lift` shadow), focus (2px `accent` ring, 3px offset), active (no lift), disabled (40% opacity).
 - **Pill tabs**: transparent with white edge; selected is `raised` + `card` shadow.
-- **App shell**: desktop, one `window` glass frame with a sticky sidebar. Below 1024px the frame drops away, a slim top bar holds the brand and account, and navigation moves to a bottom pill tab bar.
+- **App shell**: desktop, one `window` glass frame with a sticky sidebar in three groups: Discover (Home, Shade match, Skincare quiz), My collection (Vanity, Routine builder, Looks), Account (Profile, sign in or out). Below 1024px the frame drops away, a slim top bar holds the brand and the account avatar (links to Profile), and the five main destinations move to a bottom pill tab bar.
+- **Right panel**: the column beside the main content. On the shelf it shows the tapped product (details, status, replenishment flag, cheaper dupes) and a summary before anything is picked. Below 1024px it becomes a bottom sheet.
+- **Data views**: product grids use solid white cards on the mist ground, never aura tiles. Auras are for art and empty states; anything whose image or colour is judged sits on white.

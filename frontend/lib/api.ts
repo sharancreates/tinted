@@ -221,6 +221,34 @@ export function suggestShelfRoutine(products: { id: string; brand: string; produ
   return postJson("/routines/suggest", { products });
 }
 
+// ── Dupes ─────────────────────────────────────────────────────────────────────
+
+export type Dupe = {
+  brand: string;
+  product: string;
+  shade: string | null;
+  /** Typical retail, an estimate. */
+  price_cents: number | null;
+  why: string | null;
+};
+
+/** Up to three cheaper alternatives for a product on the shelf. */
+export function findDupes(item: {
+  brand: string;
+  product: string;
+  shade?: string | null;
+  category?: string | null;
+  price_cents?: number | null;
+}): Promise<{ results: Dupe[] }> {
+  return postJson("/dupes", {
+    brand: item.brand,
+    product: item.product,
+    shade: item.shade ?? null,
+    category: item.category ?? null,
+    price_cents: item.price_cents ?? null,
+  });
+}
+
 // ── Lip palette ───────────────────────────────────────────────────────────────
 
 export type LipFamily = {

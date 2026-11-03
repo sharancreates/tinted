@@ -5,6 +5,7 @@ import { Page } from "@/components/ui/Page";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { AddRecommendationToShelf } from "@/components/vanity/AddRecommendationToShelf";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
@@ -60,19 +61,14 @@ export function RoutineResults({
 
   return (
     <Page width="list">
-      <header className="mb-8">
-        <p className="text-label uppercase text-accent">Your routine</p>
-        <h1 className="mt-1 font-display text-title text-text md:text-display">
-          {routine_steps.length} steps, in order
-        </h1>
-        <p className="mt-3 max-w-prose text-text-soft">
-          Built from your answers. Apply them top to bottom — the order matters
-          more than any single product does.
-        </p>
-
-        <div className="mt-5 flex flex-wrap gap-2">
+      <PageHeader
+        label="Your routine"
+        title={`${routine_steps.length} steps, in order`}
+        description="Built from your answers. Apply them top to bottom: the order matters more than any single product does."
+      >
+        <div className="flex flex-wrap gap-2">
           {profile.sensitive && (
-            <Badge tone="warn">Reactive skin — no strong actives</Badge>
+            <Badge tone="warn">Reactive skin, no strong actives</Badge>
           )}
           {profile.beginner && <Badge tone="neutral">Beginner-friendly</Badge>}
           {profile.top_tags.slice(0, 3).map((tag) => (
@@ -81,7 +77,7 @@ export function RoutineResults({
             </Badge>
           ))}
         </div>
-      </header>
+      </PageHeader>
 
       {/* Why these priorities — the "we picked this because you said..."
           pattern, applied to the profile rather than to each product. */}
@@ -97,8 +93,8 @@ export function RoutineResults({
                 <li key={tag} className="text-small text-text-soft">
                   <span className="font-medium text-text">
                     {TAG_LABELS[tag] ?? tag}
-                  </span>{" "}
-                  — because you said{" "}
+                  </span>
+                  , because you said{" "}
                   <span className="text-text">
                     {profile.rationale[tag].join(", ").toLowerCase()}
                   </span>
@@ -115,15 +111,15 @@ export function RoutineResults({
           return (
             <motion.li
               key={step}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05, duration: 0.25 }}
+              transition={{ delay: index * 0.04, duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
             >
               <Card padding="md" className="flex gap-4">
                 <span
                   className={cn(
                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                    "border border-line-strong bg-raised font-display text-small text-accent",
+                    "bg-accent-dim text-small font-semibold text-accent",
                   )}
                   aria-hidden="true"
                 >
@@ -176,7 +172,7 @@ export function RoutineResults({
                     // The skeleton renders even when product selection failed,
                     // so the user still learns what the step should be.
                     <p className="mt-1.5 text-small text-text-muted">
-                      We couldn&apos;t load a product for this step — but keep
+                      We couldn&apos;t load a product for this step, but keep
                       the step in your routine.
                     </p>
                   )}

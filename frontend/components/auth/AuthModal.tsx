@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase";
 
@@ -39,6 +40,11 @@ function GoogleGlyph({ className }: { className?: string }) {
 }
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const supabase = useRef(createClient()).current;
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -71,7 +77,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setSent(true);
   };
 
-  return (
+  // Rendered into <body>: glass cards use backdrop-filter, which traps any
+  // fixed-position child inside the card, so the modal would sit behind
+  // the neighbouring cards instead of over the page.
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen ? (
         <motion.div
@@ -84,7 +95,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           role="presentation"
         >
           <motion.div
-            className="relative w-full max-w-md rounded-card border border-line bg-surface p-8 shadow-lift"
+            className="relative w-full max-w-md rounded-card border border-white bg-white/95 p-8 shadow-lift backdrop-blur-xl"
             initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
@@ -155,6 +166,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </motion.div>
         </motion.div>
       ) : null}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

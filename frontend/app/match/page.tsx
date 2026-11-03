@@ -8,6 +8,14 @@ import ResultsScreen   from "@/components/ResultsScreen"
 import LiveAnalyzer    from "@/components/LiveAnalyzer"
 import type { AnalyseMode } from "@/components/UploadScreen"
 import type { AnalyzeResult } from "@/lib/api"
+import { DURATION, EASE } from "@/lib/motion"
+
+// Whole-screen swaps: fade in on the system curve, fade out faster.
+const SCREEN = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: DURATION.base, ease: EASE } },
+  exit: { opacity: 0, transition: { duration: DURATION.reduced, ease: "easeIn" as const } },
+}
 
 // ── State machine ─────────────────────────────────────────────────────────────
 
@@ -24,7 +32,11 @@ export default function Home() {
   // reader user is left on a control that no longer exists and gets no signal
   // that analysis finished — the most important moment in the flow.
   const stageRef = useRef<HTMLDivElement>(null)
-  useEffect(() => { stageRef.current?.focus() }, [appState])
+  useEffect(() => {
+    // A new screen starts at its top, not wherever the last one was scrolled to.
+    window.scrollTo({ top: 0 })
+    stageRef.current?.focus({ preventScroll: true })
+  }, [appState])
 
   const handleUpload = useCallback(async (file: File, budget: string, mode: AnalyseMode = "normal") => {
     if (mode === "stream") {
@@ -91,7 +103,7 @@ export default function Home() {
       setAppState("results")
     } catch {
       setQualityErrors([
-        "Network error — make sure the server is running and try again.",
+        "We couldn't reach the server. Check your connection and try again; it can take up to a minute to wake up.",
       ])
     }
   }, [])
@@ -112,10 +124,7 @@ export default function Home() {
       {appState === "upload" && (
         <motion.div
           key="upload"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          {...SCREEN}
         >
           <UploadScreen onUpload={handleUpload} />
         </motion.div>
@@ -124,10 +133,7 @@ export default function Home() {
       {appState === "analyzing" && (
         <motion.div
           key="analyzing"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          {...SCREEN}
         >
           <AnalyzingScreen qualityErrors={qualityErrors} onReset={handleReset} />
         </motion.div>
@@ -136,10 +142,7 @@ export default function Home() {
       {appState === "live-analyzing" && liveFile && (
         <motion.div
           key="live-analyzing"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          {...SCREEN}
         >
           <LiveAnalyzer
             file={liveFile}
@@ -153,10 +156,7 @@ export default function Home() {
       {appState === "results" && results && (
         <motion.div
           key="results"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          {...SCREEN}
         >
           <ResultsScreen results={results} onReset={handleReset} />
         </motion.div>

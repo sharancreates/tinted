@@ -35,7 +35,7 @@ export function Section({
     >
       <div className="mb-(--space-block) flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <div className="min-w-0">
-          {label && <p className="text-label uppercase text-accent">{label}</p>}
+          {label && <p className="text-label uppercase text-text-muted">{label}</p>}
           <h2
             id={headingId}
             className="text-heading font-semibold text-text"

@@ -35,7 +35,7 @@ export function ShadeSwatch({
         className={cn(
           "shrink-0 rounded-full border border-line-strong",
           dot,
-          selected && "ring-2 ring-accent ring-offset-2 ring-offset-surface",
+          selected && "ring-2 ring-accent-vivid ring-offset-2 ring-offset-white",
         )}
         style={{ backgroundColor: hex }}
         aria-hidden="true"
@@ -47,7 +47,7 @@ export function ShadeSwatch({
             {detail}
           </span>
         )}
-        <span className="block font-mono text-label uppercase text-text-muted">
+        <span className="block text-label uppercase tabular-nums text-text-muted">
           {hex}
         </span>
       </span>
@@ -67,10 +67,10 @@ export function ShadeSwatch({
       aria-pressed={selected}
       className={cn(
         "flex min-h-11 w-full items-center gap-3 rounded-card border p-2 text-left",
-        "transition-colors duration-(--duration-fast)",
+        "transition-[background-color,border-color] duration-(--duration-fast) ease-(--ease-out-soft)",
         selected
-          ? "border-accent bg-accent-dim"
-          : "border-transparent hover:border-line-strong hover:bg-raised",
+          ? "border-accent-vivid bg-accent-dim"
+          : "border-transparent hover:bg-white/60",
         className,
       )}
     >

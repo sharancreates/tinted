@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Page } from "@/components/ui/Page";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { Page } from "@/components/ui/Page";
+import { Aura } from "@/components/ui/Aura";
+import { pillClass } from "@/components/ui/PillGroup";
 import CameraModal from "./CameraModal";
-import { Button } from "@/components/ui/Button";
+import { entranceGroup, entranceItem } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 type BudgetValue = "drugstore" | "mid" | "high" | "all";
@@ -18,10 +20,15 @@ const BUDGET_OPTIONS: { label: string; sub: string; value: BudgetValue }[] = [
   { label: "Everything", sub: "", value: "all" },
 ];
 
+const MODES = [
+  { value: "normal", label: "Just analyse" },
+  { value: "stream", label: "Show the pipeline" },
+] as const;
+
 const TIPS = [
   { title: "Face the light", body: "A window beats a ceiling bulb. Avoid coloured light." },
   { title: "No filters", body: "Beauty modes change the very thing we measure." },
-  { title: "Bare skin helps", body: "Foundation shifts the reading toward the shade you already wear." },
+  { title: "Bare skin helps", body: "Foundation pulls the reading toward the shade you already wear." },
 ];
 
 export default function UploadScreen({
@@ -29,6 +36,8 @@ export default function UploadScreen({
 }: {
   onUpload: (file: File, budget: BudgetValue, mode: AnalyseMode) => void;
 }) {
+  const reduced = useReducedMotion() ?? false;
+  const item = entranceItem(reduced);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setDragging] = useState(false);
   const [showCamera, setCamera] = useState(false);
@@ -40,7 +49,7 @@ export default function UploadScreen({
       const saved = localStorage.getItem("tinted_mode") as AnalyseMode | null;
       if (saved === "normal" || saved === "stream") setMode(saved);
     } catch {
-      /* localStorage unavailable (SSR, private mode) — the default stands. */
+      /* Storage unavailable; the default stands. */
     }
   }, []);
 
@@ -49,7 +58,7 @@ export default function UploadScreen({
     try {
       localStorage.setItem("tinted_mode", next);
     } catch {
-      /* Not worth surfacing — the choice just won't persist. */
+      /* The choice just won't persist. */
     }
   }, []);
 
@@ -74,192 +83,154 @@ export default function UploadScreen({
   return (
     <Page width="grid">
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-2xl"
+        variants={entranceGroup(reduced)}
+        initial="hidden"
+        animate="show"
+        className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]"
       >
-        <p className="text-label uppercase text-accent">AI shade matching</p>
-        <h1 className="mt-2 font-display text-title leading-tight text-text md:text-display">
-          Find the shade that actually matches you.
-        </h1>
-        <p className="mt-4 max-w-prose text-text-soft">
-          Upload a photo and we&apos;ll read your depth and undertone from your
-          skin directly, then match you against real products. No camera? The
-          quiz gets you there too.
-        </p>
-      </motion.div>
+        <div className="flex min-w-0 flex-col gap-6">
+          <motion.header variants={item} className="flex flex-col gap-2">
+            <h1 className="text-[clamp(2.25rem,4vw,3rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-text">
+              Shade match
+            </h1>
+            <p className="max-w-prose text-text-soft">
+              Upload a photo and we&apos;ll read your depth and undertone from your
+              skin, then match you to real products.
+            </p>
+          </motion.header>
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          {/* A real button, so the primary action is reachable by keyboard —
-              the previous drop zone was a click-only div. */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            onDragOver={(event) => {
-              event.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={handleDrop}
-            className={cn(
-              "flex w-full flex-col items-center gap-4 rounded-card border border-dashed p-10",
-              "transition-colors duration-(--duration-fast)",
-              isDragging
-                ? "border-accent bg-accent-dim"
-                : "border-line-strong bg-surface hover:border-accent hover:bg-raised",
-            )}
-          >
-            <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line-strong">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                className="h-5 w-5 text-accent"
-                aria-hidden="true"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17,8 12,3 7,8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
+          {/* The whole tile is the button, so the main action works by
+              keyboard and by drop. */}
+          <motion.div variants={item}>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={handleDrop}
+              className={cn(
+                "group block w-full cursor-pointer rounded-tile text-left shadow-card",
+                "transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft)",
+                "hover:-translate-y-0.5 hover:shadow-lift",
+                isDragging && "-translate-y-0.5 shadow-lift ring-2 ring-accent-vivid ring-offset-4 ring-offset-transparent",
+              )}
+            >
+              <Aura variant="match" className="flex min-h-72 flex-col items-center justify-center gap-4 p-8 text-center">
+                <span className="glass-strong grid h-16 w-16 place-items-center rounded-full text-accent-vivid transition-[background-color,color] duration-(--duration-fast) group-hover:bg-accent-vivid group-hover:text-white">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17,8 12,3 7,8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                </span>
+                <span>
+                  <span className="block text-title font-medium text-text">
+                    {isDragging ? "Drop it here" : "Drop a photo, or browse"}
+                  </span>
+                  <span className="mt-1 block text-small text-text-soft">JPEG, PNG or WebP, up to 8 MB</span>
+                </span>
+              </Aura>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </motion.div>
+
+          <motion.div variants={item} className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setCamera(true)}
+              className="glass-strong inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-pill px-5 text-small font-semibold text-text transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-px hover:shadow-lift"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-[18px] w-[18px] text-accent-vivid" aria-hidden="true">
+                <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+                <circle cx="12" cy="13" r="3.5" />
               </svg>
-            </span>
-            <span className="text-center">
-              <span className="block font-medium text-text">
-                Drop a photo, or browse
-              </span>
-              <span className="mt-1 block text-small text-text-muted">
-                JPEG, PNG or WebP · up to 8 MB
-              </span>
-            </span>
-          </button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <Button variant="secondary" onClick={() => setCamera(true)}>
               Use camera
-            </Button>
-            <span className="text-small text-text-muted">or</span>
+            </button>
             <Link
               href="/quiz"
-              className="inline-flex min-h-11 items-center text-small font-medium text-accent hover:text-accent"
+              className="inline-flex min-h-11 items-center rounded-pill px-2 text-small font-medium text-accent underline-offset-4 hover:underline"
             >
-              take the skincare quiz instead →
+              No camera? Take the skincare quiz
             </Link>
-          </div>
+          </motion.div>
 
-          {/* Mode */}
-          <fieldset className="mt-8">
-            <legend className="text-label uppercase text-text-muted">
-              Mode
-            </legend>
-            <div className="mt-3 flex gap-2">
-              {(
-                [
-                  { value: "normal", label: "Just analyse" },
-                  { value: "stream", label: "Show the pipeline" },
-                ] as const
-              ).map(({ value, label }) => {
-                const active = mode === value;
-                return (
+          <motion.div variants={item} className="glass flex flex-col gap-6 rounded-card p-6 md:p-8">
+            <fieldset className="min-w-0">
+              <legend className="text-label uppercase text-text-muted">Mode</legend>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {MODES.map(({ value, label }) => (
                   <button
                     key={value}
                     type="button"
-                    aria-pressed={active}
+                    aria-pressed={mode === value}
                     onClick={() => handleModeChange(value)}
-                    className={cn(
-                      "min-h-11 flex-1 rounded-pill border px-4 text-small transition-colors",
-                      active
-                        ? "border-accent bg-accent-dim text-accent"
-                        : "border-line text-text-soft hover:border-line-strong hover:text-text",
-                    )}
+                    className={pillClass(mode === value)}
                   >
                     {label}
                   </button>
-                );
-              })}
-            </div>
-            {mode === "stream" && (
+                ))}
+              </div>
               <p className="mt-2 text-small text-text-muted">
-                Watch each stage — detection, quality gate, sampling,
-                classification — as it runs.
+                {mode === "stream"
+                  ? "Watch each stage run: detection, quality check, sampling and classification."
+                  : "Get the result in one step."}
               </p>
-            )}
-          </fieldset>
+            </fieldset>
 
-          {/* Budget */}
-          <fieldset className="mt-6">
-            <legend className="text-label uppercase text-text-muted">
-              Budget
-            </legend>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {BUDGET_OPTIONS.map(({ label, sub, value }) => {
-                const selected = budget === value;
-                return (
+            <fieldset className="min-w-0">
+              <legend className="text-label uppercase text-text-muted">Budget</legend>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {BUDGET_OPTIONS.map(({ label, sub, value }) => (
                   <button
                     key={value}
                     type="button"
-                    aria-pressed={selected}
+                    aria-pressed={budget === value}
                     onClick={() => setBudget(value)}
-                    className={cn(
-                      "min-h-11 rounded-pill border px-4 text-small transition-colors",
-                      selected
-                        ? "border-accent bg-accent-dim text-accent"
-                        : "border-line text-text-soft hover:border-line-strong hover:text-text",
-                    )}
+                    className={pillClass(budget === value)}
                   >
                     {label}
-                    {sub && (
-                      <span className="ml-1.5 text-text-muted">{sub}</span>
-                    )}
+                    {sub && <span className="font-normal text-text-muted">{sub}</span>}
                   </button>
-                );
-              })}
-            </div>
-          </fieldset>
-        </motion.div>
+                ))}
+              </div>
+            </fieldset>
+          </motion.div>
+        </div>
 
         {/* Coaching before capture beats an error after it. */}
         <motion.aside
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          variants={item}
           aria-labelledby="tips-heading"
-          className="rounded-card border border-line bg-surface p-5"
+          className="tone-panel dots flex flex-col gap-5 self-start rounded-card p-6"
         >
-          <h2
-            id="tips-heading"
-            className="text-label uppercase text-text-muted"
-          >
+          <h2 id="tips-heading" className="text-label uppercase text-text-muted">
             For a good read
           </h2>
-          <ul className="mt-4 space-y-4">
+          <ul className="flex flex-col gap-4">
             {TIPS.map((tip) => (
-              <li key={tip.title}>
-                <p className="font-medium text-text">{tip.title}</p>
-                <p className="mt-0.5 text-small leading-relaxed text-text-muted">
-                  {tip.body}
-                </p>
+              <li key={tip.title} className="flex gap-3">
+                <span aria-hidden="true" className="mt-2 h-2 w-2 shrink-0 rounded-full bg-accent-vivid" />
+                <div>
+                  <p className="text-body font-semibold text-text">{tip.title}</p>
+                  <p className="mt-0.5 text-small text-text-soft">{tip.body}</p>
+                </div>
               </li>
             ))}
           </ul>
-          <p className="mt-5 border-t border-line pt-4 text-small text-text-muted">
+          <p className="glass-strong rounded-sm px-4 py-3 text-small text-text-soft">
             Your photo is analysed and discarded. We don&apos;t store it.
           </p>
         </motion.aside>
-      </div>
+      </motion.div>
 
       {showCamera && (
         <CameraModal

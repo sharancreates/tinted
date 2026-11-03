@@ -24,10 +24,18 @@ app = FastAPI(title="GlowMatch API")
 # the localhost escape hatch is off.
 DEV_ORIGIN_REGEX = r"http://(localhost|127\.0\.0\.1)(:\d+)?"
 
+# The deployed frontend is always allowed. Production was down because the
+# Render dashboard value of ALLOWED_ORIGINS matched no browser origin; baking in
+# the canonical origin means a bad or missing env var can't take the site down.
+PRODUCTION_ORIGINS = ["https://tinted.vercel.app"]
+
 _configured = os.environ.get("ALLOWED_ORIGINS", "").strip()
 # Browsers send Origin without a trailing slash, so "https://x.app/" would never
 # match. Strip it rather than fail silently.
-allowed_origins = [o.strip().rstrip("/") for o in _configured.split(",") if o.strip()]
+allowed_origins = list(dict.fromkeys(
+    PRODUCTION_ORIGINS
+    + [o.strip().rstrip("/") for o in _configured.split(",") if o.strip()]
+))
 
 # Optional regex for origins that can't be listed up front, e.g. Vercel preview
 # deployments: https://tinted-[a-z0-9]+-stupnds-projects\.vercel\.app

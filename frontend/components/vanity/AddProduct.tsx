@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { lookupProducts, type ProductMatch, type ProductShade } from "@/lib/api";
+import { fetchProductImages, imageKey, lookupProducts, type ProductMatch, type ProductShade } from "@/lib/api";
 import { ShadePicker } from "@/components/vanity/ShadePicker";
 import {
   addInventoryItem,
@@ -13,8 +13,10 @@ import {
 } from "@/lib/vanity";
 
 const CATEGORIES = [
-  "foundation", "concealer", "blush", "bronzer", "highlighter",
-  "lip", "eyeshadow", "setting powder", "mascara", "brow", "skincare",
+  "foundation", "concealer", "moisturizer", "cleanser", "serum", "sunscreen",
+  "primer", "blush", "bronzer", "highlighter", "eyeshadow", "mascara",
+  "lipstick", "lip_gloss", "setting_spray", "toner", "exfoliant", "eye_cream",
+  "body_lotion", "other", "lip", "setting powder", "brow", "skincare",
 ];
 
 const FIELD =
@@ -111,6 +113,13 @@ export function AddProduct({
     setSaving(true);
     setProblem(null);
     try {
+      let imageUrl: string | null = null;
+      try {
+        const response = await fetchProductImages([{ brand: draft.brand.trim(), product: draft.product.trim() }]);
+        imageUrl = response.images[imageKey(draft.brand, draft.product)] ?? null;
+      } catch {
+        // Product photos are optional; the shelf keeps its category fallback.
+      }
       const created = await addInventoryItem(
         {
           brand: draft.brand.trim(),
@@ -123,6 +132,7 @@ export function AddProduct({
           url: null,
           price_cents: parsePriceToCents(priceText),
           notes: null,
+          image_url: imageUrl,
         },
         userId,
       );

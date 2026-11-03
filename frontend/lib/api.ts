@@ -214,6 +214,13 @@ export function submitQuiz(
   return postJson("/skincare-quiz", { answers, budget });
 }
 
+export type RoutineSuggestionStep = { product_id: string; step_name: string; reason: string };
+export type RoutineSuggestion = { morning: RoutineSuggestionStep[]; evening: RoutineSuggestionStep[]; reasoning: string };
+
+export function suggestShelfRoutine(products: { id: string; brand: string; product: string; category: string | null }[]): Promise<RoutineSuggestion> {
+  return postJson("/routines/suggest", { products });
+}
+
 // ── Lip palette ───────────────────────────────────────────────────────────────
 
 export type LipFamily = {

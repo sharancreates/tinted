@@ -10,14 +10,22 @@ import { Badge } from "@/components/ui/Badge";
 import { SignInGate } from "@/components/vanity/SignInGate";
 import { InventoryGrid } from "@/components/vanity/InventoryGrid";
 import { AddProduct } from "@/components/vanity/AddProduct";
+import { EditProduct } from "@/components/vanity/EditProduct";
 import {
   deleteInventoryItem,
   formatCents,
   listInventory,
   listRoutines,
   totalCents,
+  listReplenishmentAlerts,
+  cycleReplenishmentFlag,
+  CATEGORY_LIFESPANS,
+  PRODUCT_STATUSES,
+  PRODUCT_STATUS_LABELS,
   type InventoryItem,
   type Routine,
+  type ProductStatus,
+  type ReplenishmentAlert,
 } from "@/lib/vanity";
 
 export default function VanityPage() {
@@ -32,6 +40,7 @@ export default function VanityPage() {
           Add what&apos;s on your shelf, then group products into looks you can
           repeat — and share, with the cost worked out.
         </p>
+        <Link href="/profile" className="mt-3 inline-block text-small font-medium text-accent hover:underline">Public profile settings →</Link>
       </header>
 
       <SignInGate
@@ -48,22 +57,27 @@ function VanityContent() {
   const { user } = useAuth();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [routines, setRoutines] = useState<Routine[]>([]);
+  const [alerts, setAlerts] = useState<ReplenishmentAlert[]>([]);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<InventoryItem | null>(null);
+  const [statusFilter, setStatusFilter] = useState<ProductStatus | "all" | "alerts">("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   const load = useCallback(async () => {
     try {
-      const [inventory, looks] = await Promise.all([listInventory(), listRoutines()]);
+      const [inventory, looks, replenishment] = await Promise.all([listInventory(), listRoutines(), listReplenishmentAlerts()]);
       setItems(inventory);
       setRoutines(looks);
+      setAlerts(replenishment);
       setState("ready");
     } catch (caught) {
       // Almost always the migration not having been run yet, so say that
       // rather than surfacing a raw Postgres error.
       setError(
-        caught instanceof Error && /relation .* does not exist/i.test(caught.message)
-          ? "The database tables don't exist yet. Run supabase/migrations/0001_inventory_and_routines.sql in your Supabase SQL editor."
+        caught instanceof Error && /(relation|column) .* does not exist|schema cache/i.test(caught.message)
+          ? "The shelf schema is out of date. Apply the Supabase migrations in supabase/migrations/ before using the vanity."
           : "Couldn't load your vanity. Please try again.",
       );
       setState("error");
@@ -74,7 +88,13 @@ function VanityContent() {
     void load();
   }, [load]);
 
-  const shelf = useMemo(() => items.filter((i) => !i.is_finished), [items]);
+  const shelf = items;
+  const categories = useMemo(() => [...new Set(items.map((i) => i.category || "other"))].sort(), [items]);
+  const flags = useMemo(() => Object.fromEntries(alerts.filter((alert) => alert.flagged_low || alert.flagged_empty).map((alert) => [alert.product_id, alert.flagged_empty ? "empty" : "low"])) as Record<string, "low" | "empty">, [alerts]);
+  const filteredShelf = useMemo(() => shelf.filter((item) =>
+    (statusFilter === "all" || (statusFilter === "alerts" ? Boolean(flags[item.id]) : item.status === statusFilter)) &&
+    (categoryFilter === "all" || (item.category || "other") === categoryFilter)
+  ), [shelf, statusFilter, categoryFilter, flags]);
   const { total, unpriced } = useMemo(() => totalCents(shelf), [shelf]);
 
   const byCategory = useMemo(() => {
@@ -165,29 +185,52 @@ function VanityContent() {
           </div>
         ) : (
           <>
-            {byCategory.length > 0 && (
-              <div className="mb-4 flex flex-wrap gap-2">
-                {byCategory.map(([name, count]) => (
-                  <Badge key={name} tone="neutral">
-                    {name} {count}
-                  </Badge>
-                ))}
+            <div className="mb-5 grid gap-3 sm:grid-cols-2">
+              <label className="text-label uppercase text-text-muted">Status
+                <select className="mt-1 min-h-11 w-full rounded-card border border-line bg-surface px-3 text-small text-text" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as ProductStatus | "all" | "alerts")}>
+                  <option value="all">All statuses</option>
+                  <option value="alerts">Running low or empty</option>
+                  {PRODUCT_STATUSES.map((status) => <option key={status} value={status}>{PRODUCT_STATUS_LABELS[status]}</option>)}
+                </select>
+              </label>
+              <label className="text-label uppercase text-text-muted">Category
+                <select className="mt-1 min-h-11 w-full rounded-card border border-line bg-surface px-3 text-small text-text" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+                  <option value="all">All categories</option>
+                  {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+                </select>
+              </label>
+            </div>
+            {filteredShelf.length === 0 ? <p className="py-8 text-center text-small text-text-muted">No products match these filters.</p> : (
+              <div className="space-y-3">
+                {(categoryFilter === "all" ? categories : [categoryFilter]).map((category) => {
+                  const categoryItems = filteredShelf.filter((item) => (item.category || "other") === category);
+                  if (!categoryItems.length) return null;
+                  return <details key={category} open className="rounded-card border border-line bg-surface p-4">
+                    <summary className="cursor-pointer list-none font-display text-heading text-text">{category} <span className="ml-2 font-sans text-small text-text-muted">{categoryItems.length}</span></summary>
+                    <div className="mt-4"><InventoryGrid items={categoryItems} flags={flags} onEdit={setEditing} onFlag={async (item) => {
+                      if (!user) return;
+                      const current = alerts.find((alert) => alert.product_id === item.id);
+                      try {
+                        const updated = await cycleReplenishmentFlag(item, current, user.id);
+                        setAlerts((prev) => updated ? [...prev.filter((alert) => alert.product_id !== item.id), updated] : prev.filter((alert) => alert.product_id !== item.id));
+                      } catch { setError("Couldn't update the replenishment flag."); }
+                    }} onDelete={async (item) => {
+                      setItems((prev) => prev.filter((i) => i.id !== item.id));
+                      try { await deleteInventoryItem(item.id); } catch { void load(); }
+                    }} /></div>
+                  </details>;
+                })}
               </div>
             )}
-            <InventoryGrid
-              items={shelf}
-              onDelete={async (item) => {
-                setItems((prev) => prev.filter((i) => i.id !== item.id));
-                try {
-                  await deleteInventoryItem(item.id);
-                } catch {
-                  void load(); // put it back if the delete didn't stick
-                }
-              }}
-            />
           </>
         )}
       </Section>
+
+      {editing && <EditProduct item={editing} userId={user?.id ?? ""} lifespanDays={alerts.find((alert) => alert.product_id === editing.id)?.estimated_lifespan_days ?? CATEGORY_LIFESPANS[editing.category?.toLowerCase() ?? ""] ?? null} onClose={() => setEditing(null)} onSaved={(updated) => {
+        setItems((prev) => prev.map((item) => item.id === updated.id ? updated : item));
+        void listReplenishmentAlerts().then(setAlerts).catch(() => undefined);
+        setEditing(null);
+      }} />}
 
       <Section
         id="looks"

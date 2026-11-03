@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Orb } from "@/components/ui/Orb";
 import { AuthButton } from "@/components/layout/AuthButton";
+import { useAuth } from "@/hooks/useAuth";
+import { createClient } from "@/lib/supabase";
 
 type NavItem = { href: string; label: string; short: string; icon: React.ReactNode };
 
@@ -46,6 +49,16 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    href: "/routine",
+    label: "Routine builder",
+    short: "Routine",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className={ICON} aria-hidden="true">
+        <path d="M5 6h14M5 12h14M5 18h14" /><circle cx="3" cy="6" r=".5" fill="currentColor" /><circle cx="3" cy="12" r=".5" fill="currentColor" /><circle cx="3" cy="18" r=".5" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
     href: "/vanity",
     label: "My vanity",
     short: "Vanity",
@@ -82,6 +95,22 @@ function Brand({ className }: { className?: string }) {
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const [hasAlerts, setHasAlerts] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) { setHasAlerts(false); return; }
+    void (async () => {
+      try {
+        const { count } = await createClient().from("replenishment_alerts")
+          .select("id", { count: "exact", head: true })
+          .or("flagged_low.eq.true,flagged_empty.eq.true");
+        if (!cancelled) setHasAlerts((count ?? 0) > 0);
+      } catch { if (!cancelled) setHasAlerts(false); }
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   return (
     <div className="lg:p-6">
@@ -112,7 +141,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         : "text-text-soft hover:bg-white/50 hover:text-text",
                     )}
                   >
-                    {item.icon}
+                    <span className="relative">{item.icon}{item.href === "/vanity" && hasAlerts && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-surface bg-warn" aria-label="Products need replenishment" />}</span>
                     {item.label}
                   </Link>
                 );
@@ -137,7 +166,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         aria-label="Main"
         className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden"
       >
-        <ul className="glass-strong mx-auto grid max-w-md grid-cols-4 rounded-pill p-1.5">
+          <ul className="glass-strong mx-auto grid max-w-lg grid-cols-5 rounded-pill p-1.5">
           {NAV.map((item) => {
             const active = isActive(pathname, item.href);
             return (
@@ -151,7 +180,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     active ? "bg-white text-text shadow-card [&_svg]:text-accent-vivid" : "text-text-muted",
                   )}
                 >
-                  {item.icon}
+                  <span className="relative">{item.icon}{item.href === "/vanity" && hasAlerts && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-white bg-warn" aria-label="Products need replenishment" />}</span>
                   {item.short}
                 </Link>
               </li>

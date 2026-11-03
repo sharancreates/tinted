@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.limits import MAX_UPLOAD_BYTES
 from api.middleware import BodySizeLimitMiddleware
 from api.routes import router
+from api.routine_routes import router as routine_router
 
 app = FastAPI(title="GlowMatch API")
 
@@ -63,3 +64,4 @@ app.add_middleware(
 )
 
 app.include_router(router)
+app.include_router(routine_router)

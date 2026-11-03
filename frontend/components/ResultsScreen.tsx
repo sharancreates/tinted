@@ -10,6 +10,7 @@ import { Orb } from "@/components/ui/Orb";
 import { pillClass } from "@/components/ui/PillGroup";
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/ui/ProductCard";
+import { AddRecommendationToShelf } from "@/components/vanity/AddRecommendationToShelf";
 import { ShadeSwatch } from "@/components/ui/ShadeSwatch";
 import { Tabs } from "@/components/ui/Tabs";
 import { ToneRibbon } from "@/components/ui/ToneRibbon";
@@ -313,17 +314,20 @@ export default function ResultsScreen({
                   exit={{ opacity: 0, transition: { duration: DURATION.reduced, ease: "easeIn" } }}
                   className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
                 >
-                  {picks.map((product, index) => (
-                    <ProductCard
-                      key={`${product.brand}-${product.product}`}
-                      index={index}
-                      product={{
-                        ...product,
-                        // Absent key = still resolving; null = resolved to no photo.
-                        imageUrl: images[imageKey(product.brand, product.product)],
-                      }}
-                    />
-                  ))}
+                  {picks.map((product, index) => {
+                    const imageUrl = images[imageKey(product.brand, product.product)];
+                    return <div key={`${product.brand}-${product.product}`} className="flex flex-col gap-2">
+                      <ProductCard
+                        index={index}
+                        product={{
+                          ...product,
+                          // Absent key = still resolving; null = resolved to no photo.
+                          imageUrl,
+                        }}
+                      />
+                      <AddRecommendationToShelf brand={product.brand} product={product.product} shade={product.shade} category={category} imageUrl={imageUrl} />
+                    </div>;
+                  })}
                 </motion.div>
               </AnimatePresence>
             </div>

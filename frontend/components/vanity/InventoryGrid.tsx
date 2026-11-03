@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { formatCents, type InventoryItem } from "@/lib/vanity";
+import { CATEGORY_LIFESPANS, formatCents, PRODUCT_STATUS_LABELS, type InventoryItem } from "@/lib/vanity";
 
 /**
  * A shelf of what you own.
@@ -17,12 +17,18 @@ export function InventoryGrid({
   selectedIds = [],
   onToggle,
   onDelete,
+  onEdit,
+  onFlag,
+  flags = {},
 }: {
   items: InventoryItem[];
   selectable?: boolean;
   selectedIds?: string[];
   onToggle?: (item: InventoryItem) => void;
   onDelete?: (item: InventoryItem) => void;
+  onEdit?: (item: InventoryItem) => void;
+  onFlag?: (item: InventoryItem) => void;
+  flags?: Record<string, "low" | "empty">;
 }) {
   if (items.length === 0) return null;
 
@@ -31,6 +37,18 @@ export function InventoryGrid({
       {items.map((item) => {
         const selected = selectedIds.includes(item.id);
         const Interactive = selectable ? "button" : "div";
+        const statusStyle: Record<string, string> = {
+          using: "border-accent/40 bg-accent-dim text-accent",
+          backup: "border-line-strong bg-raised text-text-soft",
+          wishlist: "border-amber-300 bg-amber-50 text-amber-800",
+          panning: "border-success/40 bg-success/10 text-success",
+          finished: "border-line bg-raised text-text-muted opacity-70",
+          destash: "border-danger/30 bg-danger/5 text-danger",
+        };
+        const lifespan = CATEGORY_LIFESPANS[item.category?.toLowerCase() ?? ""];
+        const openedAt = item.opened_date ? Date.parse(`${item.opened_date}T00:00:00Z`) : NaN;
+        const dueAt = Number.isFinite(openedAt) && lifespan ? openedAt + lifespan * 86_400_000 : NaN;
+        const runningLowNudge = Number.isFinite(dueAt) && dueAt - Date.now() <= 14 * 86_400_000;
 
         return (
           <li key={item.id}>
@@ -54,9 +72,13 @@ export function InventoryGrid({
               {/* The shade, at a size that makes the shelf scannable by colour. */}
               <div
                 className="relative h-24 w-full bg-swatch-ground"
-                style={item.hex ? { backgroundColor: item.hex } : undefined}
+                style={item.hex && !item.image_url ? { backgroundColor: item.hex } : undefined}
               >
-                {!item.hex && (
+                {item.image_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.image_url} alt="" className="absolute inset-0 h-full w-full object-contain" loading="lazy" />
+                )}
+                {!item.hex && !item.image_url && (
                   <span
                     className="flex h-full w-full items-center justify-center font-display text-title text-text-muted/40"
                     aria-hidden="true"
@@ -91,17 +113,23 @@ export function InventoryGrid({
                     {formatCents(item.price_cents, item.currency)}
                   </span>
                 </div>
+                {!selectable && (
+                  <span className={`mt-2 w-fit rounded-pill border px-2 py-0.5 text-[0.65rem] uppercase tracking-wide ${statusStyle[item.status] ?? statusStyle.using}`}>
+                    {PRODUCT_STATUS_LABELS[item.status] ?? PRODUCT_STATUS_LABELS.using}
+                  </span>
+                )}
+                {runningLowNudge && <p className="mt-1 text-label text-warn">Running low?</p>}
               </div>
             </Interactive>
 
             {onDelete && (
-              <button
-                type="button"
-                onClick={() => onDelete(item)}
-                className="mt-1 text-label uppercase text-text-muted hover:text-danger"
-              >
-                Remove
-              </button>
+              <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                {onEdit && <button type="button" onClick={() => onEdit(item)} className="text-label uppercase text-accent">Edit</button>}
+                {onFlag && <button type="button" onClick={() => onFlag(item)} aria-label={`${flags[item.id] === "low" ? "Mark empty" : flags[item.id] === "empty" ? "Clear replenishment flag" : "Mark running low"}: ${item.brand} ${item.product}`} className={`min-h-10 text-label uppercase ${flags[item.id] === "empty" ? "text-danger" : flags[item.id] === "low" ? "text-amber-700" : "text-text-muted"}`}>
+                  {flags[item.id] === "empty" ? "● Empty" : flags[item.id] === "low" ? "● Running low" : "⚑ Flag"}
+                </button>}
+                <button type="button" onClick={() => onDelete(item)} className="text-label uppercase text-text-muted hover:text-danger">Remove</button>
+              </div>
             )}
           </li>
         );

@@ -5,6 +5,12 @@ import { Page } from "@/components/ui/Page";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { AddRecommendationToShelf } from "@/components/vanity/AddRecommendationToShelf";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { useAuth } from "@/hooks/useAuth";
+import { addRoutineSteps, getOrCreateSkincareRoutine, listRoutineSteps } from "@/lib/vanity";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { QuizResponse } from "@/lib/api";
 
@@ -29,8 +35,28 @@ export function RoutineResults({
   data: QuizResponse;
   onRestart: () => void;
 }) {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [savingRoutine, setSavingRoutine] = useState(false);
+  const [saveProblem, setSaveProblem] = useState("");
   const { profile, routine, routine_steps } = data;
   const byStep = new Map(routine.map((item) => [item.step, item]));
+
+  const saveRoutine = async () => {
+    if (!user) { setAuthOpen(true); return; }
+    setSavingRoutine(true);
+    setSaveProblem("");
+    try {
+      const target = await getOrCreateSkincareRoutine("morning", user.id);
+      const existing = await listRoutineSteps(target.id);
+      if (existing.length === 0) {
+        await addRoutineSteps(target.id, routine_steps);
+      }
+      router.push("/routine");
+    } catch { setSaveProblem("Couldn't save this routine. Please try again."); }
+    finally { setSavingRoutine(false); }
+  };
 
   return (
     <Page width="list">
@@ -138,6 +164,13 @@ export function RoutineResults({
                           <span aria-hidden="true">→</span>
                         </a>
                       )}
+                      <div className="mt-3 max-w-44">
+                        <AddRecommendationToShelf
+                          brand={item.brand}
+                          product={item.product}
+                          category={step}
+                        />
+                      </div>
                     </>
                   ) : (
                     // The skeleton renders even when product selection failed,
@@ -161,10 +194,15 @@ export function RoutineResults({
       </ol>
 
       <div className="mt-8 flex flex-wrap gap-3">
+        <Button onClick={() => void saveRoutine()} disabled={savingRoutine}>
+          {savingRoutine ? "Saving routine…" : "Save as my morning routine"}
+        </Button>
         <Button variant="secondary" onClick={onRestart}>
           Retake the quiz
         </Button>
       </div>
+      {saveProblem && <p className="mt-3 text-small text-danger" role="alert">{saveProblem}</p>}
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
 
       <p className="mt-8 text-small text-text-muted">
         Skincare advice here is generated, not medical. Patch-test new actives,

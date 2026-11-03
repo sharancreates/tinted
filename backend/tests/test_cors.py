@@ -5,7 +5,7 @@ import importlib
 import pytest
 from fastapi.testclient import TestClient
 
-PROD = "https://tinted.vercel.app"
+PROD = "https://tinted2.vercel.app"
 
 
 def _preflight(monkeypatch, allowed: str | None, origin: str) -> int:

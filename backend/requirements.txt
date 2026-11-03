@@ -13,4 +13,9 @@ uvicorn[standard]>=0.32.0
 python-multipart>=0.0.12
 Pillow>=10.0.0
 opencv-python>=4.10.0
-mediapipe>=0.10.0
+# Pinned: 0.10.30+ load libmediapipe.so, which needs the system to provide
+# libGLESv2.so.2 and libEGL.so.1. Render's native Python runtime has neither, so
+# the 1.2.0 release crashed the server on import. 0.10.21 is the last release
+# whose wheel bundles those libraries itself. Unpin only on the Docker image,
+# which installs them.
+mediapipe==0.10.21

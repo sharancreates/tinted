@@ -129,10 +129,17 @@ h1, h2, h3 {
   text-wrap: balance;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
-  border-radius: 6px;
+/* In the base layer so utilities such as outline-none can override it.
+   Containers focused only by script (tabindex=-1, to move screen readers on a
+   step change) never show the ring: there is nothing to operate there. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+  [tabindex="-1"]:focus {
+    outline: none;
+  }
 }
 
 ::selection {

@@ -32,7 +32,7 @@ export interface Product {
  */
 export function ProductCard({
   product,
-  /** Index in the grid — drives the alternating tilt. */
+  /** Position in the grid. Kept for callers; no longer affects styling. */
   index = 0,
   className,
 }: {
@@ -59,15 +59,12 @@ export function ProductCard({
     <Wrapper
       {...wrapperProps}
       className={cn(
-        "group flex h-full flex-col overflow-hidden rounded-card",
-        "border border-line bg-surface shadow-card",
-        // Alternating tilt is most of what separates an editorial layout from
-        // a dashboard grid. Straightens on hover; disabled under
-        // prefers-reduced-motion.
-        index % 2 === 0 ? "tilt-a" : "tilt-b",
+        // Solid white, never glass: product photos are colour being judged.
+        "group flex h-full flex-col overflow-hidden rounded-tile",
+        "border-4 border-white bg-swatch-ground shadow-card",
         interactive && [
-          "transition-all duration-(--duration-base) ease-(--ease-out-soft)",
-          "hover:-translate-y-0.5 hover:border-line-strong hover:shadow-lift",
+          "transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft)",
+          "hover:-translate-y-0.5 hover:shadow-lift",
         ],
         className,
       )}
@@ -88,11 +85,10 @@ export function ProductCard({
             loading="lazy"
             decoding="async"
             onError={() => setFailed(true)}
-            className="h-full w-full object-cover transition-transform duration-(--duration-slow) ease-(--ease-out-soft) group-hover:scale-[1.03]"
+            className="h-full w-full object-cover"
           />
         ) : imageLoading ? (
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="animate-shimmer-sweep absolute inset-y-0 w-1/3 bg-linear-to-r from-transparent via-black/5 to-transparent" />
+          <div className="absolute inset-0 overflow-hidden bg-mst-1/60" aria-busy="true">
           </div>
         ) : (
           <div
@@ -105,7 +101,7 @@ export function ProductCard({
                 style={{ backgroundColor: product.hex }}
               />
             ) : (
-              <span className="font-display text-[2.5rem] leading-none text-text-muted/50">
+              <span className="text-[2.5rem] font-semibold leading-none text-text-muted/50">
                 {monogram}
               </span>
             )}
@@ -165,10 +161,8 @@ export function ProductCard({
 /** Placeholder used while a whole category is still loading. */
 export function ProductCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-card border border-line bg-surface">
-      <div className="relative aspect-4/5 overflow-hidden bg-swatch-ground">
-        <div className="animate-shimmer-sweep absolute inset-y-0 w-1/3 bg-linear-to-r from-transparent via-black/5 to-transparent" />
-      </div>
+    <div className="flex h-full flex-col overflow-hidden rounded-tile border-4 border-white bg-swatch-ground shadow-card" aria-busy="true">
+      <div className="relative aspect-4/5 overflow-hidden bg-mst-1/60" />
       <div className="flex flex-1 flex-col gap-2 p-3.5">
         <div className="h-2.5 w-1/3 rounded-pill bg-raised" />
         <div className="h-3.5 w-3/4 rounded-pill bg-raised" />

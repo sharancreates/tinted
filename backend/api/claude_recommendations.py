@@ -1,5 +1,8 @@
 import json
 import os
+import threading
+import time
+from concurrent.futures import Future, ThreadPoolExecutor
 
 import anthropic
 
@@ -67,11 +70,11 @@ _ENTRY_SHAPE = (
 )
 
 
-def _build_schema() -> str:
-    """Render the JSON shape Claude must return, derived from CATEGORIES."""
+def _build_schema(categories: tuple[tuple[str, int, str], ...] = CATEGORIES) -> str:
+    """Render the JSON shape Claude must return for the given categories."""
     lines = ["{"]
-    for i, (name, count, hint) in enumerate(CATEGORIES):
-        tail = "" if i == len(CATEGORIES) - 1 else ","
+    for i, (name, count, hint) in enumerate(categories):
+        tail = "" if i == len(categories) - 1 else ","
         entries = ",\n    ".join(["{ ... }"] * count)
         lines.append(f'  "{name}": [  // {count} picks — {hint}')
         lines.append(f"    {entries}")
@@ -87,30 +90,113 @@ def _build_schema() -> str:
 
 _JSON_SCHEMA = _build_schema()
 
+# One long call writing ~27 products took 20-25s, almost all of it output
+# generation. Three calls of ~9 products run in parallel finish in roughly a
+# third of that. Groups are balanced by pick count.
+GROUPS: tuple[tuple[str, ...], ...] = (
+    ("foundation", "concealer", "setting_powder"),
+    ("blush", "bronzer", "highlighter", "brow"),
+    ("lip", "eyeshadow", "mascara"),
+)
+_BY_NAME = {name: (name, count, hint) for name, count, hint in CATEGORIES}
+
+# Recommendations depend only on Monk level, undertone and budget, about 120
+# combinations, so a finished set is reused for everyone who shares one.
+# In-process, like the other caches here: lost on restart.
+_CACHE_TTL_SECONDS = 24 * 60 * 60
+_cache: dict[tuple[str, str, str], tuple[dict, float]] = {}
+_inflight: dict[tuple[str, str, str], Future] = {}
+_cache_lock = threading.Lock()
+_pool = ThreadPoolExecutor(max_workers=6, thread_name_prefix="claude-recs")
+
 
 def get_full_beauty_recommendations(
     monk_scale: str,
     undertone: str,
-    avg_hex: str,
+    avg_hex: str = "",
     budget: str = "all",
 ) -> dict:
-    """Call Claude to generate beauty product recommendations.
+    """Beauty product recommendations for a tone and budget. Never raises.
 
-    Returns a structured dict on success, or an empty dict if both attempts
-    at producing valid JSON fail.  Never raises.
+    Served from cache when this (Monk level, undertone, budget) has been
+    generated recently; concurrent requests for the same key share one
+    generation. `avg_hex` is accepted for compatibility but not used: the
+    Monk level carries the same information and keeping it out of the prompt
+    is what makes the result shareable.
     """
+    key = (monk_scale.strip().upper(), undertone.strip().lower(), budget if budget in _BUDGET_RULES else "all")
+    now = time.monotonic()
+    with _cache_lock:
+        hit = _cache.get(key)
+        if hit and hit[1] > now:
+            return hit[0]
+        future = _inflight.get(key)
+        owner = future is None
+        if owner:
+            future = Future()
+            _inflight[key] = future
+
+    if not owner:
+        try:
+            return future.result(timeout=60)
+        except Exception:
+            return {}
+
+    try:
+        result = _generate_all(*key)
+        # Only a complete set is worth sharing; a partial one is served to
+        # this caller and regenerated for the next.
+        if result and all(result.get(name) for name, _, _ in CATEGORIES):
+            with _cache_lock:
+                _cache[key] = (result, time.monotonic() + _CACHE_TTL_SECONDS)
+        future.set_result(result)
+        return result
+    except Exception as exc:  # never raise to the route
+        print(f"[claude_recommendations] generation failed: {exc}")
+        future.set_result({})
+        return {}
+    finally:
+        with _cache_lock:
+            _inflight.pop(key, None)
+
+
+def _generate_all(monk_scale: str, undertone: str, budget: str) -> dict:
+    """Generate every category, one Claude call per group, in parallel."""
+    futures = [
+        _pool.submit(_generate_group, tuple(_BY_NAME[n] for n in group), monk_scale, undertone, budget)
+        for group in GROUPS
+    ]
+    merged: dict = {}
+    for f in futures:
+        try:
+            merged.update(f.result(timeout=60))
+        except Exception as exc:
+            print(f"[claude_recommendations] a group failed: {exc}")
+    # Present every category in display order, empty where a group failed.
+    return {name: merged.get(name, []) for name, _, _ in CATEGORIES} if merged else {}
+
+
+def _generate_group(
+    categories: tuple[tuple[str, int, str], ...],
+    monk_scale: str,
+    undertone: str,
+    budget: str,
+) -> dict:
+    """One Claude call for a subset of categories. Returns {} on bad JSON."""
     system = (
-        f"You are a makeup artist recommending products for MST level {monk_scale}, "
-        f"{undertone} undertone, approximate skin hex {avg_hex}. "
+        f"You are a makeup artist recommending products for Monk Skin Tone level "
+        f"{monk_scale}, {undertone} undertone. "
         "Return ONLY a JSON object, no preamble, no markdown fences."
     )
+    total = sum(count for _, count, _ in categories)
+    schema = _build_schema(categories)
 
     budget_rule = _BUDGET_RULES.get(budget, _BUDGET_RULES["all"])
 
     user_content = (
         f"{budget_rule}\n\n"
         f"Recommend the exact number of products named for each category "
-        f"({_TOTAL_PICKS} products total). "
+        f"({total} products total). "
         "Use real product names and real shade names — never invent a shade.\n"
         "`brand` is the company (Laura Mercier, NARS, e.l.f.). `product` is the "
         "product line WITHOUT the brand. `shade` is the colour or finish. "
@@ -119,14 +205,14 @@ def get_full_beauty_recommendations(
         "Incorrect: brand=\"Translucent\", product=\"Laura Mercier Setting Powder\"\n"
         "Spread the picks across brands: no brand may appear more than twice "
         "in the whole response, and no brand twice within one category.\n\n"
-        f"Every field is required and no extra keys are allowed.\n\n{_JSON_SCHEMA}"
+        f"Every field is required and no extra keys are allowed.\n\n{schema}"
     )
 
     messages: list[dict] = [{"role": "user", "content": user_content}]
     raw = _invoke(messages, system)
 
     try:
-        return _normalise(json.loads(raw))
+        return _normalise(json.loads(raw), categories)
     except json.JSONDecodeError:
         print("[claude_recommendations] First response was not valid JSON — retrying.")
         retry_messages = messages + [
@@ -141,7 +227,7 @@ def get_full_beauty_recommendations(
         ]
         raw2 = _invoke(retry_messages, system)
         try:
-            return _normalise(json.loads(raw2))
+            return _normalise(json.loads(raw2), categories)
         except json.JSONDecodeError:
             print(
                 f"[claude_recommendations] Second response also invalid JSON. "
@@ -265,7 +351,7 @@ def _repair_inverted_fields(entry: dict) -> dict:
     return entry
 
 
-def _normalise(parsed: object) -> dict:
+def _normalise(parsed: object, categories: tuple[tuple[str, int, str], ...] = CATEGORIES) -> dict:
     """Coerce a parsed response into the shape the frontend expects.
 
     Claude occasionally drops a category or an individual field. Rather than
@@ -278,7 +364,7 @@ def _normalise(parsed: object) -> dict:
         return {}
 
     result: dict[str, list[dict]] = {}
-    for name, _count, _hint in CATEGORIES:
+    for name, _count, _hint in categories:
         raw_entries = parsed.get(name)
         if not isinstance(raw_entries, list):
             result[name] = []
@@ -306,10 +392,10 @@ def _normalise(parsed: object) -> dict:
 def _invoke(messages: list[dict], system: str) -> str:
     response = client.messages.create(
         model="claude-haiku-4-5-20251001",
-        # ~27 products at roughly 70 tokens each, plus JSON scaffolding. 2000 was
-        # sized for 10 picks and would truncate mid-object, which reads to the
-        # caller as a JSON parse failure rather than as a token limit.
-        max_tokens=6000,
+        # A group is ~9 products at roughly 70-110 tokens each, plus JSON
+        # scaffolding. Too low truncates mid-object, which reads to the caller
+        # as a JSON parse failure rather than as a token limit.
+        max_tokens=3000,
         system=system,
         messages=messages,
     )

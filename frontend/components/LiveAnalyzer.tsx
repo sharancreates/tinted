@@ -299,6 +299,7 @@ export default function LiveAnalyzer({ file, budget, onComplete, onReset }: Prop
       const fd = new FormData()
       fd.append("file", file)
       fd.append("budget", budget)
+      fd.append("recommendations", "false")
 
       let res: Response
       try {

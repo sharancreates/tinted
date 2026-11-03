@@ -9,7 +9,7 @@ import { Aura } from "@/components/ui/Aura";
 import { Orb } from "@/components/ui/Orb";
 import { pillClass } from "@/components/ui/PillGroup";
 import { Button } from "@/components/ui/Button";
-import { ProductCard } from "@/components/ui/ProductCard";
+import { ProductCard, ProductCardSkeleton } from "@/components/ui/ProductCard";
 import { AddRecommendationToShelf } from "@/components/vanity/AddRecommendationToShelf";
 import { ShadeSwatch } from "@/components/ui/ShadeSwatch";
 import { Tabs } from "@/components/ui/Tabs";
@@ -58,13 +58,48 @@ function undertoneTone(undertone: string): {
   };
 }
 
+type RecsState = "loading" | "ready" | "error";
+
 export default function ResultsScreen({
   results,
+  budget = "all",
   onReset,
 }: {
   results: AnalyzeResult;
+  budget?: string;
   onReset: () => void;
 }) {
+  // Product picks arrive after the measurement. If the analysis already carried
+  // them (older API), use those; otherwise fetch them now.
+  const initialRecs = results.recommendations ?? {};
+  const hasInitial = Object.values(initialRecs).some((list) => (list?.length ?? 0) > 0);
+  const [recs, setRecs] = useState<AnalyzeResult["recommendations"]>(initialRecs);
+  const [recsState, setRecsState] = useState<RecsState>(hasInitial ? "ready" : "loading");
+
+  const loadRecs = useCallback(async () => {
+    setRecsState("loading");
+    try {
+      const response = await fetch(`${API_URL}/recommendations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ monk_scale: results.monk_scale, undertone: results.undertone, budget }),
+      });
+      const data = await response.json().catch(() => ({}));
+      const next = (data?.recommendations ?? {}) as AnalyzeResult["recommendations"];
+      const any = Object.values(next).some((list) => (list?.length ?? 0) > 0);
+      setRecs(next);
+      setRecsState(response.ok && any ? "ready" : "error");
+    } catch {
+      setRecsState("error");
+    }
+  }, [results.monk_scale, results.undertone, budget]);
+
+  useEffect(() => {
+    if (!hasInitial) void loadRecs();
+    // Fetch once per result; loadRecs is stable for a given result.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [category, setCategory] = useState<CategoryKey>("foundation");
   const [showDetail, setShowDetail] = useState(false);
   const [overrideLevel, setOverrideLevel] = useState<number | null>(null);
@@ -90,24 +125,24 @@ export default function ResultsScreen({
   const allProducts = useMemo(
     () =>
       CATEGORY_ORDER.flatMap(
-        (key) => (results.recommendations?.[key] as Product[] | undefined) ?? [],
+        (key) => (recs?.[key] as Product[] | undefined) ?? [],
       ),
-    [results.recommendations],
+    [recs],
   );
 
   const tabs = useMemo(
     () =>
       CATEGORY_ORDER.filter(
-        (key) => (results.recommendations?.[key]?.length ?? 0) > 0,
+        (key) => (recs?.[key]?.length ?? 0) > 0,
       ).map((key) => ({
         id: key,
         label: CATEGORY_LABELS[key],
-        count: results.recommendations?.[key]?.length ?? 0,
+        count: recs?.[key]?.length ?? 0,
       })),
-    [results.recommendations],
+    [recs],
   );
 
-  const picks = (results.recommendations?.[category] as Product[]) ?? [];
+  const picks = (recs?.[category] as Product[]) ?? [];
   const reduced = useReducedMotion() ?? false;
   const item = entranceItem(reduced);
   // The hero is painted from the measured colour itself, lifted toward white
@@ -291,7 +326,19 @@ export default function ResultsScreen({
         </AnimatePresence>
 
         {/* ── Recommendations ──────────────────────────────────────────── */}
-        {tabs.length > 0 ? (
+        {recsState === "loading" ? (
+          <motion.section variants={item} aria-labelledby="recs-heading" aria-busy="true" className="glass flex flex-col gap-5 rounded-card p-5 md:p-8">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h2 id="recs-heading" className="text-display font-semibold text-text">Recommended for you</h2>
+              <span className="text-small text-text-muted" role="status">Picking products for your tone…</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {Array.from({ length: 4 }, (_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
+          </motion.section>
+        ) : tabs.length > 0 ? (
           <motion.section variants={item} aria-labelledby="recs-heading" className="glass flex flex-col gap-5 rounded-card p-5 md:p-8">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <h2 id="recs-heading" className="text-display font-semibold text-text">Recommended for you</h2>
@@ -337,8 +384,11 @@ export default function ResultsScreen({
             <h2 className="text-heading font-semibold text-text">No product picks this time</h2>
             <p className="mt-2 text-small text-text-soft">
               Your shade match above still stands. Product picks come from a separate step that
-              didn&apos;t return, so try again in a moment.
+              didn&apos;t return.
             </p>
+            <Button variant="secondary" size="sm" className="mt-4" onClick={() => void loadRecs()}>
+              Try again
+            </Button>
           </motion.section>
         )}
 

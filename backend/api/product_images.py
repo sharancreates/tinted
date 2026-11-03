@@ -27,8 +27,11 @@ import re
 import threading
 import time
 
+import io
+
 import httpx
 from ddgs import DDGS
+from PIL import Image
 
 # How long a resolved URL stays good. Product imagery does not churn quickly and
 # a stale-but-working image is much better than a slow page.
@@ -220,7 +223,81 @@ def _score_candidate(image: dict, brand: str, product: str) -> int:
     if any(good in host for good in _PREFERRED_HOSTS):
         relevance += 2
 
+    # Retailers name secondary images (swatches, texture close-ups, models)
+    # with an "alt" suffix; the main packshot has none. Ulta: 2523148cm_alt01.
+    if re.search(r"[_-]alt\d*\b|cm_alt", url.lower()):
+        relevance -= 2
+
     return relevance
+
+
+# ── Packshot check ───────────────────────────────────────────────────────────
+# Titles cannot tell a bottle on white from a swatch photo: both are titled
+# with the product name. The pixels can. Measured on real results: packshots
+# had a light border on 93-100% of edge pixels and 0-28% skin-coloured pixels;
+# arm-swatch and review photos had 50-70% and 22-66%.
+_MIN_LIGHT_BORDER = 0.85
+_MAX_SKIN = 0.35
+# How many relevant candidates to inspect before giving up on a search.
+_PACKSHOT_CHECKS = 4
+_FETCH_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+    )
+}
+_MAX_IMAGE_BYTES = 3 * 1024 * 1024
+
+
+def packshot_metrics(image: Image.Image) -> tuple[float, float]:
+    """(share of border pixels that are light and neutral, share of skin-toned pixels)."""
+    if image.mode in ("RGBA", "LA", "P"):
+        # Transparent packshots (common on retailer CDNs) are composited onto
+        # white, which is how the card shows them; otherwise they read as black.
+        rgba = image.convert("RGBA")
+        ground = Image.new("RGBA", rgba.size, (255, 255, 255, 255))
+        image = Image.alpha_composite(ground, rgba)
+    rgb = image.convert("RGB")
+    rgb.thumbnail((96, 96))
+    w, h = rgb.size
+    px = rgb.load()
+    border = [
+        px[x, y]
+        for x in range(w)
+        for y in range(h)
+        if x < 4 or y < 4 or x >= w - 4 or y >= h - 4
+    ]
+    light = sum(
+        1 for r, g, b in border if min(r, g, b) > 215 and max(r, g, b) - min(r, g, b) < 25
+    ) / max(len(border), 1)
+    ycc = rgb.convert("YCbCr").load()
+    skin = sum(
+        1
+        for x in range(w)
+        for y in range(h)
+        if 135 <= ycc[x, y][2] <= 180 and 85 <= ycc[x, y][1] <= 135 and ycc[x, y][0] < 235
+    ) / max(w * h, 1)
+    return light, skin
+
+
+def is_packshot(light: float, skin: float) -> bool:
+    return light >= _MIN_LIGHT_BORDER and skin <= _MAX_SKIN
+
+
+def _looks_like_packshot(candidate: dict) -> bool | None:
+    """True/False from the pixels, None if the image could not be fetched."""
+    url = candidate.get("thumbnail") or candidate.get("image")
+    if not url:
+        return None
+    try:
+        response = httpx.get(url, headers=_FETCH_HEADERS, timeout=4.0, follow_redirects=True)
+        response.raise_for_status()
+        if len(response.content) > _MAX_IMAGE_BYTES:
+            return None
+        image = Image.open(io.BytesIO(response.content))
+        return is_packshot(*packshot_metrics(image))
+    except Exception:
+        return None
 
 
 SERPER_URL = "https://google.serper.dev/images"
@@ -248,6 +325,7 @@ def _search_images(query: str) -> list[dict]:
                 {
                     "image": item.get("imageUrl", ""),
                     "title": item.get("title", ""),
+                    "thumbnail": item.get("thumbnailUrl"),
                     "width": item.get("imageWidth"),
                     "height": item.get("imageHeight"),
                 }
@@ -295,14 +373,18 @@ def _lookup_one(brand: str, product: str) -> str | None:
             print(f"[product-images] lookup failed for {attempt!r}: {exc}")
             continue
 
-        best_url, best_score = None, _MIN_SCORE - 1
-        for image in candidates:
-            score = _score_candidate(image, brand, product)
-            if score > best_score:
-                best_url, best_score = str(image.get("image", "")), score
+        scored = [(_score_candidate(c, brand, product), i, c) for i, c in enumerate(candidates)]
+        relevant = [c for score, _, c in sorted(scored, key=lambda t: (-t[0], t[1])) if score >= _MIN_SCORE]
 
-        if best_url is not None:
-            return best_url
+        # Of the relevant results, take the best one that is actually a photo
+        # of the product on its own, not a swatch, model or review shot.
+        for candidate in relevant[:_PACKSHOT_CHECKS]:
+            if _looks_like_packshot(candidate):
+                return str(candidate.get("image", ""))
+
+        if relevant:
+            print(f"[product-images] no packshot among top results for {attempt!r}")
+            continue
 
         # Retrying on *relevance*, not on result count. A throttled response
         # arrives full — ten results, none of them the product — so counting

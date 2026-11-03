@@ -1,51 +1,37 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Tinted design system — warm editorial
+   Tinted design system: frosted glass, coloured by skin.
+   The full spec, contrast table included, is MASTER.md. Every value here is
+   one of its tokens; components use these through Tailwind utilities.
 
-   Cream ground, near-black serif, coral accent. The previous dark bronze
-   palette was read as "a developer tool", which was fair: dark surface plus a
-   tan accent is the visual language of an IDE, not a beauty product.
-
-   The colour-accuracy argument still holds, but it applies to *the swatch
-   surface*, not the whole app. Shades and product photos are shown on plain
-   white (--color-swatch-ground) so nothing tints the judgement; the warm cream
-   is chrome around them, never behind a colour being assessed.
-
-   Contrast is measured, not guessed. Worst case per token against
-   cream / white / blush:
-     text          17.27 / 18.35 / 15.92
-     text-soft      7.88 /  8.37 /  7.27
-     text-muted     4.90 /  5.20 /  4.51
-     accent-text    5.47 /  5.81 /  5.04
-   White on the button fill (--color-accent) is 5.81. The brighter coral
-   (--color-accent-vivid) is 3.77 and is therefore LARGE TEXT AND FILLS ONLY —
-   never small type.
+   Token names are kept from the previous (cream editorial) system so the
+   components did not need renaming. Values are new.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @theme {
   /* ── Surfaces ─────────────────────────────────────────────────────────── */
-  --color-bg: #fdf7f2;
-  --color-surface: #ffffff;
-  --color-raised: #f8ede4;
-  --color-overlay: rgba(38, 24, 18, 0.45);
-  /* Neutral ground for anything whose colour is being judged. */
+  --color-bg: #eeeceb;
+  --color-mist-peach: #f2ddd3;
+  --color-mist-lavender: #ded2f1;
+  --color-surface: rgba(255, 255, 255, 0.55);
+  --color-raised: rgba(255, 255, 255, 0.72);
+  --color-overlay: rgba(40, 30, 50, 0.35);
+  /* Anything whose colour is being judged sits on this, never on glass. */
   --color-swatch-ground: #ffffff;
 
   /* ── Text ─────────────────────────────────────────────────────────────── */
-  --color-text: #1a1310;
-  --color-text-soft: #5c4a40;
-  --color-text-muted: #7d6959;
+  --color-text: #211d26;
+  --color-text-soft: #48414f;
+  --color-text-muted: #625b6b;
 
   /* ── Accent ───────────────────────────────────────────────────────────── */
-  /* accent = fills and small text (white on it passes AA).
-     accent-vivid = display type and decoration only. */
-  --color-accent: #b23f13;
-  --color-accent-vivid: #d9541f;
-  /* Hover on a filled button darkens rather than brightens — white on this is
-     7.57, so the label stays readable through the transition. */
-  --color-accent-hover: #96330c;
-  --color-accent-dim: rgba(217, 84, 31, 0.1);
+  /* accent: coral text and small fills (white on it 5.58).
+     accent-vivid: icons, active marks, large fills. Never small text. */
+  --color-accent: #b4431e;
+  --color-accent-vivid: #e2603a;
+  --color-accent-hover: #96361a;
+  --color-accent-dim: rgba(226, 96, 58, 0.12);
   --color-rose: #a8395e;
 
   /* ── Status ───────────────────────────────────────────────────────────── */
@@ -54,73 +40,83 @@
   --color-danger: #b3261e;
 
   /* ── Lines ────────────────────────────────────────────────────────────── */
-  --color-line: #ecdfd4;
-  --color-line-strong: #dcc8b8;
+  --color-line: rgba(255, 255, 255, 0.85);
+  --color-line-strong: rgba(98, 91, 107, 0.18);
+
+  /* ── Monk Skin Tone scale: the source of every aura ───────────────────── */
+  --color-mst-1: #f6ede4;
+  --color-mst-2: #f3e7db;
+  --color-mst-3: #f7ead0;
+  --color-mst-4: #eadaba;
+  --color-mst-5: #d7bd96;
+  --color-mst-6: #a07850;
+  --color-mst-7: #825c43;
+  --color-mst-8: #604134;
+  --color-mst-9: #3a312a;
+  --color-mst-10: #292420;
 
   /* ── Type ─────────────────────────────────────────────────────────────── */
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-poppins), "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-poppins), "Avenir Next", "Segoe UI", system-ui, sans-serif;
 
-  /* Scale runs ~1.33 at the top and ~1.2 lower down. The previous 1.2
-     throughout meant a page heading and a section heading were one step
-     apart, which is why everything read as the same weight — flat hierarchy
-     is most of what "generic" actually means. Hero is deliberately far from
-     everything else: one per page, and it should dominate. */
-  --text-hero: clamp(2.75rem, 7vw, 5.5rem);
-  --text-hero--line-height: 0.95;
-  --text-hero--letter-spacing: -0.045em;
-  --text-display: clamp(2rem, 4.5vw, 3.5rem);
-  --text-display--line-height: 1.03;
-  --text-display--letter-spacing: -0.03em;
-  --text-title: 1.75rem;
-  --text-title--line-height: 1.15;
-  --text-title--letter-spacing: -0.02em;
+  --text-hero: clamp(2.5rem, 5vw, 3.5rem);
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.03em;
+  --text-display: 1.75rem;
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.02em;
+  --text-title: 1.375rem;
+  --text-title--line-height: 1.25;
+  --text-title--letter-spacing: -0.01em;
   --text-heading: 1.125rem;
   --text-heading--line-height: 1.35;
   --text-heading--letter-spacing: -0.01em;
-  --text-body: 1rem;
+  --text-body: 0.9375rem;
   --text-body--line-height: 1.6;
-  --text-small: 0.875rem;
+  --text-small: 0.8125rem;
   --text-small--line-height: 1.5;
-  /* Eyebrow labels. Tracking is wide because it is always uppercase. */
-  --text-label: 0.75rem;
+  --text-label: 0.6875rem;
   --text-label--line-height: 1.4;
-  --text-label--letter-spacing: 0.09em;
+  --text-label--letter-spacing: 0.12em;
 
   /* ── Radii ────────────────────────────────────────────────────────────── */
-  --radius-card: 0.875rem;
+  --radius-sm: 0.875rem;
+  --radius-tile: 1.5rem;
+  --radius-card: 1.75rem;
+  --radius-window: 2.25rem;
   --radius-pill: 999px;
 
   /* ── Elevation ────────────────────────────────────────────────────────── */
-  /* Light UIs get depth from soft, warm-tinted drop shadows. The previous
-     inset top-highlight only reads on a dark surface. */
-  --shadow-card: 0 1px 2px rgba(90, 55, 35, 0.05),
-                 0 8px 24px -12px rgba(90, 55, 35, 0.14);
-  --shadow-lift: 0 2px 6px rgba(90, 55, 35, 0.07),
-                 0 24px 48px -18px rgba(90, 55, 35, 0.22);
-  --shadow-glow: 0 0 0 1px rgba(217, 84, 31, 0.28),
-                 0 18px 40px -20px rgba(217, 84, 31, 0.35);
+  --shadow-card: 0 1px 2px rgba(60, 40, 70, 0.06), 0 8px 24px rgba(60, 40, 70, 0.06);
+  --shadow-lift: 0 2px 4px rgba(60, 40, 70, 0.06), 0 18px 48px rgba(60, 40, 70, 0.1);
 
   /* ── Rhythm ───────────────────────────────────────────────────────────── */
-  /* One vertical scale, so sections don't each invent their own spacing.
-     Gaps within a section come from the block scale; gaps between sections
-     from --space-section. */
-  --space-section: 5rem;
+  --space-section: 3.5rem;
   --space-block: 1.5rem;
 
   /* ── Motion ───────────────────────────────────────────────────────────── */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration-fast: 140ms;
-  --duration-base: 260ms;
-  --duration-slow: 520ms;
+  --duration-fast: 220ms;
+  --duration-base: 360ms;
+  --duration-slow: 360ms;
+  --duration-reduced: 120ms;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Base
    ═══════════════════════════════════════════════════════════════════════════ */
 
-body {
+html {
   background: var(--color-bg);
+}
+
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(75% 65% at 0% 100%, var(--color-mist-peach), transparent 72%),
+    radial-gradient(70% 70% at 100% 100%, var(--color-mist-lavender), transparent 72%),
+    var(--color-bg);
+  background-attachment: fixed;
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: var(--text-body);
@@ -129,33 +125,105 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Visible, consistent focus. Never remove this without replacing it — keyboard
-   users have no other way to tell where they are. */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
 :focus-visible {
   outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
 ::selection {
-  background: rgba(217, 84, 31, 0.2);
+  background: var(--color-accent-dim);
   color: var(--color-text);
 }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-line-strong);
-  border: 3px solid var(--color-bg);
+  background: rgba(98, 91, 107, 0.25);
+  border: 3px solid transparent;
+  background-clip: padding-box;
   border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: #c9b2a0; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Glass
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@utility glass {
+  background: var(--color-surface);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+@utility glass-strong {
+  background: var(--color-raised);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-card), inset 0 1px 0 #fff;
+}
+
+/* The app window: thinner than a card, so the mist shows through it and the
+   cards inside still read as a layer above. */
+@utility glass-window {
+  background: rgba(255, 255, 255, 0.32);
+  -webkit-backdrop-filter: blur(32px) saturate(150%);
+  backdrop-filter: blur(32px) saturate(150%);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-lift), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Faint dot grid, used only behind the tone panel. */
+@utility dots {
+  background-image: radial-gradient(rgba(98, 91, 107, 0.16) 1px, transparent 1.2px);
+  background-size: 12px 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Aura tiles: blurred blends of Monk tones and pastels
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.aura {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--a0);
+}
+.aura::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: -2;
+  filter: blur(28px) saturate(115%);
+  background:
+    radial-gradient(40% 35% at 20% 30%, var(--a1), transparent 70%),
+    radial-gradient(45% 40% at 75% 25%, var(--a2), transparent 70%),
+    radial-gradient(50% 45% at 55% 75%, var(--a3), transparent 70%),
+    radial-gradient(35% 30% at 15% 85%, var(--a4), transparent 70%);
+}
+/* White lift at the bottom so the label reads on any aura. */
+.aura::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 55%);
+}
+.aura-match  { --a0: var(--color-mst-3); --a1: #f4a6b8; --a2: var(--color-mst-6); --a3: #f6c9a8; --a4: var(--color-mst-8); }
+.aura-quiz   { --a0: #e6efe4; --a1: #b9dcae; --a2: var(--color-mst-4); --a3: #f2d2bd; --a4: #a8c99a; }
+.aura-vanity { --a0: var(--color-mst-2); --a1: #d9c7f2; --a2: var(--color-mst-5); --a3: #f1b9a1; --a4: var(--color-mst-7); }
+.aura-looks  { --a0: #f6e4dc; --a1: #f0a17e; --a2: #f7d6c4; --a3: var(--color-mst-6); --a4: #e9b8d6; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Utilities
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Always hidden visually, always present to assistive tech. */
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
@@ -166,9 +234,7 @@ body {
   border: 0;
 }
 
-/* Screen-reader-only *until focused*, then shown as a real control. Only the
-   skip link should use this — on anything that can take focus it pops up as a
-   floating box in the corner. */
+/* Screen-reader-only until focused. Only the skip link uses this. */
 .sr-only-focusable {
   position: absolute;
   width: 1px; height: 1px;
@@ -185,19 +251,15 @@ body {
   margin: 0;
   overflow: visible;
   clip: auto;
-  background: var(--color-raised);
+  background: #fff;
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-pill);
   z-index: 200;
 }
 
-/* A horizontally scrolling strip shouldn't show a scrollbar over its own
-   rounded edge — the tab rail relies on this. */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Line clamping. Product blurbs vary in length, which left a grid of cards
-   with ragged bottom edges — the clamp is what makes a row read as a row. */
 .clamp-1, .clamp-2, .clamp-3 {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -207,8 +269,6 @@ body {
 .clamp-2 { -webkit-line-clamp: 2; }
 .clamp-3 { -webkit-line-clamp: 3; }
 
-/* Signals that a horizontally scrolling rail continues past the edge, instead
-   of letting content look arbitrarily cut off. */
 .fade-edges {
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 1.25rem,
                        #000 calc(100% - 1.25rem), transparent 100%);
@@ -216,88 +276,43 @@ body {
                #000 calc(100% - 1.25rem), transparent 100%);
 }
 
-/* Checkerboard behind cut-out product photos, so a transparent PNG doesn't
-   vanish into the page. */
+/* Checkerboard behind cut-out product photos. */
 .bg-swatch-check {
   background-image:
-    linear-gradient(45deg, rgba(90,55,35,0.05) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(90,55,35,0.05) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(90,55,35,0.05) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(90,55,35,0.05) 75%);
+    linear-gradient(45deg, rgba(60,40,70,0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(60,40,70,0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(60,40,70,0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(60,40,70,0.05) 75%);
   background-size: 12px 12px;
   background-position: 0 0, 0 6px, 6px -6px, -6px 0;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Animation
+   Motion. One curve; entrances play once. No infinite loops anywhere.
    ═══════════════════════════════════════════════════════════════════════════ */
-
-@keyframes shimmer-sweep {
-  0%   { transform: translateX(-200%); }
-  100% { transform: translateX(400%); }
-}
 
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 0.2; }
-  50%      { opacity: 0.8; }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.animate-shimmer-sweep {
-  animation: shimmer-sweep 2.8s var(--ease-out-soft) infinite;
-}
 .animate-fade-in-up {
-  animation: fade-in-up var(--duration-slow) var(--ease-out-soft) both;
-}
-.animate-pulse-dot {
-  animation: pulse-dot 1.4s ease-in-out infinite;
+  animation: fade-in-up var(--duration-base) var(--ease-out-soft) both;
 }
 
-/* Motion is decoration here — every animation above conveys state that is also
-   conveyed statically, so switching them off costs nothing. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: var(--duration-reduced) !important;
+    transition-property: opacity, color, background-color, border-color !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Editorial touches
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* Slight rotation on alternating cards, straightening on hover. Cheap, and it
-   is most of what separates an editorial layout from a dashboard grid. */
-.tilt-a { transform: rotate(-1.4deg); }
-.tilt-b { transform: rotate(1.1deg); }
-.tilt-a, .tilt-b { transition: transform var(--duration-base) var(--ease-out-soft); }
-.tilt-a:hover, .tilt-b:hover { transform: rotate(0deg) translateY(-4px); }
-
-@media (prefers-reduced-motion: reduce) {
-  .tilt-a, .tilt-b { transform: none; }
-  .tilt-a:hover, .tilt-b:hover { transform: none; }
-}
-
-/* Warm bloom behind hero sections, so the cream ground is not flat. */
-.hero-wash {
-  position: relative;
-}
-.hero-wash::before {
-  content: "";
-  position: absolute;
-  inset: -20% -10% auto -10%;
-  height: 70%;
-  background:
-    radial-gradient(60% 60% at 20% 30%, rgba(217, 84, 31, 0.09), transparent 70%),
-    radial-gradient(50% 50% at 80% 20%, rgba(168, 57, 94, 0.07), transparent 70%);
-  pointer-events: none;
-  z-index: -1;
+  .animate-fade-in-up {
+    animation: fade-in var(--duration-reduced) linear both;
+  }
 }

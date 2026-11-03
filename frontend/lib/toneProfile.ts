@@ -13,6 +13,8 @@
  */
 
 const KEY = "tinted_tone_profile";
+/** Fired on window after a new reading is saved, so open panels can update. */
+export const TONE_EVENT = "tinted:tone-saved";
 
 export type ToneProfile = {
   mstLevel: number;
@@ -28,6 +30,7 @@ export function saveToneProfile(p: Omit<ToneProfile, "savedAt">): void {
       KEY,
       JSON.stringify({ ...p, savedAt: new Date().toISOString() }),
     );
+    window.dispatchEvent(new Event(TONE_EVENT));
   } catch {
     // Private mode or storage full. The feature degrades to "no profile yet",
     // which every consumer already handles.

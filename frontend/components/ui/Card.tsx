@@ -12,7 +12,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const paddings: Record<NonNullable<CardProps["padding"]>, string> = {
   none: "",
   sm: "p-4",
-  md: "p-5 md:p-6",
+  md: "p-6",
   lg: "p-6 md:p-8",
 };
 
@@ -27,12 +27,12 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-card border border-line",
-        raised ? "bg-surface shadow-card" : "bg-transparent",
+        "rounded-card",
+        raised ? "glass" : "border border-line bg-transparent",
         paddings[padding],
         interactive &&
-          "transition-all duration-(--duration-base) ease-(--ease-out-soft) " +
-            "hover:border-line-strong hover:shadow-lift hover:-translate-y-0.5",
+          "transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) " +
+            "hover:-translate-y-0.5 hover:shadow-lift",
         className,
       )}
       {...props}
@@ -58,7 +58,7 @@ export function CardHeader({
     <div className={cn("mb-4 flex items-start justify-between gap-4", className)}>
       <div>
         {label && (
-          <p className="text-label uppercase text-accent">{label}</p>
+          <p className="text-label uppercase text-text-muted">{label}</p>
         )}
         <h2 className="text-heading font-semibold text-text">{title}</h2>
       </div>

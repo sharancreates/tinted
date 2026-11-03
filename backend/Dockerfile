@@ -9,11 +9,14 @@
 FROM python:3.11-slim
 
 # libgl1 + libglib2.0-0 satisfy the OpenCV import. libgomp1 is needed by the
-# ONNX/TFLite kernels MediaPipe runs on CPU.
+# ONNX/TFLite kernels MediaPipe runs on CPU. libegl1 + libgles2 are loaded by
+# libmediapipe.so in mediapipe 0.10.30+, which no longer bundles them.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libgl1 \
         libglib2.0-0 \
         libgomp1 \
+        libegl1 \
+        libgles2 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

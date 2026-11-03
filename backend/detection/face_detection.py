@@ -257,7 +257,47 @@ def _detect_landmarks(image_bgr: np.ndarray):
     found; *image_bgr* itself is never modified.  Landmark coordinates are
     normalised, so they apply directly to the caller's colour-faithful image.
     """
-    image_rgb = cv2.cvtColor(apply_clahe(image_bgr), cv2.COLOR_BGR2RGB)
+    working = apply_clahe(image_bgr)
+    landmarks = _run_landmarker(working)
+    if landmarks is not None:
+        return landmarks
+
+    # Close-up portraits that crop the forehead or chin defeat the face
+    # detector, which expects a whole face with some margin around it. Padding
+    # the frame and retrying recovers them; the landmarks are then mapped back
+    # into the unpadded image's normalised coordinates.
+    h, w = working.shape[:2]
+    pad_y, pad_x = int(h * _RETRY_PAD), int(w * _RETRY_PAD)
+    padded = cv2.copyMakeBorder(
+        working, pad_y, pad_y, pad_x, pad_x, cv2.BORDER_CONSTANT, value=(128, 128, 128)
+    )
+    landmarks = _run_landmarker(padded)
+    if landmarks is None:
+        return None
+    pw, ph = w + 2 * pad_x, h + 2 * pad_y
+    return [
+        _Landmark(
+            x=(lm.x * pw - pad_x) / w,
+            y=(lm.y * ph - pad_y) / h,
+            z=lm.z,
+        )
+        for lm in landmarks
+    ]
+
+
+# Fraction of each dimension added on every side for the padded retry.
+_RETRY_PAD = 0.25
+
+
+@dataclass(frozen=True)
+class _Landmark:
+    x: float
+    y: float
+    z: float
+
+
+def _run_landmarker(image_bgr: np.ndarray):
+    image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
     mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
     result = _face_landmarker.detect(mp_image)
     if not result.face_landmarks:

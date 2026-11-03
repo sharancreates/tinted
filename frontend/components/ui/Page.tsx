@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 const widths = {
   prose: "max-w-2xl",
   list: "max-w-3xl",
-  grid: "max-w-5xl",
+  grid: "max-w-6xl",
 } as const;
 
 export function Page({
@@ -29,7 +29,7 @@ export function Page({
   return (
     <div
       className={cn(
-        "mx-auto px-4 pb-24 pt-10 md:px-6 md:pt-14",
+        "mx-auto px-4 pb-12 pt-4 md:px-8 md:pt-8 lg:px-10 lg:pt-10",
         widths[width],
         className,
       )}

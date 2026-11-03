@@ -26,8 +26,8 @@ export function ToneRibbon({
   orientation = "horizontal",
   /** Thickness. Bars are decorative; `hero` is for the landing page. */
   size = "md",
-  /** Slow drift, for the analysing state. */
-  animate = false,
+  /** Accepted for compatibility; the ribbon no longer loops. */
+  animate: _animate = false,
   className,
   label,
 }: {
@@ -45,7 +45,7 @@ export function ToneRibbon({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-pill ring-1 ring-line",
+        "relative overflow-hidden rounded-pill ring-2 ring-white/80",
         vertical ? `flex flex-col ${verticalThickness}` : `flex ${thickness}`,
         className,
       )}
@@ -71,16 +71,6 @@ export function ToneRibbon({
         );
       })}
 
-      {animate && (
-        <div
-          className="animate-shimmer-sweep pointer-events-none absolute inset-y-0 w-1/3"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)",
-          }}
-          aria-hidden="true"
-        />
-      )}
     </div>
   );
 }

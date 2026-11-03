@@ -1,32 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Fraunces } from "next/font/google";
-import { Navbar } from "@/components/layout/Navbar";
+import { Poppins } from "next/font/google";
+import { AppShell } from "@/components/layout/AppShell";
 import { WakeServer } from "@/components/layout/WakeServer";
 import "./globals.css";
 
-const inter = Inter({
+// Poppins throughout (MASTER.md): its round geometric letters echo the orb.
+// Not a variable font, so the four weights the system uses are listed.
+const poppins = Poppins({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
   display: "swap",
-});
-
-// Editorial serif for the one hero line per screen. Optical sizing keeps it
-// from looking spindly at display sizes.
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  display: "swap",
-  axes: ["SOFT", "WONK", "opsz"],
 });
 
 export const metadata: Metadata = {
-  title: "Tinted — Your Perfect Shade",
+  title: "Tinted: your perfect shade",
   description:
     "Find your foundation match and build a skincare routine, from a photo or a two-minute quiz.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0b0c",
+  themeColor: "#eeeceb",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -35,18 +30,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
-      <body className="min-h-screen bg-bg text-text antialiased">
-        {/* First thing in the tab order — keyboard users shouldn't have to
-            traverse the nav on every page. */}
+    <html lang="en" className={poppins.variable}>
+      <body className="text-text antialiased">
+        {/* First in the tab order, so keyboard users can skip the nav. */}
         <a href="#main" className="sr-only-focusable">
           Skip to content
         </a>
         <WakeServer />
-        <Navbar />
-        <main id="main" className="pt-16">
-          {children}
-        </main>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

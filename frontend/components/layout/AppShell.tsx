@@ -43,6 +43,19 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    href: "/find-shade",
+    group: "discover",
+    label: "Shade finder",
+    short: "Finder",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className={ICON} aria-hidden="true">
+        <rect x="8" y="2.5" width="8" height="5" rx="1.5" />
+        <path d="M7 7.5h10v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" />
+        <path d="M7 13h10" />
+      </svg>
+    ),
+  },
+  {
     href: "/quiz",
     group: "discover",
     mobile: true,

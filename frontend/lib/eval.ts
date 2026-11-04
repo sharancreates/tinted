@@ -1,4 +1,5 @@
 import raw from "./eval-report.json";
+import photosRaw from "./mste-report.json";
 
 /**
  * Types for lib/eval-report.json, which backend/eval/pipeline_sim.py writes.
@@ -116,3 +117,43 @@ export function inkOn(hex: string): string {
   const l = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
   return l > 0.18 ? "#2b2420" : "#ffffff";
 }
+
+// ── Real photographs (backend/eval/mste_eval.py on Google's MST-E) ──────────
+
+
+
+export type PhotoSummary = {
+  n: number;
+  measured: number;
+  rejected: number;
+  exact: number | null;
+  within1: number | null;
+  exact_of_all: number | null;
+  within1_of_all: number | null;
+  rejection_rate: number | null;
+  mean_bias: number | null;
+  confusion: number[][];
+  refusal_reasons: Record<string, number>;
+};
+
+export type PhotoReport = {
+  meta: { kind: "photos"; dataset: string; terms: string; photos: number; people: number; skipped: Record<string, number>; generated: string };
+  overall: PhotoSummary;
+  intervals: Record<"exact_of_all" | "within1_of_all" | "within1", [number, number] | null>;
+  people_within1: number | null;
+  levels_covered: number[];
+  by_lighting: Record<string, PhotoSummary & { label: string }>;
+  by_pose: Record<string, PhotoSummary>;
+  by_level: Record<string, PhotoSummary>;
+  people: {
+    id: string;
+    mst: number;
+    photos: number;
+    exact: number | null;
+    within1: number | null;
+    rejection_rate: number | null;
+    typical_prediction: number | null;
+  }[];
+};
+
+export const photos = photosRaw as unknown as PhotoReport;

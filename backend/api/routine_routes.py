@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from api.limits import SEARCH_RULES, client_key, limiter, spend_guard
 from api.dupes import find_dupes
 from api.identify import identify_product
+from api.barcode import BARCODE, lookup_barcode
 from api.uploads import read_image_upload
 from api.skincare_recommendations import suggest_shelf_routines
 
@@ -60,3 +61,15 @@ async def identify(request: Request, file: UploadFile = File(...)) -> dict:
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
     return {"product": product}
+
+
+@router.get("/barcode/{code}")
+async def barcode(request: Request, code: str) -> dict:
+    """Brand and product name for a scanned barcode, via Open Beauty Facts.
+
+    Returns {"product": {...}} or {"product": null} when the code is unknown.
+    """
+    if not BARCODE.match(code):
+        raise HTTPException(status_code=422, detail="That doesn't look like a product barcode.")
+    limiter.check(client_key(request), "search", SEARCH_RULES)
+    return {"product": await asyncio.to_thread(lookup_barcode, code)}

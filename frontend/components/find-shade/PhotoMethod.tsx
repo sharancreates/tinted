@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ApiError, identifyProduct } from "@/lib/api";
-import type { Product } from "@/lib/shades";
+import { productQuery, type Product } from "@/lib/shades";
 import { SearchMethod } from "./SearchMethod";
 
 /**
@@ -31,7 +31,7 @@ export function PhotoMethod({ onPick }: { onPick: (p: Product) => void }) {
         setStatus("none");
         return;
       }
-      setQuery(`${product.brand} ${product.product_name}`.trim());
+      setQuery(productQuery(product.brand, product.product_name));
       setStatus("idle");
     } catch (e) {
       setError(e instanceof ApiError ? e.reasons[0] : "Couldn't read that photo. Try again.");

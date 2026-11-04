@@ -313,3 +313,8 @@ export function identifyProduct(file: File): Promise<{ product: IdentifiedProduc
   form.append("file", file);
   return request("/identify-product", { method: "POST", body: form });
 }
+
+/** Brand and product name for a barcode (Open Beauty Facts), or null if unknown. */
+export function lookupBarcode(code: string): Promise<{ product: IdentifiedProduct | null }> {
+  return request(`/barcode/${encodeURIComponent(code)}`);
+}

@@ -21,14 +21,25 @@ export type ShadeMatch = ProductShade & { deltaE: number; description: string };
  * or the product name, so "fenty soft matte" and "pro filtr" both land.
  */
 export async function findProducts(query: string): Promise<Product[]> {
-  const words = query
+  const words = toWords(query);
+  if (words.length === 0) return [];
+  const found = await queryProducts(words);
+  // Names read from a photo or a barcode database carry extra words ("New
+  // York", the shade). If the full name finds nothing, try its first two.
+  if (found.length === 0 && words.length > 2) return queryProducts(words.slice(0, 2));
+  return found;
+}
+
+function toWords(query: string): string[] {
+  return query
     .toLowerCase()
     .replace(/['’]/g, "")
     .split(/[^a-z0-9]+/)
     .filter((w) => w.length > 1)
     .slice(0, 6);
-  if (words.length === 0) return [];
+}
 
+async function queryProducts(words: string[]): Promise<Product[]> {
   let q = createClient().from("product_shades").select("brand, product_name");
   for (const w of words) {
     // A word matches brand or product. Apostrophes are stripped from the
@@ -74,4 +85,11 @@ export function rankShades(shades: ProductShade[], skinHex: string, undertone?: 
     })
     .sort((a, b) => a.rank - b.rank)
     .map(({ rank: _rank, ...match }) => match);
+}
+
+/** "Brand Product", without doubling a brand the product name already starts with. */
+export function productQuery(brand: string, productName: string): string {
+  const b = brand.trim();
+  const p = productName.trim();
+  return b && !p.toLowerCase().startsWith(b.toLowerCase()) ? `${b} ${p}`.trim() : p || b;
 }

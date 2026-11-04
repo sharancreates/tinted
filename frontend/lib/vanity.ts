@@ -74,6 +74,22 @@ export type ReplenishmentAlert = {
   flagged_at: string | null;
 };
 
+/** Which family a product category belongs to, for colour-coding the shelf. */
+export type CategoryFamily = "face" | "skincare" | "lips" | "eyes" | "other";
+
+const FAMILY_OF: Record<string, CategoryFamily> = {
+  foundation: "face", concealer: "face", primer: "face", blush: "face", bronzer: "face",
+  highlighter: "face", setting_spray: "face", "setting powder": "face",
+  moisturizer: "skincare", cleanser: "skincare", serum: "skincare", sunscreen: "skincare",
+  toner: "skincare", exfoliant: "skincare", eye_cream: "skincare", body_lotion: "skincare", skincare: "skincare",
+  lipstick: "lips", lip_gloss: "lips", lip: "lips",
+  eyeshadow: "eyes", mascara: "eyes", brow: "eyes", eyeliner: "eyes",
+};
+
+export function categoryFamily(category: string | null | undefined): CategoryFamily {
+  return FAMILY_OF[(category ?? "").toLowerCase()] ?? "other";
+}
+
 export const CATEGORY_LIFESPANS: Record<string, number> = {
   moisturizer: 90, cleanser: 60, serum: 60, sunscreen: 45,
   foundation: 180, mascara: 90, lipstick: 365, toner: 60,

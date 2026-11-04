@@ -69,21 +69,50 @@ export function pct(v: number | null | undefined, digits = 0): string {
 }
 
 /**
- * Sequential ramp for magnitude: one hue (the brand coral), light to dark.
- * t is 0..1.
+ * Sequential ramp for magnitude, warm and single-family: pale peach through
+ * peach to deep coral, lightness falling the whole way. t is 0..1.
  */
 export function seq(t: number): string {
-  const clamped = Math.max(0, Math.min(1, t));
-  return `color-mix(in oklab, #b4431e ${Math.round(clamped * 100)}%, #fbf3ef)`;
+  const c = Math.max(0, Math.min(1, t));
+  return c < 0.5
+    ? `color-mix(in oklab, #e8955f ${Math.round(c * 200)}%, #fcefe6)`
+    : `color-mix(in oklab, #a64b2c ${Math.round((c - 0.5) * 200)}%, #e8955f)`;
+}
+
+/** A soft gradient fill for a cell of value t: a lighter sheen into seq(t). */
+export function seqFill(t: number): string {
+  return `linear-gradient(150deg, color-mix(in oklab, ${seq(t)} 72%, #ffffff), ${seq(t)} 70%)`;
 }
 
 /** Ink for text set inside a seq() fill. */
 export function seqInk(t: number): string {
-  return t > 0.55 ? "#ffffff" : "#211d26";
+  return t > 0.62 ? "#ffffff" : "#2b2420";
 }
 
-/** The two comparison series. Validated as a pair (dataviz validator, light). */
+/**
+ * The two comparison series, coral family. Validated as a pair on cream with
+ * the dataviz validator; the peach is under 3:1 on cream, so both series are
+ * always direct-labelled and a table view exists.
+ */
 export const SERIES = {
-  before: "#7a5fc0",
-  after: "#b4431e",
+  before: "#e8955f",
+  after: "#a64b2c",
 } as const;
+
+/** Monk reference colours, MST 1 to 10. */
+export const MST_HEX = report.levels.map((l) => l.hex);
+
+/**
+ * Whichever ink, warm black or white, contrasts more with the swatch. The
+ * crossover sits at relative luminance 0.18; MST 6 (#a07850) is the worst
+ * case at 3.9:1 either way, so level pills are always semibold.
+ */
+export function inkOn(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const lin = (v: number) => {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  const l = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+  return l > 0.18 ? "#2b2420" : "#ffffff";
+}

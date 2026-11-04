@@ -1,7 +1,36 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { CATEGORY_LIFESPANS, formatCents, PRODUCT_STATUS_LABELS, type InventoryItem } from "@/lib/vanity";
+import {
+  CATEGORY_LIFESPANS,
+  categoryFamily,
+  formatCents,
+  PRODUCT_STATUS_LABELS,
+  type CategoryFamily,
+  type InventoryItem,
+} from "@/lib/vanity";
+
+/** Card ground per category family: face peach, skincare sage, lips blush, eyes lavender. */
+const FAMILY_CARD: Record<CategoryFamily, string> = {
+  face: "bg-peach",
+  skincare: "bg-sage",
+  lips: "bg-blush",
+  eyes: "bg-lavender",
+  other: "bg-[#fffdfa]",
+};
+
+/**
+ * Status colour sits on a dot inside a white pill, so it reads on every card
+ * ground and never competes with the category pastel.
+ */
+const STATUS_DOT: Record<string, string> = {
+  using: "bg-accent-vivid",
+  panning: "bg-success",
+  wishlist: "bg-sky-ink",
+  backup: "bg-text-muted",
+  finished: "bg-line-strong",
+  destash: "bg-danger",
+};
 
 /**
  * A shelf of what you own.
@@ -36,18 +65,11 @@ export function InventoryGrid({
     // Columns follow the space the grid actually has, not the window, because
     // on the shelf a detail panel takes part of the width.
     <div className="@container">
-    <ul className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @4xl:grid-cols-4">
+    <ul className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @xl:gap-4">
       {items.map((item) => {
         const selected = selectedIds.includes(item.id) || activeId === item.id;
         const Interactive = selectable || onOpen ? "button" : "div";
-        const statusStyle: Record<string, string> = {
-          using: "border-accent/40 bg-accent-dim text-accent",
-          backup: "border-line-strong bg-raised text-text-soft",
-          wishlist: "border-warn/30 bg-warn/10 text-warn",
-          panning: "border-success/40 bg-success/10 text-success",
-          finished: "border-line bg-raised text-text-muted opacity-70",
-          destash: "border-danger/30 bg-danger/5 text-danger",
-        };
+        const family = categoryFamily(item.category);
         const lifespan = CATEGORY_LIFESPANS[item.category?.toLowerCase() ?? ""];
         const openedAt = item.opened_date ? Date.parse(`${item.opened_date}T00:00:00Z`) : NaN;
         const dueAt = Number.isFinite(openedAt) && lifespan ? openedAt + lifespan * 86_400_000 : NaN;
@@ -71,17 +93,18 @@ export function InventoryGrid({
                     }
                   : {})}
               className={cn(
-                "group relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-tile border p-1.5 text-left",
+                "group relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-card border p-2 text-left",
                 "transition-[transform,box-shadow,border-color] duration-(--duration-fast) ease-(--ease-out-soft)",
+                FAMILY_CARD[family],
                 selected
                   ? "border-accent-vivid shadow-lift ring-2 ring-accent-vivid/30"
-                  : "border-white hover:-translate-y-0.5 hover:shadow-lift",
-                item.is_finished ? "bg-white/70 opacity-70" : "bg-white shadow-card",
+                  : "border-white/70 hover:shadow-lift motion-safe:hover:-translate-y-0.5",
+                item.is_finished && "opacity-70",
               )}
             >
               {/* The shade, at a size that makes the shelf scannable by colour. */}
               <div
-                className="relative h-28 w-full overflow-hidden rounded-sm bg-swatch-ground"
+                className="relative h-28 w-full overflow-hidden rounded-tile bg-swatch-ground shadow-[inset_0_0_0_1px_rgba(43,36,32,0.05)]"
                 style={item.hex && !item.image_url ? { backgroundColor: item.hex } : undefined}
               >
                 {item.image_url && (
@@ -113,7 +136,7 @@ export function InventoryGrid({
                 )}
               </div>
 
-              <div className="flex flex-1 flex-col gap-0.5 p-3">
+              <div className="flex flex-1 flex-col gap-0.5 px-2 pb-1.5 pt-3">
                 <p className="clamp-1 text-label uppercase text-text-muted">
                   {item.brand}
                 </p>
@@ -129,11 +152,12 @@ export function InventoryGrid({
                   </span>
                 </div>
                 {!selectable && (
-                  <span className={`mt-2 w-fit rounded-pill border px-2 py-0.5 text-[0.65rem] uppercase tracking-wide ${statusStyle[item.status] ?? statusStyle.using}`}>
+                  <span className="mt-2.5 inline-flex w-fit items-center gap-1.5 rounded-pill bg-white/85 px-2.5 py-1 text-[0.6875rem] font-semibold text-text shadow-[0_1px_2px_rgba(70,45,30,0.06)]">
+                    <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", STATUS_DOT[item.status] ?? STATUS_DOT.using)} />
                     {PRODUCT_STATUS_LABELS[item.status] ?? PRODUCT_STATUS_LABELS.using}
                   </span>
                 )}
-                {runningLowNudge && <p className="mt-1 text-label text-warn">Running low?</p>}
+                {runningLowNudge && <p className="mt-1 text-label text-peach-ink">Running low?</p>}
               </div>
             </Interactive>
 

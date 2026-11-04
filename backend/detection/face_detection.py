@@ -66,7 +66,12 @@ _ALL_LANDMARKS: list[int] = CHEEK_LANDMARKS + FOREHEAD_LANDMARKS
 # ---------------------------------------------------------------------------
 
 _STD_MAX     = 30    # max V-channel std within a patch; above → edge or highlight
-_V_MAX       = 240   # max mean V; above → patch is blown out
+# A patch is blown out when a quarter of its pixels sit at the sensor ceiling.
+# This used to be "mean V above 240", but the MST 1-3 references are V 243-247:
+# the gate threw away healthy pale skin as overexposed. The simulated lighting
+# eval (eval/pipeline_sim.py) refused a third of MST 1-3 faces in daylight.
+_CLIP_V        = 252   # V at or above this counts as clipped
+_CLIP_FRAC_MAX = 0.25  # more clipped pixels than this → patch is blown out
 _V_MIN       = 30    # min mean V; below → patch is in deep shadow
 _TRIM_FRAC   = 0.10  # fraction to drop from each L*-sorted tail
 _MIN_PATCHES = 5     # minimum patches required before we'll return a result
@@ -74,6 +79,11 @@ _MIN_PATCHES = 5     # minimum patches required before we'll return a result
 # ---------------------------------------------------------------------------
 # Result type
 # ---------------------------------------------------------------------------
+
+
+def _clipped(v: np.ndarray) -> bool:
+    """True when too much of a patch's V channel is at the sensor ceiling."""
+    return float((v >= _CLIP_V).mean()) > _CLIP_FRAC_MAX
 
 
 @dataclass
@@ -186,7 +196,7 @@ def extract_patches_streaming(
 
         if v_std > _STD_MAX:
             reason = "specular highlight"
-        elif v_mean > _V_MAX:
+        elif _clipped(v):
             reason = "overexposed"
         elif v_mean < _V_MIN:
             reason = "underexposed"
@@ -394,7 +404,7 @@ def _extract_patches(img_bgr: np.ndarray, landmarks) -> SkinSample:
         v_mean = float(v.mean())
         v_std  = float(v.std())
 
-        if v_std > _STD_MAX or v_mean > _V_MAX or v_mean < _V_MIN:
+        if v_std > _STD_MAX or _clipped(v) or v_mean < _V_MIN:
             rejected_count += 1
             continue
 

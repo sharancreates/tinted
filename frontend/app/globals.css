@@ -1,37 +1,42 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Tinted design system: frosted glass, coloured by skin.
-   The full spec, contrast table included, is MASTER.md. Every value here is
-   one of its tokens; components use these through Tailwind utilities.
+   Tinted design system: warm editorial, coloured by skin.
+   Cream paper, a coral accent, Playfair Display headings over DM Sans, and
+   four colour-coded pastels for category cards. The full spec is MASTER.md.
+   Every value here is one of its tokens; components use these through
+   Tailwind utilities.
 
-   Token names are kept from the previous (cream editorial) system so the
-   components did not need renaming. Values are new.
+   Token names are shared with the frosted-glass system that preceded this,
+   so components did not need renaming. Values are new.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @theme {
   /* ── Surfaces ─────────────────────────────────────────────────────────── */
-  --color-bg: #eeeceb;
-  --color-mist-peach: #f2ddd3;
-  --color-mist-lavender: #ded2f1;
-  --color-surface: rgba(255, 255, 255, 0.55);
-  --color-raised: rgba(255, 255, 255, 0.72);
-  --color-overlay: rgba(40, 30, 50, 0.35);
+  --color-bg: #faf6f1;
+  --color-mist-peach: #f6e4d8;
+  --color-mist-lavender: #ece5f3;
+  --color-surface: rgba(255, 253, 250, 0.6);
+  --color-raised: rgba(255, 253, 250, 0.82);
+  --color-overlay: rgba(43, 36, 32, 0.35);
   /* Anything whose colour is being judged sits on this, never on glass. */
   --color-swatch-ground: #ffffff;
 
   /* ── Text ─────────────────────────────────────────────────────────────── */
-  --color-text: #211d26;
-  --color-text-soft: #48414f;
-  --color-text-muted: #625b6b;
+  /* On cream: text 14.2, soft 6.9, muted 5.2 (all AA for body text). */
+  --color-text: #2b2420;
+  --color-text-soft: #5e544c;
+  --color-text-muted: #6b6058;
 
   /* ── Accent ───────────────────────────────────────────────────────────── */
-  /* accent: coral text and small fills (white on it 5.58).
-     accent-vivid: icons, active marks, large fills. Never small text. */
-  --color-accent: #b4431e;
-  --color-accent-vivid: #e2603a;
-  --color-accent-hover: #96361a;
-  --color-accent-dim: rgba(226, 96, 58, 0.12);
+  /* accent-vivid is the brand coral #d4765c: icons, active marks, large
+     fills. It is only 2.98:1 on cream, so never small text.
+     accent is the same coral, deepened until it passes: 5.3:1 on cream,
+     5.7:1 with white text on it. Coral text and buttons use this one. */
+  --color-accent: #a64b2c;
+  --color-accent-vivid: #d4765c;
+  --color-accent-hover: #8f3f24;
+  --color-accent-dim: rgba(212, 118, 92, 0.14);
   --color-rose: #a8395e;
 
   /* ── Status ───────────────────────────────────────────────────────────── */
@@ -41,7 +46,25 @@
 
   /* ── Lines ────────────────────────────────────────────────────────────── */
   --color-line: rgba(255, 255, 255, 0.85);
-  --color-line-strong: rgba(98, 91, 107, 0.18);
+  --color-line-strong: rgba(94, 84, 76, 0.18);
+
+  /* ── Category pastels ─────────────────────────────────────────────────── */
+  /* One colour per kind of thing, so a card says what it is before it is
+     read. Each has a ground (card fill), a mid (icons, dots, borders) and an
+     ink (text on the ground, AA: lavender 6.0, sage 5.7, peach 5.6, sky 6.0).
+     Body text (--color-text) is 12:1 or better on every ground. */
+  --color-lavender: #e9e3f5;
+  --color-lavender-mid: #b9a8e0;
+  --color-lavender-ink: #5b4a8a;
+  --color-sage: #e3ede2;
+  --color-sage-mid: #9dbf9a;
+  --color-sage-ink: #3f6346;
+  --color-peach: #fbe4d6;
+  --color-peach-mid: #f2b394;
+  --color-peach-ink: #8a4a2b;
+  --color-sky: #dfebf5;
+  --color-sky-mid: #9cc3e3;
+  --color-sky-ink: #2f5a7d;
 
   /* ── Monk Skin Tone scale: the source of every aura ───────────────────── */
   --color-mst-1: #f6ede4;
@@ -56,18 +79,18 @@
   --color-mst-10: #292420;
 
   /* ── Type ─────────────────────────────────────────────────────────────── */
-  --font-sans: var(--font-poppins), "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  --font-display: var(--font-poppins), "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-sans: var(--font-dm-sans), "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
 
   --text-hero: clamp(2.5rem, 5vw, 3.5rem);
   --text-hero--line-height: 1.05;
-  --text-hero--letter-spacing: -0.03em;
+  --text-hero--letter-spacing: -0.015em;
   --text-display: 1.75rem;
   --text-display--line-height: 1.15;
-  --text-display--letter-spacing: -0.02em;
+  --text-display--letter-spacing: -0.01em;
   --text-title: 1.375rem;
   --text-title--line-height: 1.25;
-  --text-title--letter-spacing: -0.01em;
+  --text-title--letter-spacing: -0.005em;
   --text-heading: 1.125rem;
   --text-heading--line-height: 1.35;
   --text-heading--letter-spacing: -0.01em;
@@ -80,15 +103,16 @@
   --text-label--letter-spacing: 0.12em;
 
   /* ── Radii ────────────────────────────────────────────────────────────── */
-  --radius-sm: 0.875rem;
-  --radius-tile: 1.5rem;
-  --radius-card: 1.75rem;
-  --radius-window: 2.25rem;
+  /* Cards 20px, tiles inside them 16px, so nested corners stay concentric. */
+  --radius-sm: 0.75rem;
+  --radius-tile: 1rem;
+  --radius-card: 1.25rem;
+  --radius-window: 1.75rem;
   --radius-pill: 999px;
 
   /* ── Elevation ────────────────────────────────────────────────────────── */
-  --shadow-card: 0 1px 2px rgba(60, 40, 70, 0.06), 0 8px 24px rgba(60, 40, 70, 0.06);
-  --shadow-lift: 0 2px 4px rgba(60, 40, 70, 0.06), 0 18px 48px rgba(60, 40, 70, 0.1);
+  --shadow-card: 0 1px 2px rgba(70, 45, 30, 0.06), 0 8px 24px rgba(70, 45, 30, 0.06);
+  --shadow-lift: 0 2px 4px rgba(70, 45, 30, 0.06), 0 18px 48px rgba(70, 45, 30, 0.1);
 
   /* ── Rhythm ───────────────────────────────────────────────────────────── */
   --space-section: 3.5rem;
@@ -125,7 +149,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
   text-wrap: balance;
 }
 
@@ -150,7 +175,7 @@ h1, h2, h3 {
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(98, 91, 107, 0.25);
+  background: rgba(94, 84, 76, 0.25);
   border: 3px solid transparent;
   background-clip: padding-box;
   border-radius: 999px;
@@ -190,7 +215,7 @@ h1, h2, h3 {
    dot texture and the orb's glow carry it. */
 @utility tone-panel {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.28) 70%, rgba(222, 210, 241, 0.35));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.28) 70%, rgba(236, 229, 243, 0.4));
   -webkit-backdrop-filter: blur(24px) saturate(140%);
   backdrop-filter: blur(24px) saturate(140%);
   border: 1px solid var(--color-line);
@@ -199,7 +224,7 @@ h1, h2, h3 {
 
 /* Faint dot grid, used only behind the tone panel. */
 @utility dots {
-  background-image: radial-gradient(rgba(98, 91, 107, 0.22) 1px, transparent 1.3px);
+  background-image: radial-gradient(rgba(94, 84, 76, 0.2) 1px, transparent 1.3px);
   background-size: 12px 12px;
 }
 

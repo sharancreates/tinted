@@ -1,15 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins } from "next/font/google";
+import { DM_Sans, Playfair_Display } from "next/font/google";
 import { AppShell } from "@/components/layout/AppShell";
 import { WakeServer } from "@/components/layout/WakeServer";
 import "./globals.css";
 
-// Poppins throughout (MASTER.md): its round geometric letters echo the orb.
-// Not a variable font, so the four weights the system uses are listed.
-const poppins = Poppins({
+// Playfair Display for headings, DM Sans for everything else (MASTER.md).
+// Both are variable fonts, so every weight comes from one file each.
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
+  variable: "--font-playfair",
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
   display: "swap",
 });
 
@@ -20,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#eeeceb",
+  themeColor: "#faf6f1",
   viewportFit: "cover",
 };
 
@@ -30,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={poppins.variable}>
+    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
       <body className="text-text antialiased">
         {/* First in the tab order, so keyboard users can skip the nav. */}
         <a href="#main" className="sr-only-focusable">

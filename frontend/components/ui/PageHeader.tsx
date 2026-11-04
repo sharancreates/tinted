@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * The title block at the top of a screen: coral eyebrow, one large Poppins
+ * The title block at the top of a screen: coral eyebrow, one large Playfair
  * title, a line of context, and optional actions. Every route uses it so the
  * title sits at the same size and distance from the top on every page.
  */

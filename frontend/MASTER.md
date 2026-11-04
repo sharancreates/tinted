@@ -13,9 +13,9 @@ blur, a 1px white inner edge, soft wide shadows) at a 28px radius sit inside one
 large app window with a sidebar, content and a "your tone" panel. Art tiles are
 blurred auras mixed from the ten Monk skin-tone values and soft pastels. A glossy
 orb is both the logo and, on results, the measured tone. One coral accent marks
-active states and icons; text is near-black ink and a muted plum grey. Poppins
-throughout: 600 at 48 to 56px for page titles against 15px body, because its
-round geometric letters echo the orb. Airy 8px spacing, 24 to 32px card padding.
+active states and icons; text is warm ink. Superseded on 2026-11-04 by the
+warm editorial tokens below (cream, coral #D4765C, Playfair Display headings
+over DM Sans, category pastels, 16 to 20px card radii); layouts follow later. Airy 8px spacing, 24 to 32px card padding.
 Nav, tabs, inputs and buttons are fully rounded pills. Shade chips and product
 photos always sit on solid white, never glass. Replaces the cream editorial look.
 
@@ -33,41 +33,59 @@ uppercase section labels.
 
 ## Colour
 
-Token names are kept from the previous system so components did not need
-renaming; values are new.
+Warm editorial tokens (2026-11-04). Token names are shared with the frosted
+glass system so components did not need renaming. Page layouts and the glass
+utilities are unchanged for now; only the values moved.
 
-| Token | Value | Use | Contrast (worst case) |
+| Token | Value | Use | Contrast |
 |---|---|---|---|
-| `bg` | `#EEECEB` | mist ground (body adds the peach/lavender wash) | |
-| `mist-peach` | `#F2DDD3` | ground wash, bottom left | |
-| `mist-lavender` | `#DED2F1` | ground wash, bottom right | |
-| `surface` | `rgba(255,255,255,.55)` | glass cards | |
-| `raised` | `rgba(255,255,255,.72)` | active pills, inputs, nested glass | |
+| `bg` | `#FAF6F1` | cream paper (body adds a soft peach/lavender wash) | |
+| `mist-peach` | `#F6E4D8` | ground wash, bottom left | |
+| `mist-lavender` | `#ECE5F3` | ground wash, bottom right | |
+| `surface` | `rgba(255,253,250,.6)` | cards | |
+| `raised` | `rgba(255,253,250,.82)` | active pills, inputs, nested cards | |
 | `swatch-ground` | `#FFFFFF` | anything whose colour is judged | |
-| `text` | `#211D26` | ink | 11.5 on lavender ground |
-| `text-soft` | `#48414F` | secondary text | 7.9 on lavender ground |
-| `text-muted` | `#625B6B` | captions, meta | 4.52 on lavender ground, ≥ 5.6 on glass |
-| `accent` | `#B4431E` | coral text and small fills | 4.77 on glass, white on it 5.58 |
-| `accent-vivid` | `#E2603A` | icons, active marks, large fills only | 3.0 on glass: never small text |
-| `accent-hover` | `#96361A` | pressed coral | |
-| `accent-dim` | `rgba(226,96,58,.12)` | tinted chips | |
-| `line` | `rgba(255,255,255,.85)` | glass inner edge | |
-| `line-strong` | `rgba(98,91,107,.18)` | dividers inside glass | |
-| `danger` | `#B3261E` | errors | 5.6 on glass |
-| `success` | `#1F6B4A` | confirmations | 6.0 on glass |
+| `text` | `#2B2420` | warm ink | 14.2 on cream |
+| `text-soft` | `#5E544C` | secondary text | 6.9 on cream |
+| `text-muted` | `#6B6058` | captions, meta | 5.2 on cream |
+| `accent` | `#A64B2C` | coral text, coral buttons | 5.3 on cream, white on it 5.7 |
+| `accent-vivid` | `#D4765C` | the brand coral: icons, active marks, large fills | 2.98 on cream: never small text |
+| `accent-hover` | `#8F3F24` | pressed coral | |
+| `accent-dim` | `rgba(212,118,92,.14)` | tinted chips | |
+| `line` | `rgba(255,255,255,.85)` | card inner edge | |
+| `line-strong` | `rgba(94,84,76,.18)` | dividers | |
+| `danger` | `#B3261E` | errors | |
+| `success` | `#1F6B4A` | confirmations | |
 
-Primary buttons are ink (`text`) with white labels: 16.6:1.
+### Category pastels
+
+One colour per kind of thing, so a card says what it is before it is read.
+Use the ground as the card fill, the mid for icons, dots and borders, and the
+ink for coloured text on the ground. Body text (`text`) is 12:1 or better on
+every ground.
+
+| Family | Ground | Mid | Ink (on ground) |
+|---|---|---|---|
+| `lavender` | `#E9E3F5` | `#B9A8E0` | `#5B4A8A` (6.0) |
+| `sage` | `#E3EDE2` | `#9DBF9A` | `#3F6346` (5.7) |
+| `peach` | `#FBE4D6` | `#F2B394` | `#8A4A2B` (5.6) |
+| `sky` | `#DFEBF5` | `#9CC3E3` | `#2F5A7D` (6.0) |
+
+Utilities follow: `bg-sage`, `border-sage-mid`, `text-sage-ink`, and so on.
+Pastels mark category only. They never stand in for status (success, warning,
+danger) and never carry data in charts.
 
 ## Type
 
-Poppins (Google, via `next/font`), weights 400 / 500 / 600 / 700, fallback
-`"Avenir Next", "Segoe UI", system-ui, sans-serif`. Both `--font-sans` and
-`--font-display` resolve to it.
+Headings: Playfair Display (Google, variable, via `next/font`), fallback
+`Georgia, serif`, as `--font-display`. `h1` to `h4` use it by default.
+Body and UI: DM Sans (Google, variable), fallback `"Helvetica Neue", system-ui,
+sans-serif`, as `--font-sans`.
 
 | Token | Size | Weight | Use |
 |---|---|---|---|
-| `text-hero` | clamp(2.5rem, 5vw, 3.5rem) | 600, -0.03em | one page title per screen |
-| `text-display` | 1.75rem | 600, -0.02em | section titles |
+| `text-hero` | clamp(2.5rem, 5vw, 3.5rem) | 600, -0.015em | one page title per screen |
+| `text-display` | 1.75rem | 600, -0.01em | section titles |
 | `text-title` | 1.375rem | 500 | tile and card titles |
 | `text-heading` | 1.125rem | 600 | sub-sections |
 | `text-body` | 0.9375rem | 400 | running text |
@@ -77,8 +95,8 @@ Poppins (Google, via `next/font`), weights 400 / 500 / 600 / 700, fallback
 ## Space, radius, elevation
 
 - Spacing: 8px base. 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64. Card gap 24, card padding 24 to 32, section gap 48 to 64.
-- Radius: `sm` 14px, `tile` 24px, `card` 28px, `window` 36px, `pill` 999px.
-- Shadows: `card` (rest) `0 1px 2px rgba(60,40,70,.06), 0 8px 24px rgba(60,40,70,.06)`; `lift` (hover) `0 2px 4px rgba(60,40,70,.06), 0 18px 48px rgba(60,40,70,.10)`. No glow shadows.
+- Radius: `sm` 12px, `tile` 16px, `card` 20px, `window` 28px, `pill` 999px. Tiles nest inside cards, so their corners stay concentric.
+- Shadows: `card` (rest) `0 1px 2px rgba(70,45,30,.06), 0 8px 24px rgba(70,45,30,.06)`; `lift` (hover) `0 2px 4px rgba(70,45,30,.06), 0 18px 48px rgba(70,45,30,.10)`. Warm, never glow.
 
 ## Motion
 

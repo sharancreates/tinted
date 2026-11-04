@@ -167,6 +167,17 @@ matrix, per-level and per-lighting breakdowns, and a with/without white
 balance comparison. It found a real bug (the exposure gate refused a third of
 MST 1-3 faces), which is now fixed: daylight refusals fell from 12% to 2%.
 
+**On real photographs** (`eval/mste_eval.py`, Google's Monk Skin Tone Examples:
+1,356 photos of 19 people with expert labels), the pipeline lands within one
+Monk level on 15% of photos (95% range 8 to 23%, bootstrapped by person) and
+31% of the photos it accepts. Readings collapse toward the middle of the
+scale: phone auto-exposure normalises face brightness, and the classifier
+compares absolute colour, so pale skin reads 4 to 5 levels deep and deep skin
+1 to 2 levels light. The simulation missed this because its virtual camera
+exposed every face correctly. The planned fix, normalising exposure against
+the whites of the eyes and classifying relative colour, is written up on the
+dashboard. MST-E is evaluation-only and is never used for tuning.
+
 ---
 
 ## Deploying

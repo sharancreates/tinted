@@ -3,9 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Page } from "@/components/ui/Page";
 import { ConfusionMatrix } from "@/components/eval/ConfusionMatrix";
-import { HeatGrid, LevelPill, Legend, PairBars, PairTable, type PairRow } from "@/components/eval/charts";
+import { HeatGrid, LevelPill, Legend, PairBars, PairTable, Tip, type PairRow } from "@/components/eval/charts";
 import { cn } from "@/lib/utils";
-import { report, pct, SERIES, type LightingKey } from "@/lib/eval";
+import { report, photos, pct, SERIES, MST_HEX, type LightingKey } from "@/lib/eval";
 
 export const metadata: Metadata = {
   title: "Accuracy | Tinted",
@@ -35,16 +35,22 @@ function Section({ n, title, deck, children, className }: { n: string; title: st
   );
 }
 
-function Stat({ value, label, note }: { value: string; label: string; note: string }) {
+function Stat({ value, label, note, range }: { value: string; label: string; note: string; range?: string }) {
   return (
     <div className="group border-t border-line-strong pt-5">
       <p className="font-display text-[clamp(3.5rem,6.5vw,5.5rem)] font-semibold leading-[0.9] tracking-[-0.02em] tabular-nums text-text transition-colors duration-(--duration-fast) ease-(--ease-out-soft) group-hover:text-accent">
         {value}
       </p>
+      {range && <p className="mt-2 text-small tabular-nums text-text-muted">{range}</p>}
       <p className="mt-4 font-semibold text-text">{label}</p>
       <p className="mt-1 max-w-[30ch] text-small text-text-soft">{note}</p>
     </div>
   );
+}
+
+/** "95% range 8 to 23%, by person" from a bootstrap interval. */
+function rangeText(ci: [number, number] | null): string | undefined {
+  return ci ? `95% range ${Math.round(ci[0] * 100)} to ${Math.round(ci[1] * 100)}%, by person` : undefined;
 }
 
 export default function EvalPage() {
@@ -104,37 +110,185 @@ export default function EvalPage() {
           </h1>
         </div>
         <p className="max-w-prose text-text-soft lg:pb-2">
-          Every scene below went through the same white balance, skin sampling and Monk classifier that run when you upload a photo. Here is
-          where it holds up, where it does not, and what changed because of it.
+          The same code that runs when you upload a photo, tested two ways: on {photos.meta.photos.toLocaleString("en-US")} real photographs of{" "}
+          {photos.meta.people} people with expert labels, and on simulated portraits where every error can be traced. Here is where it holds up,
+          where it does not, and why.
         </p>
       </header>
 
-      {/* ── Headline figures ─────────────────────────────────────────────── */}
-      <div className="grid gap-x-8 gap-y-10 pb-14 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat value={pct(day.exact_of_all)} label="Right level in daylight" note={`${pct(day.within1_of_all)} within one level. Refused photos count as misses.`} />
-        <Stat value={pct(report.overall.on.within1_of_all)} label="Within one level, all lights" note="Warm-bulb refusals pull this down. See section 01." />
+      {/* ── Headline figures: real photographs ───────────────────────────── */}
+      <p className="mb-5 text-label uppercase text-text-muted">On real photographs</p>
+      <div className="grid gap-x-8 gap-y-10 pb-16 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
-          value={pct(day.rejection_rate)}
-          label="Daylight photos refused"
-          note={base ? `Was ${pct(base.daylight.rejection_rate)} before this eval found a bug in the exposure check.` : "Too few usable skin patches."}
+          value={pct(photos.overall.within1_of_all)}
+          range={rangeText(photos.intervals.within1_of_all)}
+          label="Within one level"
+          note="Of every photo, refusals counted as misses."
         />
-        <Stat value={deFmt(day.mean_delta_e)} label="Colour error in daylight" note="ΔE 2000 from the true skin colour. Near 2 is hard to see side by side." />
+        <Stat
+          value={pct(photos.overall.within1)}
+          range={rangeText(photos.intervals.within1)}
+          label="Within one level, when it answers"
+          note="Of the photos the app accepted."
+        />
+        <Stat
+          value={pct(photos.overall.rejection_rate)}
+          label="Photos refused"
+          note="Mostly side and from-below angles, which the quality check is meant to catch."
+        />
+        <Stat
+          value={`${photos.people_within1 != null ? Math.round(photos.people_within1 * photos.meta.people) : "n/a"}/${photos.meta.people}`}
+          label="People read within one level"
+          note="Judged on each person's most common answer."
+        />
       </div>
-
-      {/* ── Honesty note ─────────────────────────────────────────────────── */}
-      <aside className="mb-16 grid gap-2 rounded-card bg-peach p-6 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-8 sm:p-8">
-        <p className="font-display text-[1.375rem] font-semibold italic leading-tight text-peach-ink">Read this first</p>
-        <p className="max-w-prose text-small text-text-soft">
-          These are {report.meta.scenes.toLocaleString("en-US")} simulated portraits, not photographs of people. Each has a known skin colour,
-          lit like a real room, with sensor noise and JPEG compression, so every error is the pipeline&apos;s fault and can be traced. Face
-          detection, real skin texture and makeup are not tested here. A study on labelled photographs is the next step, and until it runs these
-          numbers are a best case for the colour stages, not a promise about your selfie.
-        </p>
-      </aside>
 
       <div className="grid gap-20">
         <Section
           n="01"
+          title="What we found on real photos"
+          deck="The app reads almost everyone as the middle of the scale. Pale skin comes out four or five levels too deep, deep skin one or two too light, and only MST 6 to 8 land close."
+        >
+          <div className={CARD}>
+            <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
+              <p className="font-display text-[1.25rem] font-semibold text-text">Each person: true level, then the app&apos;s usual answer</p>
+              <p className="text-small text-text-muted">Anonymised, ordered by expert label</p>
+            </div>
+            <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {photos.people.map((person) => {
+                const got = person.typical_prediction;
+                const off = got == null ? null : got - person.mst;
+                return (
+                  <li key={person.id}>
+                    <Tip
+                      tip={
+                        <>
+                          <span className="block font-semibold">{person.id}, expert label MST {person.mst}</span>
+                          {person.photos} photos, {pct(person.rejection_rate)} refused
+                          <br />
+                          {pct(person.within1)} of answers within one level
+                        </>
+                      }
+                      className="flex items-center gap-3 rounded-tile bg-[#fbf7f2] px-3 py-2.5 transition-colors duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-peach/70"
+                    >
+                      <span className="w-9 text-small tabular-nums text-text-muted">{person.id}</span>
+                      <LevelPill hex={MST_HEX[person.mst - 1]} level={person.mst} />
+                      <svg aria-hidden="true" width="22" height="10" viewBox="0 0 22 10" className="shrink-0 text-text-muted">
+                        <path d="M1 5h18M15 1l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      {got == null ? (
+                        <span className="text-small text-text-muted">no answer</span>
+                      ) : (
+                        <LevelPill hex={MST_HEX[got - 1]} level={got} />
+                      )}
+                      <span
+                        className={cn(
+                          "ml-auto text-small font-semibold tabular-nums",
+                          off == null ? "text-text-muted" : Math.abs(off) <= 1 ? "text-success" : "text-accent",
+                        )}
+                      >
+                        {off == null ? "" : off === 0 ? "exact" : `${off > 0 ? "+" : ""}${off} ${Math.abs(off) === 1 ? "level" : "levels"}`}
+                      </span>
+                    </Tip>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+            <div className="rounded-card bg-peach p-6 sm:p-8">
+              <p className="text-label uppercase text-peach-ink">Why it happens</p>
+              <p className="mt-3 font-display text-[1.5rem] font-semibold leading-snug text-text">
+                The camera decides how bright your face is, not your skin.
+              </p>
+              <div className="mt-4 grid gap-3 text-small text-text-soft">
+                <p>
+                  The classifier compares the raw brightness of your cheeks with the ten Monk reference colours. That only works if a pale
+                  face photographs pale and a deep face photographs deep.
+                </p>
+                <p>
+                  Phones do not let that happen. Auto-exposure brightens or darkens every shot until the face sits near the middle of the range.
+                  A pale face in a dim room, or in front of a bright window, ends up as dark in the pixels as a medium one, and a deep face
+                  gets lifted. Your eye corrects for the room; the measurement cannot, because it has nothing in the frame to compare against.
+                </p>
+                <p>
+                  The simulation missed it because its virtual camera exposed every face correctly. Real photographs are what showed it.
+                </p>
+              </div>
+            </div>
+
+            <div className={CARD}>
+              <p className="font-display text-[1.25rem] font-semibold text-text">By lighting</p>
+              <p className="mt-1 text-small text-text-soft">Within one level, of every photo.</p>
+              <div className="mt-5 grid gap-4">
+                {Object.entries(photos.by_lighting).map(([key, l]) => (
+                  <div key={key}>
+                    <div className="flex items-baseline justify-between text-small">
+                      <span className="font-medium text-text">{l.label}</span>
+                      <span className="tabular-nums text-text-soft">
+                        <span className="font-semibold text-text">{pct(l.within1_of_all)}</span> · leans {(l.mean_bias ?? 0) > 0 ? "+" : ""}
+                        {(l.mean_bias ?? 0).toFixed(1)} levels deep
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-3.5 rounded-pill bg-line-strong/40">
+                      <div className="h-full rounded-pill" style={{ width: pct(l.within1_of_all), background: `linear-gradient(90deg, #e8955f, ${SERIES.after})` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-5 text-small text-text-muted">
+                Poor light makes the lean worse, as the explanation predicts, but even well lit photos read more than a level too deep on
+                average.
+              </p>
+            </div>
+          </div>
+
+          <div className={CARD}>
+            <ConfusionMatrix
+              label="Real photo confusion matrix"
+              views={[
+                { key: "all", label: "All photos" },
+                ...Object.entries(photos.by_lighting).map(([key, l]) => ({ key, label: l.label })),
+              ]}
+              matrices={{
+                "all|": {
+                  confusion: photos.overall.confusion,
+                  rowRefused: Array.from({ length: 10 }, (_, i) => photos.by_level[String(i + 1)]?.rejection_rate ?? null),
+                  exact: photos.overall.exact,
+                  within1: photos.overall.within1,
+                  mean_bias: photos.overall.mean_bias,
+                },
+                ...Object.fromEntries(
+                  Object.entries(photos.by_lighting).map(([key, l]) => [
+                    `${key}|`,
+                    { confusion: l.confusion, exact: l.exact, within1: l.within1, mean_bias: l.mean_bias },
+                  ]),
+                ),
+              }}
+            />
+          </div>
+
+          <p className="max-w-prose text-small text-text-muted">
+            Data: {photos.meta.dataset}. {photos.meta.terms} Photos with face masks and the video clips were left out. Images never leave the
+            machine they were evaluated on; this page holds totals only.
+          </p>
+        </Section>
+
+        <div className="grid gap-6 border-t border-line-strong pt-14">
+          <p className="text-label uppercase text-text-muted">The simulation</p>
+          <aside className="grid gap-2 rounded-card bg-lavender p-6 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-8 sm:p-8">
+            <p className="font-display text-[1.375rem] font-semibold italic leading-tight text-lavender-ink">Read this first</p>
+            <p className="max-w-prose text-small text-text-soft">
+              The sections below use {report.meta.scenes.toLocaleString("en-US")} simulated portraits with a known skin colour, lit like real
+              rooms, so every error can be traced to a stage. They test the colour stages only, and their virtual camera exposes every face
+              correctly, which is exactly the assumption real photos broke. Read them as a map of where white balance and sampling fail, not
+              as accuracy.
+            </p>
+          </aside>
+        </div>
+        <Section
+          n="02"
           title="Accuracy by lighting"
           deck="Share of all photos that got the exact Monk level, refusals included. Peach is the pipeline before this evaluation, when its exposure check treated pale skin as blown out."
         >
@@ -174,7 +328,7 @@ export default function EvalPage() {
         </Section>
 
         <Section
-          n="02"
+          n="03"
           title="Where the errors land"
           deck="A wrong answer that is one level off is a different problem from one that is three off, and leaning light is different from leaning deep. Only the matrix shows which."
         >
@@ -189,7 +343,7 @@ export default function EvalPage() {
         </Section>
 
         <div className="grid gap-20 2xl:grid-cols-2 2xl:gap-10">
-          <Section n="03" title="By tone and light" deck="Exact answers per Monk level, refusals counted as misses. The lightest three levels are the weak spot under every light.">
+          <Section n="04" title="By tone and light" deck="Exact answers per Monk level, refusals counted as misses. The lightest three levels are the weak spot under every light.">
             <div className={CARD}>
               <HeatGrid
                 levels={report.levels}
@@ -212,7 +366,7 @@ export default function EvalPage() {
           </Section>
 
           <Section
-            n="04"
+            n="05"
             title="What white balance is worth"
             deck="Average colour error with and without the white balance step. Lower is better. It earns its place in blue shade and costs a little in daylight."
           >
@@ -229,7 +383,7 @@ export default function EvalPage() {
         </div>
 
         <Section
-          n="05"
+          n="06"
           title="The classifier on its own"
           deck="Before any photo is involved: how far a measured colour can drift before the answer changes. Wide margins mean a forgiving level. MST 1 and 2 sit 5.5 units apart, so a small error flips them."
         >
@@ -258,9 +412,14 @@ export default function EvalPage() {
           </div>
         </Section>
 
-        <Section n="06" title="What this found" deck="One bug fixed because of these numbers, two problems now named and waiting.">
-          <ul className="grid gap-4 md:grid-cols-3">
+        <Section n="07" title="What this found" deck="One bug fixed, three problems named, and the one that matters most is the first.">
+          <ul className="grid gap-4 md:grid-cols-2">
             {[
+              {
+                tag: "Open",
+                title: "Readings collapse toward the middle",
+                body: `On real photos, auto-exposure normalises face brightness, so the classifier's absolute colour comparison pulls pale skin deep and deep skin light. ${pct(photos.overall.within1_of_all)} of photos land within one level. This is the main problem, and the next section is the plan for it.`,
+              },
               {
                 tag: "Fixed",
                 title: "Pale skin was being refused",
@@ -296,12 +455,57 @@ export default function EvalPage() {
           </ul>
         </Section>
 
+        <Section
+          n="08"
+          title="Future work: give the photo a reference"
+          deck="The fix is not a better threshold. The measurement needs something in the frame whose true brightness is known."
+        >
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              {
+                title: "Normalise against the eyes",
+                body: "The whites of the eyes are a near-neutral, fairly constant reflector in every face, already located by the landmark model. Scaling the image so the sclera reaches a fixed brightness undoes the camera's exposure choice before the skin is measured. Teeth and the iris rim are fallbacks.",
+              },
+              {
+                title: "Classify relative colour",
+                body: "Compare skin to that reference rather than to absolute swatch values: the ratio of skin to sclera brightness, plus hue, which exposure barely moves. That changes the classifier's input, not just its thresholds.",
+              },
+              {
+                title: "Keep the test set clean",
+                body: "MST-E may be used for evaluation but not to train models, and tuning on it would also flatter the result. Any calibration has to come from other consented, labelled data, with MST-E held back as the honest final check.",
+              },
+            ].map((f, i) => (
+              <div key={f.title} className="rounded-card border border-white/90 bg-[#fffdfa] p-6 shadow-card">
+                <p className="font-display text-[2.5rem] font-semibold leading-none text-accent-vivid">{i + 1}</p>
+                <p className="mt-4 font-display text-[1.25rem] font-semibold leading-tight text-text">{f.title}</p>
+                <p className="mt-2 text-small text-text-soft">{f.body}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+
         <section className="grid gap-8 border-t border-line-strong pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
           <div>
             <p className="text-label uppercase text-accent">Method</p>
             <h2 className="mt-2 text-[clamp(1.75rem,3vw,2.375rem)] font-semibold leading-[1.1] text-text">How it was measured</h2>
           </div>
           <div className="text-small text-text-soft">
+            <p className="mb-2 font-semibold text-text">Real photographs</p>
+            <ul className="mb-6 grid max-w-prose list-disc gap-2 pl-5 marker:text-accent-vivid">
+              <li>
+                {photos.meta.photos.toLocaleString("en-US")} photos of {photos.meta.people} people from Google&apos;s Monk Skin Tone Examples, each
+                person labelled by Dr. Ellis Monk, across poses and well and poorly lit conditions.
+              </li>
+              <li>
+                Each photo runs the full upload path: white balance, face landmarks, the quality check, skin sampling and the classifier. A
+                photo the app would refuse counts as refused.
+              </li>
+              <li>
+                Photos of one person are not independent, so ranges come from a bootstrap that resamples people, not photos. Reproduce with{" "}
+                <code className="rounded-sm bg-peach px-1.5 py-0.5 text-text">python eval/mste_eval.py --root &lt;dataset&gt;</code>.
+              </li>
+            </ul>
+            <p className="mb-2 font-semibold text-text">Simulation</p>
             <ul className="grid max-w-prose list-disc gap-2 pl-5 marker:text-accent-vivid">
               <li>
                 {report.meta.subjects_per_level} simulated people per Monk level, each with skin jittered around the level&apos;s reference

@@ -70,8 +70,12 @@ every ground.
 | `sage` | `#E3EDE2` | `#9DBF9A` | `#3F6346` (5.7) |
 | `peach` | `#FBE4D6` | `#F2B394` | `#8A4A2B` (5.6) |
 | `sky` | `#DFEBF5` | `#9CC3E3` | `#2F5A7D` (6.0) |
+| `blush` (rose) | `#F8E1E7` | `#E9A3B5` | `#8C3553` (6.2) |
 
 Utilities follow: `bg-sage`, `border-sage-mid`, `text-sage-ink`, and so on.
+
+On the shelf: face makeup is peach, skincare sage, lips blush, eyes lavender;
+anything else sits on plain white.
 Pastels mark category only. They never stand in for status (success, warning,
 danger) and never carry data in charts.
 

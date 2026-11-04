@@ -51,7 +51,8 @@
   /* ── Category pastels ─────────────────────────────────────────────────── */
   /* One colour per kind of thing, so a card says what it is before it is
      read. Each has a ground (card fill), a mid (icons, dots, borders) and an
-     ink (text on the ground, AA: lavender 6.0, sage 5.7, peach 5.6, sky 6.0).
+     ink (text on the ground, AA: lavender 6.0, sage 5.7, peach 5.6, sky 6.0,
+     blush 6.2). Blush is the rose pastel; --color-rose was already taken.
      Body text (--color-text) is 12:1 or better on every ground. */
   --color-lavender: #e9e3f5;
   --color-lavender-mid: #b9a8e0;
@@ -65,6 +66,9 @@
   --color-sky: #dfebf5;
   --color-sky-mid: #9cc3e3;
   --color-sky-ink: #2f5a7d;
+  --color-blush: #f8e1e7;
+  --color-blush-mid: #e9a3b5;
+  --color-blush-ink: #8c3553;
 
   /* ── Monk Skin Tone scale: the source of every aura ───────────────────── */
   --color-mst-1: #f6ede4;

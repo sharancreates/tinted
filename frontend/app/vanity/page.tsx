@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { FIELD, FIELD_LABEL } from "@/components/ui/field";
+import { pillClass } from "@/components/ui/PillGroup";
 import { SignInGate } from "@/components/vanity/SignInGate";
 import { InventoryGrid } from "@/components/vanity/InventoryGrid";
 import { AddProduct } from "@/components/vanity/AddProduct";
@@ -243,6 +244,30 @@ function VanityContent() {
           </div>
         ) : (
           <>
+            <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Quick filters">
+              <button type="button" aria-pressed={statusFilter === "all"} onClick={() => setStatusFilter("all")} className={pillClass(statusFilter === "all")}>
+                Everything
+              </button>
+              <button
+                type="button"
+                aria-pressed={statusFilter === "alerts"}
+                onClick={() => setStatusFilter(statusFilter === "alerts" ? "all" : "alerts")}
+                className={pillClass(statusFilter === "alerts", "relative")}
+              >
+                Running low
+                {Object.keys(flags).length > 0 && (
+                  <>
+                    <span className="tabular-nums text-text-muted">{Object.keys(flags).length}</span>
+                    {/* Notification dot: something on the shelf is low or empty. */}
+                    <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 flex h-3 w-3">
+                      <span className="absolute inset-0 rounded-full bg-accent-vivid opacity-60 motion-safe:animate-ping [animation-iteration-count:3]" />
+                      <span className="relative h-3 w-3 rounded-full border-2 border-bg bg-accent-vivid" />
+                    </span>
+                    <span className="sr-only">, needs attention</span>
+                  </>
+                )}
+              </button>
+            </div>
             <div className="mb-5 grid gap-3 sm:grid-cols-2">
               <label className={FIELD_LABEL}>Status
                 <select className={`mt-2 ${FIELD}`} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as ProductStatus | "all" | "alerts")}>

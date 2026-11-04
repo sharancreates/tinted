@@ -302,3 +302,14 @@ export function lookupShades(
 ): Promise<{ shades: ProductShade[] }> {
   return postJson("/product-shades", { brand, product });
 }
+
+// ── Product photo identification ──────────────────────────────────────────────
+
+export type IdentifiedProduct = { brand: string; product_name: string };
+
+/** Brand and product name read from a packaging photo, or null if none was legible. */
+export function identifyProduct(file: File): Promise<{ product: IdentifiedProduct | null }> {
+  const form = new FormData();
+  form.append("file", file);
+  return request("/identify-product", { method: "POST", body: form });
+}

@@ -7,11 +7,19 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { LevelPill } from "@/components/eval/charts";
 import { MethodSheet, type Method } from "@/components/find-shade/MethodSheet";
 import { SearchMethod } from "@/components/find-shade/SearchMethod";
+import { PhotoMethod } from "@/components/find-shade/PhotoMethod";
 import { ResultCard } from "@/components/find-shade/ResultCard";
 import { useToneProfile } from "@/hooks/useToneProfile";
 import { MST_HEX } from "@/lib/eval";
 import { rankShades, shadesFor, type Product, type ShadeMatch } from "@/lib/shades";
 import { pillClass } from "@/components/ui/PillGroup";
+
+const PHOTO_ICON = (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+    <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+    <circle cx="12" cy="13" r="3.5" />
+  </svg>
+);
 
 const SEARCH_ICON = (
   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -52,7 +60,10 @@ export default function FindShadePage() {
     };
   }, [product, skin]);
 
-  const methods: Method[] = [{ key: "search", label: "Search", icon: SEARCH_ICON, panel: <SearchMethod onPick={setProduct} /> }];
+  const methods: Method[] = [
+    { key: "search", label: "Search", icon: SEARCH_ICON, panel: <SearchMethod onPick={setProduct} /> },
+    { key: "photo", label: "Photo", icon: PHOTO_ICON, panel: <PhotoMethod onPick={setProduct} /> },
+  ];
 
   return (
     <Page width="list">

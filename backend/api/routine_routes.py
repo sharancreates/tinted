@@ -2,11 +2,13 @@
 
 import asyncio
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel, Field
 
 from api.limits import SEARCH_RULES, client_key, limiter, spend_guard
 from api.dupes import find_dupes
+from api.identify import identify_product
+from api.uploads import read_image_upload
 from api.skincare_recommendations import suggest_shelf_routines
 
 router = APIRouter()
@@ -41,3 +43,20 @@ async def dupes(request: Request, req: DupesRequest) -> dict:
         find_dupes, req.brand, req.product, req.shade, req.category, req.price_cents
     )
     return {"results": results}
+
+
+@router.post("/identify-product")
+async def identify(request: Request, file: UploadFile = File(...)) -> dict:
+    """Brand and product name read from a photo of the packaging.
+
+    Returns {"product": {"brand", "product_name"}} or {"product": null} when
+    nothing legible was found. The photo is not stored.
+    """
+    limiter.check(client_key(request), "search", SEARCH_RULES)
+    spend_guard.check()
+    image_bytes = await read_image_upload(file)
+    try:
+        product = await asyncio.to_thread(identify_product, image_bytes)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    return {"product": product}

@@ -64,7 +64,7 @@ def find_metadata(root: Path) -> Path:
     for path in sorted(root.rglob("*.csv")):
         with path.open(newline="", encoding="utf-8-sig") as fh:
             header = {_norm(h) for h in next(csv.reader(fh), [])}
-        if "mst" in header and ({"image_name", "image"} & header):
+        if "mst" in header and ({"image_name", "image_id", "image"} & header):
             return path
     raise SystemExit(
         f"No metadata CSV under {root} with image_name and MST columns.\n"
@@ -93,7 +93,7 @@ def load_rows(meta: Path, index: dict[str, list[Path]], include_masked: bool) ->
     with meta.open(newline="", encoding="utf-8-sig") as fh:
         for raw in csv.DictReader(fh):
             r = {_norm(k): (v or "").strip() for k, v in raw.items() if k}
-            name = r.get("image_name") or r.get("image") or ""
+            name = r.get("image_name") or r.get("image_id") or r.get("image") or ""
             subject = r.get("subject_name") or r.get("subject") or ""
             try:
                 mst = int(float(r.get("mst", "")))
@@ -102,6 +102,9 @@ def load_rows(meta: Path, index: dict[str, list[Path]], include_masked: bool) ->
                 continue
             if not 1 <= mst <= 10:
                 skipped["no label"] += 1
+                continue
+            if "video" in (r.get("lighting"), r.get("pose"), r.get("mask")) or name.lower().endswith(".mp4"):
+                skipped["video"] += 1
                 continue
             if _truthy(r.get("mask")) and not include_masked:
                 skipped["face mask"] += 1

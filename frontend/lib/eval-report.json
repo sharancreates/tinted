@@ -1,0 +1,2589 @@
+{
+ "meta": {
+  "kind": "simulation",
+  "subjects_per_level": 30,
+  "scenes": 1200,
+  "seed": 20261104,
+  "jpeg_quality": 85,
+  "image_size": 360,
+  "generated": "2026-11-04"
+ },
+ "lighting": [
+  {
+   "key": "daylight",
+   "label": "Daylight",
+   "description": "Window light, about 6500 K.",
+   "gains": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "key": "warm",
+   "label": "Warm bulb",
+   "description": "Indoor bulb, 2700 K, half the cast left after the phone corrects.",
+   "gains": [
+    1.605,
+    1.0,
+    0.509
+   ]
+  },
+  {
+   "key": "cool",
+   "label": "Cool shade",
+   "description": "Open shade, 9000 K, half the cast left after the phone corrects.",
+   "gains": [
+    0.929,
+    1.0,
+    1.187
+   ]
+  },
+  {
+   "key": "low",
+   "label": "Low light",
+   "description": "A dim room. The phone brightens a third of the light 2.6 times, noise included.",
+   "gains": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  }
+ ],
+ "levels": [
+  {
+   "level": 1,
+   "hex": "#f6ede4"
+  },
+  {
+   "level": 2,
+   "hex": "#f3e7db"
+  },
+  {
+   "level": 3,
+   "hex": "#f7ead0"
+  },
+  {
+   "level": 4,
+   "hex": "#eadaba"
+  },
+  {
+   "level": 5,
+   "hex": "#d7bd96"
+  },
+  {
+   "level": 6,
+   "hex": "#a07850"
+  },
+  {
+   "level": 7,
+   "hex": "#825c43"
+  },
+  {
+   "level": 8,
+   "hex": "#604134"
+  },
+  {
+   "level": 9,
+   "hex": "#3a312a"
+  },
+  {
+   "level": 10,
+   "hex": "#292420"
+  }
+ ],
+ "overall": {
+  "on": {
+   "n": 1200,
+   "measured": 1046,
+   "rejected": 154,
+   "exact": 0.8413,
+   "within1": 0.9665,
+   "exact_of_all": 0.7333,
+   "within1_of_all": 0.8425,
+   "rejection_rate": 0.1283,
+   "mean_bias": -0.0354,
+   "mean_delta_e": 3.4,
+   "confusion": [
+    [
+     67,
+     25,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     22,
+     52,
+     0,
+     13,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     13,
+     24,
+     22,
+     15,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     9,
+     8,
+     63,
+     10,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     3,
+     100,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     118,
+     2,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     9,
+     111,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     4,
+     116,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     3,
+     113,
+     4
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2,
+     118
+    ]
+   ],
+   "per_level": [
+    {
+     "level": 1,
+     "n": 128,
+     "exact": 0.7283,
+     "within1": 1.0,
+     "rejection_rate": 0.2812,
+     "mean_bias": 0.2717
+    },
+    {
+     "level": 2,
+     "n": 120,
+     "exact": 0.5977,
+     "within1": 0.8506,
+     "rejection_rate": 0.275,
+     "mean_bias": 0.046
+    },
+    {
+     "level": 3,
+     "n": 112,
+     "exact": 0.2973,
+     "within1": 0.8243,
+     "rejection_rate": 0.3393,
+     "mean_bias": -0.473
+    },
+    {
+     "level": 4,
+     "n": 120,
+     "exact": 0.7,
+     "within1": 0.9,
+     "rejection_rate": 0.25,
+     "mean_bias": -0.1778
+    },
+    {
+     "level": 5,
+     "n": 120,
+     "exact": 0.9709,
+     "within1": 1.0,
+     "rejection_rate": 0.1417,
+     "mean_bias": -0.0291
+    },
+    {
+     "level": 6,
+     "n": 120,
+     "exact": 0.9833,
+     "within1": 1.0,
+     "rejection_rate": 0.0,
+     "mean_bias": 0.0167
+    },
+    {
+     "level": 7,
+     "n": 120,
+     "exact": 0.925,
+     "within1": 1.0,
+     "rejection_rate": 0.0,
+     "mean_bias": -0.075
+    },
+    {
+     "level": 8,
+     "n": 120,
+     "exact": 0.9667,
+     "within1": 1.0,
+     "rejection_rate": 0.0,
+     "mean_bias": -0.0333
+    },
+    {
+     "level": 9,
+     "n": 120,
+     "exact": 0.9417,
+     "within1": 1.0,
+     "rejection_rate": 0.0,
+     "mean_bias": 0.0083
+    },
+    {
+     "level": 10,
+     "n": 120,
+     "exact": 0.9833,
+     "within1": 1.0,
+     "rejection_rate": 0.0,
+     "mean_bias": -0.0167
+    }
+   ]
+  },
+  "off": {
+   "n": 1200,
+   "measured": 1054,
+   "rejected": 146,
+   "exact": 0.8539,
+   "within1": 0.9677,
+   "exact_of_all": 0.75,
+   "within1_of_all": 0.85,
+   "rejection_rate": 0.1217,
+   "mean_bias": -0.038,
+   "mean_delta_e": 3.52,
+   "confusion": [
+    [
+     72,
+     21,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     26,
+     49,
+     3,
+     12,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     12,
+     16,
+     41,
+     10,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     10,
+     6,
+     65,
+     9,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     2,
+     100,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     117,
+     3,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     9,
+     111,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     4,
+     116,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     4,
+     112,
+     4
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     3,
+     117
+    ]
+   ],
+   "per_level": [
+    {
+     "level": 1,
+     "n": 128,
+     "exact": 0.7742,
+     "within1": 1.0,
+     "rejection_rate": 0.2734,
+     "mean_bias": 0.2258
+    },
+    {
+     "level": 2,
+     "n": 120,
+     "exact": 0.5444,
+     "within1": 0.8667,
+     "rejection_rate": 0.25,
+     "mean_bias": 0.0111
+    },
+    {
+     "level": 3,
+     "n": 112,
+     "exact": 0.519,
+     "within1": 0.8481,
+     "rejection_rate": 0.2946,
+     "mean_bias": -0.3797
+    },
+    {
+     "level": 4,
+     "n": 120,
+     "exact": 0.7222,
+     "within1": 0.8889,
+     "rejection_rate": 0.25,
+     "mean_bias": -0.1889
+    },
+    {
+     "level": 5,
+     "n": 120,
+     "exact": 0.9804,
+     "within1": 1.0,
+     "rejection_rate": 0.15,
+     "mean_bias": -0.0196
+    },
+    {
+     "level": 6,
+     "n": 120,
+     "exact": 0.975,
+     "within1": 1.0,
+     "rejection_rate": 0.0,
+     "mean_bias": 0.025
+    },
+    {
+     "level": 7,
+     "n": 120,
+     "exact": 0.925,
+     "within1": 1.0,
+     "rejection_rate": 0.0,
+     "mean_bias": -0.075
+    },
+    {
+     "level": 8,
+     "n": 120,
+     "exact": 0.9667,
+     "within1": 1.0,
+     "rejection_rate": 0.0,
+     "mean_bias": -0.0333
+    },
+    {
+     "level": 9,
+     "n": 120,
+     "exact": 0.9333,
+     "within1": 1.0,
+     "rejection_rate": 0.0,
+     "mean_bias": 0.0
+    },
+    {
+     "level": 10,
+     "n": 120,
+     "exact": 0.975,
+     "within1": 1.0,
+     "rejection_rate": 0.0,
+     "mean_bias": -0.025
+    }
+   ]
+  }
+ },
+ "by_lighting": {
+  "on": {
+   "daylight": {
+    "n": 300,
+    "measured": 294,
+    "rejected": 6,
+    "exact": 0.8776,
+    "within1": 0.9762,
+    "exact_of_all": 0.86,
+    "within1_of_all": 0.9567,
+    "rejection_rate": 0.02,
+    "mean_bias": 0.0034,
+    "mean_delta_e": 1.92,
+    "confusion": [
+     [
+      23,
+      8,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      7,
+      19,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      3,
+      6,
+      10,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      2,
+      26,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30
+     ]
+    ],
+    "per_level": [
+     {
+      "level": 1,
+      "n": 32,
+      "exact": 0.7419,
+      "within1": 1.0,
+      "rejection_rate": 0.0312,
+      "mean_bias": 0.2581
+     },
+     {
+      "level": 2,
+      "n": 30,
+      "exact": 0.6333,
+      "within1": 0.8667,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0333
+     },
+     {
+      "level": 3,
+      "n": 28,
+      "exact": 0.4348,
+      "within1": 0.8696,
+      "rejection_rate": 0.1786,
+      "mean_bias": -0.3478
+     },
+     {
+      "level": 4,
+      "n": 30,
+      "exact": 0.8667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 5,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 6,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 7,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 8,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 9,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 10,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     }
+    ]
+   },
+   "warm": {
+    "n": 300,
+    "measured": 164,
+    "rejected": 136,
+    "exact": 0.878,
+    "within1": 1.0,
+    "exact_of_all": 0.48,
+    "within1_of_all": 0.5467,
+    "rejection_rate": 0.4533,
+    "mean_bias": -0.1098,
+    "mean_delta_e": 9.28,
+    "confusion": [
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      1,
+      12,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      9,
+      21,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      26,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      27,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      28
+     ]
+    ],
+    "per_level": [
+     {
+      "level": 1,
+      "n": 32,
+      "exact": null,
+      "within1": null,
+      "rejection_rate": 1.0,
+      "mean_bias": null
+     },
+     {
+      "level": 2,
+      "n": 30,
+      "exact": null,
+      "within1": null,
+      "rejection_rate": 1.0,
+      "mean_bias": null
+     },
+     {
+      "level": 3,
+      "n": 28,
+      "exact": 0.0,
+      "within1": 1.0,
+      "rejection_rate": 0.9643,
+      "mean_bias": 1.0
+     },
+     {
+      "level": 4,
+      "n": 30,
+      "exact": null,
+      "within1": null,
+      "rejection_rate": 1.0,
+      "mean_bias": null
+     },
+     {
+      "level": 5,
+      "n": 30,
+      "exact": 0.9231,
+      "within1": 1.0,
+      "rejection_rate": 0.5667,
+      "mean_bias": -0.0769
+     },
+     {
+      "level": 6,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 7,
+      "n": 30,
+      "exact": 0.7,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.3
+     },
+     {
+      "level": 8,
+      "n": 30,
+      "exact": 0.8667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.1333
+     },
+     {
+      "level": 9,
+      "n": 30,
+      "exact": 0.9,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.1
+     },
+     {
+      "level": 10,
+      "n": 30,
+      "exact": 0.9333,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.0667
+     }
+    ]
+   },
+   "cool": {
+    "n": 300,
+    "measured": 291,
+    "rejected": 9,
+    "exact": 0.7938,
+    "within1": 0.9313,
+    "exact_of_all": 0.77,
+    "within1_of_all": 0.9033,
+    "rejection_rate": 0.03,
+    "mean_bias": -0.1168,
+    "mean_delta_e": 2.82,
+    "confusion": [
+     [
+      24,
+      5,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      11,
+      13,
+      0,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      8,
+      7,
+      3,
+      7,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      9,
+      4,
+      13,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      1,
+      29,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      29,
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30
+     ]
+    ],
+    "per_level": [
+     {
+      "level": 1,
+      "n": 32,
+      "exact": 0.8276,
+      "within1": 1.0,
+      "rejection_rate": 0.0938,
+      "mean_bias": 0.1724
+     },
+     {
+      "level": 2,
+      "n": 30,
+      "exact": 0.4815,
+      "within1": 0.8889,
+      "rejection_rate": 0.1,
+      "mean_bias": -0.1852
+     },
+     {
+      "level": 3,
+      "n": 28,
+      "exact": 0.12,
+      "within1": 0.68,
+      "rejection_rate": 0.1071,
+      "mean_bias": -0.64
+     },
+     {
+      "level": 4,
+      "n": 30,
+      "exact": 0.4333,
+      "within1": 0.7,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.6
+     },
+     {
+      "level": 5,
+      "n": 30,
+      "exact": 0.9667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.0333
+     },
+     {
+      "level": 6,
+      "n": 30,
+      "exact": 0.9667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0333
+     },
+     {
+      "level": 7,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 8,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 9,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 10,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     }
+    ]
+   },
+   "low": {
+    "n": 300,
+    "measured": 297,
+    "rejected": 3,
+    "exact": 0.8316,
+    "within1": 0.9731,
+    "exact_of_all": 0.8233,
+    "within1_of_all": 0.9633,
+    "rejection_rate": 0.01,
+    "mean_bias": 0.0471,
+    "mean_delta_e": 2.18,
+    "confusion": [
+     [
+      20,
+      12,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      4,
+      20,
+      0,
+      6,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      2,
+      11,
+      9,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      2,
+      24,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      1,
+      29,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      29,
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      26,
+      4
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30
+     ]
+    ],
+    "per_level": [
+     {
+      "level": 1,
+      "n": 32,
+      "exact": 0.625,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.375
+     },
+     {
+      "level": 2,
+      "n": 30,
+      "exact": 0.6667,
+      "within1": 0.8,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.2667
+     },
+     {
+      "level": 3,
+      "n": 28,
+      "exact": 0.36,
+      "within1": 0.92,
+      "rejection_rate": 0.1071,
+      "mean_bias": -0.48
+     },
+     {
+      "level": 4,
+      "n": 30,
+      "exact": 0.8,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0667
+     },
+     {
+      "level": 5,
+      "n": 30,
+      "exact": 0.9667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.0333
+     },
+     {
+      "level": 6,
+      "n": 30,
+      "exact": 0.9667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0333
+     },
+     {
+      "level": 7,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 8,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 9,
+      "n": 30,
+      "exact": 0.8667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.1333
+     },
+     {
+      "level": 10,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     }
+    ]
+   }
+  },
+  "off": {
+   "daylight": {
+    "n": 300,
+    "measured": 296,
+    "rejected": 4,
+    "exact": 0.8953,
+    "within1": 0.9865,
+    "exact_of_all": 0.8833,
+    "within1_of_all": 0.9733,
+    "rejection_rate": 0.0133,
+    "mean_bias": 0.0372,
+    "mean_delta_e": 1.31,
+    "confusion": [
+     [
+      24,
+      7,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      7,
+      17,
+      2,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      1,
+      20,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      3,
+      25,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      29
+     ]
+    ],
+    "per_level": [
+     {
+      "level": 1,
+      "n": 32,
+      "exact": 0.7742,
+      "within1": 1.0,
+      "rejection_rate": 0.0312,
+      "mean_bias": 0.2258
+     },
+     {
+      "level": 2,
+      "n": 30,
+      "exact": 0.5667,
+      "within1": 0.8667,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.1
+     },
+     {
+      "level": 3,
+      "n": 28,
+      "exact": 0.8,
+      "within1": 1.0,
+      "rejection_rate": 0.1071,
+      "mean_bias": 0.12
+     },
+     {
+      "level": 4,
+      "n": 30,
+      "exact": 0.8333,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.0333
+     },
+     {
+      "level": 5,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 6,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 7,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 8,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 9,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 10,
+      "n": 30,
+      "exact": 0.9667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.0333
+     }
+    ]
+   },
+   "warm": {
+    "n": 300,
+    "measured": 162,
+    "rejected": 138,
+    "exact": 0.8827,
+    "within1": 1.0,
+    "exact_of_all": 0.4767,
+    "within1_of_all": 0.54,
+    "rejection_rate": 0.46,
+    "mean_bias": -0.1173,
+    "mean_delta_e": 9.23,
+    "confusion": [
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      12,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      9,
+      21,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      26,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      26,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      28
+     ]
+    ],
+    "per_level": [
+     {
+      "level": 1,
+      "n": 32,
+      "exact": null,
+      "within1": null,
+      "rejection_rate": 1.0,
+      "mean_bias": null
+     },
+     {
+      "level": 2,
+      "n": 30,
+      "exact": null,
+      "within1": null,
+      "rejection_rate": 1.0,
+      "mean_bias": null
+     },
+     {
+      "level": 3,
+      "n": 28,
+      "exact": null,
+      "within1": null,
+      "rejection_rate": 1.0,
+      "mean_bias": null
+     },
+     {
+      "level": 4,
+      "n": 30,
+      "exact": null,
+      "within1": null,
+      "rejection_rate": 1.0,
+      "mean_bias": null
+     },
+     {
+      "level": 5,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.6,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 6,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 7,
+      "n": 30,
+      "exact": 0.7,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.3
+     },
+     {
+      "level": 8,
+      "n": 30,
+      "exact": 0.8667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.1333
+     },
+     {
+      "level": 9,
+      "n": 30,
+      "exact": 0.8667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.1333
+     },
+     {
+      "level": 10,
+      "n": 30,
+      "exact": 0.9333,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.0667
+     }
+    ]
+   },
+   "cool": {
+    "n": 300,
+    "measured": 298,
+    "rejected": 2,
+    "exact": 0.7819,
+    "within1": 0.9228,
+    "exact_of_all": 0.7767,
+    "within1_of_all": 0.9167,
+    "rejection_rate": 0.0067,
+    "mean_bias": -0.1946,
+    "mean_delta_e": 4.7,
+    "confusion": [
+     [
+      27,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      15,
+      14,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      12,
+      13,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      10,
+      1,
+      15,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      28,
+      2,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      29,
+      1
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30
+     ]
+    ],
+    "per_level": [
+     {
+      "level": 1,
+      "n": 32,
+      "exact": 0.871,
+      "within1": 1.0,
+      "rejection_rate": 0.0312,
+      "mean_bias": 0.129
+     },
+     {
+      "level": 2,
+      "n": 30,
+      "exact": 0.4667,
+      "within1": 0.9667,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.4333
+     },
+     {
+      "level": 3,
+      "n": 28,
+      "exact": 0.0,
+      "within1": 0.5556,
+      "rejection_rate": 0.0357,
+      "mean_bias": -1.2963
+     },
+     {
+      "level": 4,
+      "n": 30,
+      "exact": 0.5,
+      "within1": 0.6667,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.5667
+     },
+     {
+      "level": 5,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 6,
+      "n": 30,
+      "exact": 0.9333,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0667
+     },
+     {
+      "level": 7,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 8,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 9,
+      "n": 30,
+      "exact": 0.9667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0333
+     },
+     {
+      "level": 10,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     }
+    ]
+   },
+   "low": {
+    "n": 300,
+    "measured": 298,
+    "rejected": 2,
+    "exact": 0.8691,
+    "within1": 0.9765,
+    "exact_of_all": 0.8633,
+    "within1_of_all": 0.97,
+    "rejection_rate": 0.0067,
+    "mean_bias": 0.0872,
+    "mean_delta_e": 1.45,
+    "confusion": [
+     [
+      21,
+      10,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      4,
+      18,
+      1,
+      7,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      2,
+      21,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      2,
+      25,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      2,
+      28,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      29,
+      1,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      27,
+      3
+     ],
+     [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30
+     ]
+    ],
+    "per_level": [
+     {
+      "level": 1,
+      "n": 32,
+      "exact": 0.6774,
+      "within1": 1.0,
+      "rejection_rate": 0.0312,
+      "mean_bias": 0.3226
+     },
+     {
+      "level": 2,
+      "n": 30,
+      "exact": 0.6,
+      "within1": 0.7667,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.3667
+     },
+     {
+      "level": 3,
+      "n": 28,
+      "exact": 0.7778,
+      "within1": 1.0,
+      "rejection_rate": 0.0357,
+      "mean_bias": 0.0741
+     },
+     {
+      "level": 4,
+      "n": 30,
+      "exact": 0.8333,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0333
+     },
+     {
+      "level": 5,
+      "n": 30,
+      "exact": 0.9333,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": -0.0667
+     },
+     {
+      "level": 6,
+      "n": 30,
+      "exact": 0.9667,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0333
+     },
+     {
+      "level": 7,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 8,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     },
+     {
+      "level": 9,
+      "n": 30,
+      "exact": 0.9,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.1
+     },
+     {
+      "level": 10,
+      "n": 30,
+      "exact": 1.0,
+      "within1": 1.0,
+      "rejection_rate": 0.0,
+      "mean_bias": 0.0
+     }
+    ]
+   }
+  }
+ },
+ "stage": {
+  "margins": [
+   {
+    "level": 1,
+    "hex": "#F6EDE4",
+    "nearest_level": 2,
+    "nearest_distance": 5.48,
+    "safe_radius": 2.74
+   },
+   {
+    "level": 2,
+    "hex": "#F3E7DB",
+    "nearest_level": 1,
+    "nearest_distance": 5.48,
+    "safe_radius": 2.74
+   },
+   {
+    "level": 3,
+    "hex": "#F7EAD0",
+    "nearest_level": 2,
+    "nearest_distance": 7.87,
+    "safe_radius": 3.94
+   },
+   {
+    "level": 4,
+    "hex": "#EADABA",
+    "nearest_level": 3,
+    "nearest_distance": 15.52,
+    "safe_radius": 7.76
+   },
+   {
+    "level": 5,
+    "hex": "#D7BD96",
+    "nearest_level": 4,
+    "nearest_distance": 24.7,
+    "safe_radius": 12.35
+   },
+   {
+    "level": 6,
+    "hex": "#A07850",
+    "nearest_level": 7,
+    "nearest_distance": 29.14,
+    "safe_radius": 14.57
+   },
+   {
+    "level": 7,
+    "hex": "#825C43",
+    "nearest_level": 6,
+    "nearest_distance": 29.14,
+    "safe_radius": 14.57
+   },
+   {
+    "level": 8,
+    "hex": "#604134",
+    "nearest_level": 9,
+    "nearest_distance": 26.93,
+    "safe_radius": 13.46
+   },
+   {
+    "level": 9,
+    "hex": "#3A312A",
+    "nearest_level": 10,
+    "nearest_distance": 17.12,
+    "safe_radius": 8.56
+   },
+   {
+    "level": 10,
+    "hex": "#292420",
+    "nearest_level": 9,
+    "nearest_distance": 17.12,
+    "safe_radius": 8.56
+   }
+  ],
+  "noise": [
+   {
+    "sigma": 1,
+    "overall": 0.9995,
+    "per_level": {
+     "1": 0.9973,
+     "2": 0.998,
+     "3": 1.0,
+     "4": 1.0,
+     "5": 1.0,
+     "6": 1.0,
+     "7": 1.0,
+     "8": 1.0,
+     "9": 1.0,
+     "10": 1.0
+    }
+   },
+   {
+    "sigma": 2,
+    "overall": 0.9788,
+    "per_level": {
+     "1": 0.918,
+     "2": 0.896,
+     "3": 0.974,
+     "4": 1.0,
+     "5": 1.0,
+     "6": 1.0,
+     "7": 1.0,
+     "8": 1.0,
+     "9": 1.0,
+     "10": 1.0
+    }
+   },
+   {
+    "sigma": 3,
+    "overall": 0.9403,
+    "per_level": {
+     "1": 0.7873,
+     "2": 0.746,
+     "3": 0.882,
+     "4": 0.9933,
+     "5": 1.0,
+     "6": 1.0,
+     "7": 1.0,
+     "8": 1.0,
+     "9": 0.9973,
+     "10": 0.9967
+    }
+   },
+   {
+    "sigma": 5,
+    "overall": 0.8686,
+    "per_level": {
+     "1": 0.6187,
+     "2": 0.544,
+     "3": 0.7047,
+     "4": 0.91,
+     "5": 0.996,
+     "6": 0.996,
+     "7": 0.9987,
+     "8": 0.9973,
+     "9": 0.958,
+     "10": 0.9627
+    }
+   },
+   {
+    "sigma": 8,
+    "overall": 0.7528,
+    "per_level": {
+     "1": 0.5333,
+     "2": 0.366,
+     "3": 0.5267,
+     "4": 0.7307,
+     "5": 0.9313,
+     "6": 0.962,
+     "7": 0.932,
+     "8": 0.9167,
+     "9": 0.792,
+     "10": 0.8373
+    }
+   },
+   {
+    "sigma": 12,
+    "overall": 0.6309,
+    "per_level": {
+     "1": 0.4713,
+     "2": 0.2687,
+     "3": 0.4,
+     "4": 0.5353,
+     "5": 0.8373,
+     "6": 0.8807,
+     "7": 0.7873,
+     "8": 0.7567,
+     "9": 0.6293,
+     "10": 0.7427
+    }
+   }
+  ],
+  "illuminant": [
+   {
+    "b_shift": -16,
+    "correct": 7,
+    "total": 10,
+    "flips": {
+     "2": 1,
+     "3": 1,
+     "4": 2
+    }
+   },
+   {
+    "b_shift": -12,
+    "correct": 8,
+    "total": 10,
+    "flips": {
+     "2": 1,
+     "3": 1
+    }
+   },
+   {
+    "b_shift": -8,
+    "correct": 8,
+    "total": 10,
+    "flips": {
+     "2": 1,
+     "3": 1
+    }
+   },
+   {
+    "b_shift": -4,
+    "correct": 10,
+    "total": 10,
+    "flips": {}
+   },
+   {
+    "b_shift": -2,
+    "correct": 10,
+    "total": 10,
+    "flips": {}
+   },
+   {
+    "b_shift": 2,
+    "correct": 10,
+    "total": 10,
+    "flips": {}
+   },
+   {
+    "b_shift": 4,
+    "correct": 10,
+    "total": 10,
+    "flips": {}
+   },
+   {
+    "b_shift": 8,
+    "correct": 8,
+    "total": 10,
+    "flips": {
+     "1": 3,
+     "2": 3
+    }
+   },
+   {
+    "b_shift": 12,
+    "correct": 8,
+    "total": 10,
+    "flips": {
+     "1": 3,
+     "2": 3
+    }
+   },
+   {
+    "b_shift": 16,
+    "correct": 8,
+    "total": 10,
+    "flips": {
+     "1": 3,
+     "2": 3
+    }
+   }
+  ]
+ },
+ "baseline": {
+  "note": "Patch overexposure gate changed from mean V above 240 to a quarter of pixels clipped.",
+  "by_lighting": {
+   "daylight": {
+    "rejection_rate": 0.12,
+    "exact_of_all": 0.7867,
+    "within1_of_all": 0.8667,
+    "per_level_rejection": [
+     0.3438,
+     0.2,
+     0.5714,
+     0.1,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "warm": {
+    "rejection_rate": 0.5,
+    "exact_of_all": 0.44,
+    "within1_of_all": 0.5,
+    "per_level_rejection": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "cool": {
+    "rejection_rate": 0.12,
+    "exact_of_all": 0.7233,
+    "within1_of_all": 0.8367,
+    "per_level_rejection": [
+     0.5,
+     0.2667,
+     0.3571,
+     0.0667,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "low": {
+    "rejection_rate": 0.0867,
+    "exact_of_all": 0.76,
+    "within1_of_all": 0.8933,
+    "per_level_rejection": [
+     0.3125,
+     0.1,
+     0.3929,
+     0.0667,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  }
+ }
+}

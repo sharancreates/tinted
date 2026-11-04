@@ -158,6 +158,15 @@ while the test set is placeholder images, because a fake accuracy figure is
 worse than an absent one. `backend/eval/README.md` documents collecting real
 labelled samples.
 
+In between sits a **simulated lighting eval** (`eval/pipeline_sim.py`): 1,200
+synthetic portraits with known skin colour under daylight, a warm bulb, cool
+shade and low light, run through the production white balance, patch sampling
+and classifier. It is published as an accuracy dashboard at
+[tinted2.vercel.app/eval](https://tinted2.vercel.app/eval) with a confusion
+matrix, per-level and per-lighting breakdowns, and a with/without white
+balance comparison. It found a real bug (the exposure gate refused a third of
+MST 1-3 faces), which is now fixed: daylight refusals fell from 12% to 2%.
+
 ---
 
 ## Deploying

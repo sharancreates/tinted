@@ -144,7 +144,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <button
                     type="button"
                     disabled={busy || !email.trim()}
-                    className="min-h-12 w-full rounded-pill bg-accent text-small font-semibold text-white transition-colors hover:bg-accent-hover disabled:opacity-40"
+                    className="min-h-12 w-full rounded-pill bg-accent text-small font-semibold text-bg transition-colors hover:bg-accent-hover disabled:opacity-40"
                     onClick={magicLink}
                   >
                     {busy ? "Sending…" : "Email me a magic link"}

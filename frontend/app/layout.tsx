@@ -30,13 +30,13 @@ export const viewport: Viewport = {
   themeColor: "#0b0b0c",
 };
 
+// suppressHydrationWarning is placed on <html> strictly for the data-theme attribute injected pre-hydration by THEME_PRELOAD_SCRIPT. React only suppresses attribute warnings on <html> itself.
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    {/* suppressHydrationWarning is placed on <html> strictly for the data-theme attribute injected pre-hydration by THEME_PRELOAD_SCRIPT. React only suppresses attribute warnings on <html> itself. */}
     <html lang="en" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
       <body className="min-h-screen bg-bg text-text antialiased">
         <Script

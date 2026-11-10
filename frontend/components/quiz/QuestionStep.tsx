@@ -60,7 +60,7 @@ export function QuestionStep({
                     "flex h-5 w-5 shrink-0 items-center justify-center border",
                     question.multi ? "rounded-[0.3rem]" : "rounded-full",
                     isSelected
-                      ? "border-accent bg-accent text-white"
+                      ? "border-accent bg-accent text-bg"
                       : "border-line-strong",
                   )}
                   aria-hidden="true"

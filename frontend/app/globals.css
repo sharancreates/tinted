@@ -17,17 +17,33 @@
 
    Dark theme (default / data-theme="dark"):
    Measured against --color-bg (#0b0b0c) / --color-surface (#141416) / --color-raised (#1c1c1f):
-     text        17.90 / 16.74 / 15.47
-     text-soft    9.20 /  8.60 /  7.95
-     text-muted   5.49 /  5.13 /  4.74
-     accent       6.45 /  6.04 /  5.58
+     text           17.90 / 16.74 / 15.47
+     text-soft       9.20 /  8.60 /  7.95
+     text-muted      5.49 /  5.13 /  4.74
+     accent          6.45 /  6.04 /  5.58
+     accent-bright   8.79 /  8.22 /  7.59
+     accent-vivid    5.31 /  4.96 /  4.59
+     accent-hover    8.79 /  8.22 /  7.59
+     success         8.90 /  8.32 /  7.69
+     warn           10.06 /  9.41 /  8.70
+     danger          7.17 /  6.70 /  6.19
+     button (text-bg on accent): 6.45
+     button-hover (text-bg on hover): 8.79
 
    Light theme (prefers-color-scheme: light / data-theme="light"):
    Measured against --color-bg (#f7f8f9) / --color-surface (#ffffff) / --color-raised (#e8eaea):
-     text        17.15 / 18.23 / 15.24
-     text-soft    8.29 /  8.82 /  7.37
-     text-muted   5.49 /  5.83 /  4.88
-     accent       6.10 /  6.49 /  5.43
+     text           17.18 / 18.27 / 15.13
+     text-soft       8.35 /  8.88 /  7.35
+     text-muted      5.65 /  6.01 /  4.98
+     accent          6.19 /  6.58 /  5.45
+     accent-bright   8.37 /  8.90 /  7.37
+     accent-vivid    5.47 /  5.81 /  4.81
+     accent-hover   10.28 / 10.93 /  9.05
+     success         6.09 /  6.47 /  5.36
+     warn            5.80 /  6.16 /  5.10
+     danger          5.78 /  6.15 /  5.09
+     button (text-bg on accent): 6.19
+     button-hover (text-bg on hover): 10.28
    If you change a value here, re-check it before committing.
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -127,9 +143,9 @@
   --light-color-accent-hover: #5e310c;
   --light-color-accent-dim: rgba(135, 80, 24, 0.12);
 
-  --light-color-success: #2b7a4b;
-  --light-color-warn: #a36209;
-  --light-color-danger: #cf3b2b;
+  --light-color-success: #226b40;
+  --light-color-warn: #8f5303;
+  --light-color-danger: #b82c1e;
 
   --light-color-line: rgba(0, 0, 0, 0.08);
   --light-color-line-strong: rgba(0, 0, 0, 0.16);
@@ -154,8 +170,8 @@
 
   --dark-color-accent: #c68642;
   --dark-color-accent-bright: #e0a063;
-  --dark-color-accent-vivid: #d9541f;
-  --dark-color-accent-hover: #96330c;
+  --dark-color-accent-vivid: #de5c27;
+  --dark-color-accent-hover: #e0a063;
   --dark-color-accent-dim: rgba(198, 134, 66, 0.14);
 
   --dark-color-success: #6fbf8b;

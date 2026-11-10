@@ -164,7 +164,7 @@ export default function SharedLookPage({
           </p>
           <Link
             href="/match"
-            className="mt-5 inline-flex min-h-12 items-center rounded-pill bg-accent px-8 font-semibold text-white transition-colors hover:bg-accent-hover"
+            className="mt-5 inline-flex min-h-12 items-center rounded-pill bg-accent px-8 font-semibold text-bg transition-colors hover:bg-accent-hover"
           >
             Find my shade
           </Link>

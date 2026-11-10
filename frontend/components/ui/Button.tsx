@@ -17,11 +17,11 @@ const sizes: Record<NonNullable<ButtonProps["size"]>, string> = {
 };
 
 const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  // White label on the accent fill: 5.81:1. The brighter coral
-  // (--color-accent-vivid) is only 4.01 against white, which is why the fill
-  // uses the deeper value and hover darkens further rather than brightening.
+  // Dark text on the accent in dark theme (6.45:1), and light text on the
+  // accent in light theme (6.19:1) via text-bg. White on #c68642 is only
+  // 3.05:1 and fails AA.
   primary:
-    "bg-accent text-white font-semibold hover:bg-accent-hover active:brightness-95",
+    "bg-accent text-bg font-semibold hover:bg-accent-hover active:brightness-95",
   secondary:
     "bg-raised text-text border border-line-strong hover:border-accent hover:text-accent",
   ghost:

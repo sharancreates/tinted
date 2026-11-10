@@ -81,7 +81,7 @@ export function Tabs({ tabs, activeId, onChange, label, className }: TabsProps) 
               "min-h-11 shrink-0 whitespace-nowrap rounded-pill px-4 text-small font-semibold",
               "transition-colors duration-(--duration-fast)",
               selected
-                ? "bg-accent text-white"
+                ? "bg-accent text-bg"
                 : "text-text-soft hover:bg-raised hover:text-text",
             )}
           >
@@ -90,7 +90,7 @@ export function Tabs({ tabs, activeId, onChange, label, className }: TabsProps) 
               <span
                 className={cn(
                   "ml-1.5 tabular-nums",
-                  selected ? "text-white/75" : "text-text-muted",
+                  selected ? "text-bg/75" : "text-text-muted",
                 )}
               >
                 {tab.count}

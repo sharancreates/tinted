@@ -66,7 +66,7 @@ export function InventoryGrid({
                 )}
                 {selected && (
                   <span
-                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white"
+                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-bg"
                     aria-hidden="true"
                   >
                     <svg viewBox="0 0 12 12" className="h-3.5 w-3.5 fill-none stroke-current stroke-2">

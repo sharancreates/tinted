@@ -192,7 +192,7 @@ export default function WelcomePage() {
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/match"
-            className="inline-flex min-h-12 items-center rounded-pill bg-accent px-8 font-semibold text-white transition-colors hover:bg-accent-hover"
+            className="inline-flex min-h-12 items-center rounded-pill bg-accent px-8 font-semibold text-bg transition-colors hover:bg-accent-hover"
           >
             Find my shade
           </Link>

@@ -1,7 +1,36 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { formatCents, type InventoryItem } from "@/lib/vanity";
+import {
+  CATEGORY_LIFESPANS,
+  categoryFamily,
+  formatCents,
+  PRODUCT_STATUS_LABELS,
+  type CategoryFamily,
+  type InventoryItem,
+} from "@/lib/vanity";
+
+/** Card ground per category family: face peach, skincare sage, lips blush, eyes lavender. */
+const FAMILY_CARD: Record<CategoryFamily, string> = {
+  face: "bg-peach",
+  skincare: "bg-sage",
+  lips: "bg-blush",
+  eyes: "bg-lavender",
+  other: "bg-[#fffdfa]",
+};
+
+/**
+ * Status colour sits on a dot inside a white pill, so it reads on every card
+ * ground and never competes with the category pastel.
+ */
+const STATUS_DOT: Record<string, string> = {
+  using: "bg-accent-vivid",
+  panning: "bg-success",
+  wishlist: "bg-sky-ink",
+  backup: "bg-text-muted",
+  finished: "bg-line-strong",
+  destash: "bg-danger",
+};
 
 /**
  * A shelf of what you own.
@@ -16,21 +45,35 @@ export function InventoryGrid({
   selectable = false,
   selectedIds = [],
   onToggle,
-  onDelete,
+  onOpen,
+  activeId,
+  flags = {},
 }: {
   items: InventoryItem[];
+  /** Tap toggles membership (the look editor). */
   selectable?: boolean;
   selectedIds?: string[];
   onToggle?: (item: InventoryItem) => void;
-  onDelete?: (item: InventoryItem) => void;
+  /** Tap opens the product's detail panel (the shelf). */
+  onOpen?: (item: InventoryItem) => void;
+  activeId?: string | null;
+  flags?: Record<string, "low" | "empty">;
 }) {
   if (items.length === 0) return null;
 
   return (
-    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    // Columns follow the space the grid actually has, not the window, because
+    // on the shelf a detail panel takes part of the width.
+    <div className="@container">
+    <ul className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @xl:gap-4">
       {items.map((item) => {
-        const selected = selectedIds.includes(item.id);
-        const Interactive = selectable ? "button" : "div";
+        const selected = selectedIds.includes(item.id) || activeId === item.id;
+        const Interactive = selectable || onOpen ? "button" : "div";
+        const family = categoryFamily(item.category);
+        const lifespan = CATEGORY_LIFESPANS[item.category?.toLowerCase() ?? ""];
+        const openedAt = item.opened_date ? Date.parse(`${item.opened_date}T00:00:00Z`) : NaN;
+        const dueAt = Number.isFinite(openedAt) && lifespan ? openedAt + lifespan * 86_400_000 : NaN;
+        const runningLowNudge = Number.isFinite(dueAt) && dueAt - Date.now() <= 14 * 86_400_000;
 
         return (
           <li key={item.id}>
@@ -41,27 +84,44 @@ export function InventoryGrid({
                     onClick: () => onToggle?.(item),
                     "aria-pressed": selected,
                   }
-                : {})}
+                : onOpen
+                  ? {
+                      type: "button" as const,
+                      onClick: () => onOpen(item),
+                      "aria-expanded": activeId === item.id,
+                      "aria-label": `${item.brand} ${item.product}${item.shade ? `, ${item.shade}` : ""}: show details`,
+                    }
+                  : {})}
               className={cn(
-                "group relative flex h-full w-full flex-col overflow-hidden rounded-card border text-left",
-                "transition-all duration-(--duration-base) ease-(--ease-out-soft)",
+                "group relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-card border p-2 text-left",
+                "transition-[transform,box-shadow,border-color] duration-(--duration-fast) ease-(--ease-out-soft)",
+                FAMILY_CARD[family],
                 selected
-                  ? "border-accent ring-2 ring-accent/30"
-                  : "border-line hover:border-line-strong hover:shadow-lift",
-                item.is_finished ? "bg-raised opacity-70" : "bg-surface shadow-card",
+                  ? "border-accent-vivid shadow-lift ring-2 ring-accent-vivid/30"
+                  : "border-white/70 hover:shadow-lift motion-safe:hover:-translate-y-0.5",
+                item.is_finished && "opacity-70",
               )}
             >
               {/* The shade, at a size that makes the shelf scannable by colour. */}
               <div
-                className="relative h-24 w-full bg-swatch-ground"
-                style={item.hex ? { backgroundColor: item.hex } : undefined}
+                className="relative h-28 w-full overflow-hidden rounded-tile bg-swatch-ground shadow-[inset_0_0_0_1px_rgba(43,36,32,0.05)]"
+                style={item.hex && !item.image_url ? { backgroundColor: item.hex } : undefined}
               >
-                {!item.hex && (
+                {item.image_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.image_url} alt="" className="absolute inset-0 h-full w-full object-contain p-2" loading="lazy" />
+                )}
+                {!item.hex && !item.image_url && (
                   <span
-                    className="flex h-full w-full items-center justify-center font-display text-title text-text-muted/40"
+                    className="flex h-full w-full items-center justify-center text-title font-semibold text-text-muted/40"
                     aria-hidden="true"
                   >
                     {item.brand.charAt(0).toUpperCase()}
+                  </span>
+                )}
+                {flags[item.id] && (
+                  <span className={`absolute left-2 top-2 rounded-pill px-2 py-0.5 text-[0.6875rem] font-semibold text-white ${flags[item.id] === "empty" ? "bg-danger" : "bg-warn"}`}>
+                    {flags[item.id] === "empty" ? "Empty" : "Low"}
                   </span>
                 )}
                 {selected && (
@@ -76,7 +136,7 @@ export function InventoryGrid({
                 )}
               </div>
 
-              <div className="flex flex-1 flex-col gap-0.5 p-3">
+              <div className="flex flex-1 flex-col gap-0.5 px-2 pb-1.5 pt-3">
                 <p className="clamp-1 text-label uppercase text-text-muted">
                   {item.brand}
                 </p>
@@ -91,21 +151,20 @@ export function InventoryGrid({
                     {formatCents(item.price_cents, item.currency)}
                   </span>
                 </div>
+                {!selectable && (
+                  <span className="mt-2.5 inline-flex w-fit items-center gap-1.5 rounded-pill bg-white/85 px-2.5 py-1 text-[0.6875rem] font-semibold text-text shadow-[0_1px_2px_rgba(70,45,30,0.06)]">
+                    <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", STATUS_DOT[item.status] ?? STATUS_DOT.using)} />
+                    {PRODUCT_STATUS_LABELS[item.status] ?? PRODUCT_STATUS_LABELS.using}
+                  </span>
+                )}
+                {runningLowNudge && <p className="mt-1 text-label text-peach-ink">Running low?</p>}
               </div>
             </Interactive>
 
-            {onDelete && (
-              <button
-                type="button"
-                onClick={() => onDelete(item)}
-                className="mt-1 text-label uppercase text-text-muted hover:text-danger"
-              >
-                Remove
-              </button>
-            )}
           </li>
         );
       })}
     </ul>
+    </div>
   );
 }

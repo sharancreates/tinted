@@ -66,7 +66,12 @@ _ALL_LANDMARKS: list[int] = CHEEK_LANDMARKS + FOREHEAD_LANDMARKS
 # ---------------------------------------------------------------------------
 
 _STD_MAX     = 30    # max V-channel std within a patch; above → edge or highlight
-_V_MAX       = 240   # max mean V; above → patch is blown out
+# A patch is blown out when a quarter of its pixels sit at the sensor ceiling.
+# This used to be "mean V above 240", but the MST 1-3 references are V 243-247:
+# the gate threw away healthy pale skin as overexposed. The simulated lighting
+# eval (eval/pipeline_sim.py) refused a third of MST 1-3 faces in daylight.
+_CLIP_V        = 252   # V at or above this counts as clipped
+_CLIP_FRAC_MAX = 0.25  # more clipped pixels than this → patch is blown out
 _V_MIN       = 30    # min mean V; below → patch is in deep shadow
 _TRIM_FRAC   = 0.10  # fraction to drop from each L*-sorted tail
 _MIN_PATCHES = 5     # minimum patches required before we'll return a result
@@ -74,6 +79,11 @@ _MIN_PATCHES = 5     # minimum patches required before we'll return a result
 # ---------------------------------------------------------------------------
 # Result type
 # ---------------------------------------------------------------------------
+
+
+def _clipped(v: np.ndarray) -> bool:
+    """True when too much of a patch's V channel is at the sensor ceiling."""
+    return float((v >= _CLIP_V).mean()) > _CLIP_FRAC_MAX
 
 
 @dataclass
@@ -186,7 +196,7 @@ def extract_patches_streaming(
 
         if v_std > _STD_MAX:
             reason = "specular highlight"
-        elif v_mean > _V_MAX:
+        elif _clipped(v):
             reason = "overexposed"
         elif v_mean < _V_MIN:
             reason = "underexposed"
@@ -257,7 +267,47 @@ def _detect_landmarks(image_bgr: np.ndarray):
     found; *image_bgr* itself is never modified.  Landmark coordinates are
     normalised, so they apply directly to the caller's colour-faithful image.
     """
-    image_rgb = cv2.cvtColor(apply_clahe(image_bgr), cv2.COLOR_BGR2RGB)
+    working = apply_clahe(image_bgr)
+    landmarks = _run_landmarker(working)
+    if landmarks is not None:
+        return landmarks
+
+    # Close-up portraits that crop the forehead or chin defeat the face
+    # detector, which expects a whole face with some margin around it. Padding
+    # the frame and retrying recovers them; the landmarks are then mapped back
+    # into the unpadded image's normalised coordinates.
+    h, w = working.shape[:2]
+    pad_y, pad_x = int(h * _RETRY_PAD), int(w * _RETRY_PAD)
+    padded = cv2.copyMakeBorder(
+        working, pad_y, pad_y, pad_x, pad_x, cv2.BORDER_CONSTANT, value=(128, 128, 128)
+    )
+    landmarks = _run_landmarker(padded)
+    if landmarks is None:
+        return None
+    pw, ph = w + 2 * pad_x, h + 2 * pad_y
+    return [
+        _Landmark(
+            x=(lm.x * pw - pad_x) / w,
+            y=(lm.y * ph - pad_y) / h,
+            z=lm.z,
+        )
+        for lm in landmarks
+    ]
+
+
+# Fraction of each dimension added on every side for the padded retry.
+_RETRY_PAD = 0.25
+
+
+@dataclass(frozen=True)
+class _Landmark:
+    x: float
+    y: float
+    z: float
+
+
+def _run_landmarker(image_bgr: np.ndarray):
+    image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
     mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
     result = _face_landmarker.detect(mp_image)
     if not result.face_landmarks:
@@ -354,7 +404,7 @@ def _extract_patches(img_bgr: np.ndarray, landmarks) -> SkinSample:
         v_mean = float(v.mean())
         v_std  = float(v.std())
 
-        if v_std > _STD_MAX or v_mean > _V_MAX or v_mean < _V_MIN:
+        if v_std > _STD_MAX or _clipped(v) or v_mean < _V_MIN:
             rejected_count += 1
             continue
 

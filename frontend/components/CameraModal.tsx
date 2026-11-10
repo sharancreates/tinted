@@ -1,5 +1,6 @@
 "use client"
 
+import { DURATION, EASE } from "@/lib/motion"
 import { useEffect, useRef, useState, useCallback } from "react"
 import { motion } from "framer-motion"
 
@@ -32,7 +33,7 @@ export default function CameraModal({ onCapture, onClose }: Props) {
         setError(null)
       })
       .catch(() => {
-        if (!cancelled) setError("Camera access needed — check your browser settings.")
+        if (!cancelled) setError("Camera access is needed. Check your browser settings.")
       })
 
     return () => {
@@ -65,37 +66,35 @@ export default function CameraModal({ onCapture, onClose }: Props) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-overlay px-4 backdrop-blur-md"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        // Deliberately dark against the app's cream ground: a camera preview
-        // needs a neutral dark surround, and white-alpha chrome only reads here.
-        // This is also why the link below uses accent-vivid — the darker coral
-        // is 3.25 on #111 and fails.
-        className="relative w-[min(92vw,460px)] bg-[#111] rounded-2xl overflow-hidden ring-1 ring-white/[0.08]"
-        initial={{ scale: 0.94, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.94, opacity: 0 }}
-        transition={{ duration: 0.2 }}
+        // Frosted card; the live feed itself sits in a dark well, which a camera
+        // preview needs. Controls over the feed stay white-on-dark.
+        className="glass-strong relative w-[min(92vw,460px)] overflow-hidden rounded-card p-3"
+        initial={{ y: 12, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: DURATION.base, ease: EASE }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute top-3 left-3 z-20 min-h-11 rounded-pill bg-white/10 px-4 text-small text-white/70 transition-colors hover:bg-white/15 hover:text-white"
+          className="absolute left-6 top-6 z-20 min-h-11 cursor-pointer rounded-pill bg-black/35 px-4 text-small font-semibold text-white backdrop-blur-md transition-colors duration-(--duration-fast) hover:bg-black/50"
         >
-          close
+          Close
         </button>
 
         {/* Flip */}
         {!error && (
           <button
             onClick={() => setFacingMode((m) => (m === "user" ? "environment" : "user"))}
-            className="absolute top-3 right-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
+            className="absolute right-6 top-6 z-20 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-md transition-colors duration-(--duration-fast) hover:bg-black/50"
             title="Flip camera"
             aria-label="Flip camera"
           >
@@ -109,18 +108,18 @@ export default function CameraModal({ onCapture, onClose }: Props) {
 
         {error ? (
           <div className="flex flex-col items-center gap-4 p-12 text-center">
-            <p className="text-white/50 text-sm leading-relaxed">{error}</p>
+            <p className="text-small leading-relaxed text-text-soft">{error}</p>
             <button
               onClick={onClose}
-              className="inline-flex min-h-11 items-center text-small text-accent-vivid underline underline-offset-2 hover:text-white"
+              className="inline-flex min-h-11 cursor-pointer items-center text-small font-semibold text-accent underline underline-offset-4"
             >
-              use file upload instead
+              Upload a photo instead
             </button>
           </div>
         ) : (
           <>
             {/* Video + oval overlay */}
-            <div className="relative aspect-[3/4]">
+            <div className="relative aspect-[3/4] overflow-hidden rounded-tile bg-mst-10">
               <video
                 ref={videoRef}
                 autoPlay
@@ -155,26 +154,26 @@ export default function CameraModal({ onCapture, onClose }: Props) {
                     rx="44"
                     ry="58"
                     fill="none"
-                    stroke="#D9541F"
+                    stroke="#e2603a"
                     strokeWidth="1.5"
                     strokeDasharray="5 3"
                   />
                 </svg>
               </div>
 
-              <p className="absolute bottom-3 left-0 right-0 text-center text-white/50 text-[11px] tracking-wide pointer-events-none">
-                center your face in the oval
+              <p className="pointer-events-none absolute bottom-3 left-0 right-0 text-center text-small text-white/85">
+                Centre your face in the oval
               </p>
             </div>
 
             {/* Capture button */}
-            <div className="flex justify-center py-5 bg-[#0a0a0a]">
+            <div className="flex justify-center pb-2 pt-4">
               <button
                 onClick={capture}
-                className="w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#D9541F] bg-black active:scale-95 transition-transform"
+                className="flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-white shadow-card ring-4 ring-accent-vivid/80 transition-shadow duration-(--duration-fast) hover:shadow-lift"
                 aria-label="Capture photo"
               >
-                <div className="w-11 h-11 rounded-full bg-[#D9541F]" />
+                <div className="h-11 w-11 rounded-full bg-accent-vivid" />
               </button>
             </div>
           </>

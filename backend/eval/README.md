@@ -1,12 +1,30 @@
 # Evaluation
 
-Two harnesses, answering different questions.
+Three harnesses, answering different questions.
 
-| | `classifier_eval.py` | `run_eval.py` |
-|---|---|---|
-| Measures | LAB value → MST level | photograph → MST level |
-| Needs photos | no | **yes** |
-| Status | **done** — see [docs/classifier-evaluation.md](../../docs/classifier-evaluation.md) | **blocked on data** |
+| | `classifier_eval.py` | `pipeline_sim.py` | `run_eval.py` |
+|---|---|---|---|
+| Measures | LAB value → MST level | simulated lit scene → MST level | photograph → MST level |
+| Needs photos | no | no | **yes** |
+| Status | **done** — see [docs/classifier-evaluation.md](../../docs/classifier-evaluation.md) | **done** — published at `/eval` | **blocked on data** |
+
+`pipeline_sim.py` renders portraits with a known skin colour under daylight,
+a warm bulb, cool shade and low light (sensor noise, highlight roll-off,
+JPEG), then runs the production white balance, patch sampling and classifier
+on them, with and without white balance. Face detection is not exercised. Its
+report feeds the accuracy page in the frontend:
+
+```bash
+python eval/pipeline_sim.py --out ../frontend/lib/eval-report.json \
+  --samples ../frontend/public/eval --baseline <earlier report.json>
+```
+
+It has already paid for itself: it showed the patch exposure gate refusing a
+third of MST 1-3 faces in daylight, because their reference colours sit above
+the old "mean V > 240" cutoff. The gate now refuses a patch only when a quarter
+of it is clipped. Open findings (warm casts defeat neutral-pixel white balance;
+pale skin passes as "neutral" and votes on its own correction) are listed on
+the page.
 
 The split exists because `classify_mst` takes a colour, not an image. That stage
 can be characterised exactly, today, and it already produced a real finding. The
@@ -14,6 +32,31 @@ end-to-end question — how accurately the pipeline recovers a colour from a
 photograph — is the one that needs labelled faces, and it is unanswered.
 
 ---
+
+## Real photographs: MST-E
+
+`mste_eval.py` runs the production pipeline (white balance, landmarks,
+quality gate, patch sampling, classifier) on Google's
+[Monk Skin Tone Examples](https://skintone.google/mste-dataset): 1,515
+consented photos of 19 people, each with an expert MST label from Dr. Ellis
+Monk, across poses and lighting.
+
+Terms: research and model evaluation only, never training. The images stay
+out of the repo (`backend/eval/mste/` is gitignored); the report holds
+aggregates only, with subjects anonymised as S01..S19.
+
+1. Sign in with a Google account and download the images and the per-image
+   metadata CSV from the dataset page (anonymous download is not offered).
+2. Put them anywhere, e.g. `backend/eval/mste/`.
+3. Run:
+
+```bash
+python eval/mste_eval.py --root eval/mste --limit 50        # smoke test
+python eval/mste_eval.py --root eval/mste --out mste-report.json
+```
+
+19 people is the honest N, so the report gives per-person results and
+confidence intervals from a bootstrap that resamples people, not photos.
 
 ## Running what works now
 

@@ -5,7 +5,7 @@ message (blur / lighting / angle) rather than a generic detection failure.
 
 Public API
 ----------
-check_blur(img_bgr)                  -> float
+check_blur(img_bgr, landmarks=None) -> float
 check_brightness(img_bgr)            -> dict
 check_face_angle(landmarks)          -> dict
 run_quality_gate(img_bgr, landmarks) -> dict
@@ -20,11 +20,15 @@ import numpy as np
 
 # ── Thresholds ───────────────────────────────────────────────────────────────
 
-# Laplacian variance; below = blurry. This number is not universal — it scales
-# with resolution and image content, so a downscaled webcam frame scores far
-# lower than a full-size phone photo of the same scene. Tune per input path with
-# BLUR_MIN rather than editing here.
-_BLUR_MIN           = float(os.environ.get("BLUR_MIN", 60.0))
+# Laplacian variance of the face, rescaled to _BLUR_FACE_WIDTH px wide; below =
+# blurry. Measuring the face rather than the whole frame matters: a laptop
+# webcam shot is mostly smooth wall, so whole-frame scores for sharp 720p
+# selfies came out at 22-65 against the old limit of 60 and every one was
+# rejected. On face crops, sharp simulated webcam frames score >= 53 and heavy
+# blur (sigma 3+) scores <= 12. Mild blur barely moves a mean skin colour, so
+# the gate only needs to catch the heavy kind.
+_BLUR_MIN           = float(os.environ.get("BLUR_MIN", 15.0))
+_BLUR_FACE_WIDTH    = 256
 _OVEREXPOSED_V      = 220.0  # HSV V mean; above = blown out
 _UNDEREXPOSED_V     = 40.0   # HSV V mean; below = too dark
 _YAW_LIMIT          = 25.0   # degrees; horizontal head-turn limit
@@ -55,12 +59,29 @@ _PITCH_SCALE = 67.0
 
 # ── Individual checks ────────────────────────────────────────────────────────
 
-def check_blur(img_bgr: np.ndarray) -> float:
-    """Return the Laplacian variance of *img_bgr* as a sharpness score.
+def check_blur(img_bgr: np.ndarray, landmarks=None) -> float:
+    """Return a sharpness score (Laplacian variance) for *img_bgr*.
 
-    Scores below ``_BLUR_MIN`` (60 by default) are treated as blurry.
+    With *landmarks*, only the face's bounding box is measured, resized to a
+    fixed width so the score doesn't depend on camera resolution or on how much
+    of the frame the face fills. Without them, the whole frame is measured.
+    Scores below ``_BLUR_MIN`` are treated as blurry.
     """
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+    if landmarks is not None:
+        h, w = gray.shape
+        xs = [lm.x * w for lm in landmarks]
+        ys = [lm.y * h for lm in landmarks]
+        x0, x1 = int(max(min(xs), 0)), int(min(max(xs), w))
+        y0, y1 = int(max(min(ys), 0)), int(min(max(ys), h))
+        if x1 - x0 >= 16 and y1 - y0 >= 16:
+            crop = gray[y0:y1, x0:x1]
+            scale = _BLUR_FACE_WIDTH / crop.shape[1]
+            gray = cv2.resize(
+                crop,
+                (_BLUR_FACE_WIDTH, max(1, round(crop.shape[0] * scale))),
+                interpolation=cv2.INTER_AREA,
+            )
     return float(cv2.Laplacian(gray, cv2.CV_64F).var())
 
 
@@ -164,7 +185,7 @@ def run_quality_gate(img_bgr: np.ndarray, landmarks) -> dict:
     ``passed`` is True only when every check passes.  ``failure_reasons``
     contains human-readable messages the frontend can display directly.
     """
-    blur_score = check_blur(img_bgr)
+    blur_score = check_blur(img_bgr, landmarks)
     brightness = check_brightness(img_bgr)
     angle      = check_face_angle(landmarks, img_bgr.shape)
 
@@ -172,7 +193,7 @@ def run_quality_gate(img_bgr: np.ndarray, landmarks) -> dict:
 
     if blur_score < _BLUR_MIN:
         failure_reasons.append(
-            "Image is too blurry — try holding your phone steady."
+            "Image is too blurry — hold the camera steady and make sure it's focused on your face."
         )
     if brightness["overexposed"]:
         failure_reasons.append(

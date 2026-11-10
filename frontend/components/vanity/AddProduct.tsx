@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { lookupProducts, type ProductMatch, type ProductShade } from "@/lib/api";
+import { fetchProductImages, imageKey, lookupProducts, type ProductMatch, type ProductShade } from "@/lib/api";
 import { ShadePicker } from "@/components/vanity/ShadePicker";
 import {
   addInventoryItem,
@@ -13,12 +13,13 @@ import {
 } from "@/lib/vanity";
 
 const CATEGORIES = [
-  "foundation", "concealer", "blush", "bronzer", "highlighter",
-  "lip", "eyeshadow", "setting powder", "mascara", "brow", "skincare",
+  "foundation", "concealer", "moisturizer", "cleanser", "serum", "sunscreen",
+  "primer", "blush", "bronzer", "highlighter", "eyeshadow", "mascara",
+  "lipstick", "lip_gloss", "setting_spray", "toner", "exfoliant", "eye_cream",
+  "body_lotion", "other", "lip", "setting powder", "brow", "skincare",
 ];
 
-const FIELD =
-  "min-h-12 w-full rounded-card border border-line bg-surface px-4 text-text placeholder:text-text-muted focus:border-accent focus:outline-none";
+import { FIELD } from "@/components/ui/field";
 
 /**
  * Search-first product entry.
@@ -111,6 +112,13 @@ export function AddProduct({
     setSaving(true);
     setProblem(null);
     try {
+      let imageUrl: string | null = null;
+      try {
+        const response = await fetchProductImages([{ brand: draft.brand.trim(), product: draft.product.trim() }]);
+        imageUrl = response.images[imageKey(draft.brand, draft.product)] ?? null;
+      } catch {
+        // Product photos are optional; the shelf keeps its category fallback.
+      }
       const created = await addInventoryItem(
         {
           brand: draft.brand.trim(),
@@ -123,6 +131,7 @@ export function AddProduct({
           url: null,
           price_cents: parsePriceToCents(priceText),
           notes: null,
+          image_url: imageUrl,
         },
         userId,
       );
@@ -142,7 +151,7 @@ export function AddProduct({
   // ── Search ────────────────────────────────────────────────────────────────
   if (!draft) {
     return (
-      <div className="mb-5 rounded-card border border-line bg-raised p-5">
+      <div className="glass mb-5 rounded-card p-5 md:p-6">
         <label htmlFor="product-search" className="text-label uppercase text-text-muted">
           Search for a product you own
         </label>
@@ -174,8 +183,8 @@ export function AddProduct({
                   type="button"
                   onClick={() => choose(match)}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-card border border-line bg-surface p-3 text-left",
-                    "transition-colors hover:border-accent hover:bg-accent-dim",
+                    "flex w-full cursor-pointer items-center gap-3 rounded-tile border border-white bg-white/60 p-3 text-left",
+                    "transition-[background-color,border-color] duration-(--duration-fast) hover:border-accent-vivid hover:bg-white",
                   )}
                 >
                   <span
@@ -220,7 +229,7 @@ export function AddProduct({
 
         {!searched && (
           <p className="mt-3 text-small text-text-muted">
-            Type a brand and product — spelling doesn&apos;t have to be exact.{" "}
+            Type a brand and product. Spelling doesn&apos;t have to be exact.{" "}
             <button
               type="button"
               onClick={startManual}
@@ -236,15 +245,15 @@ export function AddProduct({
 
   // ── Confirm ───────────────────────────────────────────────────────────────
   return (
-    <form onSubmit={save} className="mb-5 rounded-card border border-accent/40 bg-raised p-5">
+    <form onSubmit={save} className="glass mb-5 rounded-card p-5 md:p-6">
       <div className="flex items-start justify-between gap-4">
         <p className="text-label uppercase text-accent">Check and add</p>
         <button
           type="button"
           onClick={() => setDraft(null)}
-          className="text-label uppercase text-text-muted hover:text-text"
+          className="inline-flex min-h-11 items-center gap-1 text-small font-medium text-text-muted hover:text-text"
         >
-          ← Search again
+          <span aria-hidden="true">←</span> Search again
         </button>
       </div>
 
@@ -252,7 +261,7 @@ export function AddProduct({
         <label className="block">
           <span className="text-label uppercase text-text-muted">Brand</span>
           <input
-            className={`mt-1 ${FIELD}`}
+            className={`mt-2 ${FIELD}`}
             value={draft.brand}
             onChange={(e) => setDraft({ ...draft, brand: e.target.value })}
           />
@@ -260,7 +269,7 @@ export function AddProduct({
         <label className="block">
           <span className="text-label uppercase text-text-muted">Product</span>
           <input
-            className={`mt-1 ${FIELD}`}
+            className={`mt-2 ${FIELD}`}
             value={draft.product}
             onChange={(e) => setDraft({ ...draft, product: e.target.value })}
           />
@@ -268,11 +277,11 @@ export function AddProduct({
         <label className="block">
           <span className="text-label uppercase text-text-muted">Category</span>
           <select
-            className={`mt-1 ${FIELD}`}
+            className={`mt-2 ${FIELD}`}
             value={draft.category ?? ""}
             onChange={(e) => setDraft({ ...draft, category: e.target.value || null })}
           >
-            <option value="">—</option>
+            <option value="">Not sure</option>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
@@ -282,11 +291,11 @@ export function AddProduct({
           <span className="text-label uppercase text-text-muted">
             Price{" "}
             {draft.price_cents !== null && (
-              <span className="normal-case tracking-normal">(estimate — check it)</span>
+              <span className="normal-case tracking-normal">(estimate, check it)</span>
             )}
           </span>
           <input
-            className={`mt-1 ${FIELD}`}
+            className={`mt-2 ${FIELD}`}
             value={priceText}
             onChange={(e) => setPriceText(e.target.value)}
             placeholder="42.00"
@@ -317,7 +326,7 @@ export function AddProduct({
           {saving ? "Saving…" : "Add to shelf"}
         </Button>
         <span className="text-small text-text-muted">
-          Prices are typical retail, not live — edit anything that&apos;s off.
+          Prices are typical retail, not live. Edit anything that&apos;s off.
         </span>
       </div>
     </form>

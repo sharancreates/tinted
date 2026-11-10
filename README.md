@@ -1,7 +1,7 @@
 # Tinted
 
-**Foundation shade matching that works across the full range of skin tones —
-plus a skincare routine builder.** Upload a photo and Tinted reads your depth
+**Foundation shade matching that works across the full range of skin tones,
+plus a product shelf and skincare quiz.** Upload a photo and Tinted reads your depth
 and undertone from your skin directly, matches you to real products, and
 explains why each one was chosen. No camera, or don't want to upload your face?
 A seven-question quiz gets you a routine instead.
@@ -32,6 +32,17 @@ photo
 
 The `/analyze-stream` endpoint emits each stage as a server-sent event, so the
 UI can narrate the pipeline instead of showing a spinner.
+
+Signed-in users can also keep a private product shelf at `/vanity`, track each
+item as using, backup, wishlist, panning, finished, or destash, and add products
+from shade-match and skincare-quiz recommendations. Shelf data is stored in
+Supabase and protected by Row Level Security. Product edits include notes,
+purchase and opened dates, repurchase preference, and an optional product photo
+URL. The `/vanity/looks` page groups shelf items into ordered looks that can be
+shared individually. `/routine` provides AM, PM, and weekly skincare routines
+with reorderable named steps, optional product links, and replenishment flags.
+The signed-in `/profile` page controls an opt-in public profile at
+`/u/[username]`, with per-product and per-routine visibility.
 
 ### Why a quality gate
 
@@ -116,7 +127,7 @@ npm run dev
 ### Tests
 
 ```bash
-cd backend && python -m pytest tests/ -q     # 146 tests
+cd backend && python -m pytest tests/ -q     # 148 tests
 ```
 
 ---
@@ -146,6 +157,26 @@ This characterises one stage. End-to-end accuracy from a photograph is
 while the test set is placeholder images, because a fake accuracy figure is
 worse than an absent one. `backend/eval/README.md` documents collecting real
 labelled samples.
+
+In between sits a **simulated lighting eval** (`eval/pipeline_sim.py`): 1,200
+synthetic portraits with known skin colour under daylight, a warm bulb, cool
+shade and low light, run through the production white balance, patch sampling
+and classifier. It is published as an accuracy dashboard at
+[tinted2.vercel.app/eval](https://tinted2.vercel.app/eval) with a confusion
+matrix, per-level and per-lighting breakdowns, and a with/without white
+balance comparison. It found a real bug (the exposure gate refused a third of
+MST 1-3 faces), which is now fixed: daylight refusals fell from 12% to 2%.
+
+**On real photographs** (`eval/mste_eval.py`, Google's Monk Skin Tone Examples:
+1,356 photos of 19 people with expert labels), the pipeline lands within one
+Monk level on 15% of photos (95% range 8 to 23%, bootstrapped by person) and
+31% of the photos it accepts. Readings collapse toward the middle of the
+scale: phone auto-exposure normalises face brightness, and the classifier
+compares absolute colour, so pale skin reads 4 to 5 levels deep and deep skin
+1 to 2 levels light. The simulation missed this because its virtual camera
+exposed every face correctly. The planned fix, normalising exposure against
+the whites of the eyes and classifying relative colour, is written up on the
+dashboard. MST-E is evaluation-only and is never used for tuning.
 
 ---
 
@@ -183,8 +214,14 @@ own machine* and the site appears broken while the build reports success.
 | `POST` | `/match-foundation` | "I already wear X" → equivalents in other brands |
 | `GET` | `/skincare-quiz/questions` | Question set (single source of truth for the UI) |
 | `POST` | `/skincare-quiz` | Score answers → routine → products |
+| `POST` | `/routines/suggest` | Suggest AM/PM order from shelf products |
 | `POST` | `/product-images` | Batched, cached product photo lookup |
 | `POST` | `/search-product` | Image search for a single product |
+| `POST` | `/product-lookup` | Search product catalogue for shelf entry |
+| `POST` | `/product-shades` | Look up shades for a product |
+
+Shelf CRUD uses the authenticated Supabase client directly. Supabase RLS is the
+authorization boundary; there are no duplicate FastAPI shelf endpoints.
 
 ### Cost and abuse controls
 
@@ -231,8 +268,9 @@ tinted/
 │   ├── quality_gate.py pre-analysis input checks
 │   └── skincare_quiz.py  question set + weighted tag scoring
 ├── frontend/
-│   ├── app/            routes: /, /quiz, /profile
-│   ├── components/ui/  design-system primitives
+│   ├── app/            routes: /, /quiz, /match, /vanity, /vanity/looks, /routine, /profile, /u/[username], /r/[slug]
+│   ├── components/     analysis, quiz, vanity, auth, and design-system UI
 │   └── lib/api.ts      typed API client
+├── supabase/migrations/ inventory, routines, and shelf migrations
 └── docs/
 ```

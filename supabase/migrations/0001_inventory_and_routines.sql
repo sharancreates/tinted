@@ -39,6 +39,11 @@ create table if not exists public.inventory_items (
 create index if not exists inventory_items_user_idx
   on public.inventory_items (user_id, created_at desc);
 
+-- gen_random_bytes comes from pgcrypto, which Supabase installs in the
+-- "extensions" schema. Migrations do not have that schema on their search
+-- path, so the call is qualified and the extension is ensured here.
+create extension if not exists pgcrypto with schema extensions;
+
 -- ── Routines ─────────────────────────────────────────────────────────────────
 
 create table if not exists public.routines (
@@ -52,7 +57,7 @@ create table if not exists public.routines (
   is_public    boolean not null default false,
   -- Random, not sequential: a guessable slug would let anyone enumerate
   -- other people's looks.
-  share_slug   text unique default encode(gen_random_bytes(9), 'base64'),
+  share_slug   text unique default encode(extensions.gen_random_bytes(9), 'base64'),
 
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()

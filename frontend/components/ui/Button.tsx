@@ -4,30 +4,26 @@ import { cn } from "@/lib/utils";
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
-  /** Stretch to the container width — the default on mobile CTAs. */
+  /** Stretch to the container width. */
   block?: boolean;
 }
 
-// min-h values keep every size at or above the 44px touch target WCAG 2.2 asks
-// for, including "sm" — a small button is still a finger target.
+// Every size stays at or above a 44px touch target.
 const sizes: Record<NonNullable<ButtonProps["size"]>, string> = {
   sm: "min-h-11 px-4 text-small",
   md: "min-h-12 px-6 text-small",
   lg: "min-h-14 px-8 text-body",
 };
 
+// Primary is ink with an inverted label (14.2:1 in light, 17.9:1 in dark).
+// Coral stays an accent, never a button fill, so it keeps meaning "active" everywhere else.
 const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  // Dark text on the accent in dark theme (6.45:1), and light text on the
-  // accent in light theme (6.19:1) via text-bg. White on #c68642 is only
-  // 3.05:1 and fails AA.
   primary:
-    "bg-accent text-bg font-semibold hover:bg-accent-hover active:brightness-95",
+    "bg-text text-bg shadow-card hover:-translate-y-px hover:shadow-lift active:translate-y-0",
   secondary:
-    "bg-raised text-text border border-line-strong hover:border-accent hover:text-accent",
-  ghost:
-    "bg-transparent text-text-soft hover:bg-raised hover:text-text",
-  danger:
-    "bg-transparent text-danger border border-danger/40 hover:bg-danger/10",
+    "glass-strong text-text hover:-translate-y-px hover:shadow-lift active:translate-y-0",
+  ghost: "bg-transparent text-text-soft hover:bg-raised hover:text-text",
+  danger: "bg-transparent text-danger border border-danger/40 hover:bg-danger/10",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -46,8 +42,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       type={type}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-pill",
-        "tracking-wide transition-all duration-(--duration-fast) ease-(--ease-out-soft)",
+        "inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill font-semibold",
+        "transition-[transform,box-shadow,background-color,color] duration-(--duration-fast) ease-(--ease-out-soft)",
         "disabled:pointer-events-none disabled:opacity-40",
         sizes[size],
         variants[variant],

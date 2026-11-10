@@ -55,8 +55,7 @@ export function Tabs({ tabs, activeId, onChange, label, className }: TabsProps) 
         // Was a wrapping pill: at 10 categories it broke onto a second row and
         // the rounded container sheared around the selected tab. A single
         // scrolling row keeps the shape intact at any count.
-        "flex max-w-full items-center gap-1 overflow-x-auto rounded-pill",
-        "border border-line bg-surface p-1",
+        "glass flex max-w-full items-center gap-1 overflow-x-auto rounded-pill p-1.5",
         "no-scrollbar fade-edges",
         className,
       )}
@@ -79,10 +78,10 @@ export function Tabs({ tabs, activeId, onChange, label, className }: TabsProps) 
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cn(
               "min-h-11 shrink-0 whitespace-nowrap rounded-pill px-4 text-small font-semibold",
-              "transition-colors duration-(--duration-fast)",
+              "transition-[background-color,box-shadow,color] duration-(--duration-fast) ease-(--ease-out-soft)",
               selected
-                ? "bg-accent text-bg"
-                : "text-text-soft hover:bg-raised hover:text-text",
+                ? "bg-raised text-text shadow-card"
+                : "text-text-soft hover:bg-surface hover:text-text",
             )}
           >
             {tab.label}
@@ -90,7 +89,7 @@ export function Tabs({ tabs, activeId, onChange, label, className }: TabsProps) 
               <span
                 className={cn(
                   "ml-1.5 tabular-nums",
-                  selected ? "text-bg/75" : "text-text-muted",
+                  selected ? "text-accent" : "text-text-muted",
                 )}
               >
                 {tab.count}

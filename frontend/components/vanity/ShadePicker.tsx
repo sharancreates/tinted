@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { FIELD } from "@/components/ui/field";
 import { lookupShades, type ProductShade } from "@/lib/api";
 
 /**
@@ -62,7 +63,7 @@ export function ShadePicker({
       <label className="block">
         <span className="text-label uppercase text-text-muted">Shade</span>
         <input
-          className="mt-1 min-h-12 w-full rounded-card border border-line bg-surface px-4 text-text placeholder:text-text-muted focus:border-accent focus:outline-none"
+          className={`mt-2 ${FIELD}`}
           value={selected?.name ?? ""}
           onChange={(event) =>
             onSelect(
@@ -146,7 +147,7 @@ export function ShadePicker({
         onClick={() => onSelect(null)}
         className="mt-3 text-small text-text-muted hover:text-text"
       >
-        Skip — I don&apos;t know the shade
+        Skip, I don&apos;t know the shade
       </button>
     </div>
   );

@@ -111,6 +111,18 @@ function postJson<T>(path: string, body: unknown): Promise<T> {
   });
 }
 
+// ── Wake ──────────────────────────────────────────────────────────────────────
+
+/**
+ * Fire-and-forget ping so a sleeping Render free-tier instance (~30s cold
+ * start) is booting while the user is still choosing a photo, not after.
+ */
+export function wakeServer(): void {
+  fetch(`${API_URL}/health`).catch(() => {
+    // Best effort — real requests surface their own errors.
+  });
+}
+
 // ── Analyze ───────────────────────────────────────────────────────────────────
 
 export type MatchedShade = {
@@ -202,6 +214,41 @@ export function submitQuiz(
   return postJson("/skincare-quiz", { answers, budget });
 }
 
+export type RoutineSuggestionStep = { product_id: string; step_name: string; reason: string };
+export type RoutineSuggestion = { morning: RoutineSuggestionStep[]; evening: RoutineSuggestionStep[]; reasoning: string };
+
+export function suggestShelfRoutine(products: { id: string; brand: string; product: string; category: string | null }[]): Promise<RoutineSuggestion> {
+  return postJson("/routines/suggest", { products });
+}
+
+// ── Dupes ─────────────────────────────────────────────────────────────────────
+
+export type Dupe = {
+  brand: string;
+  product: string;
+  shade: string | null;
+  /** Typical retail, an estimate. */
+  price_cents: number | null;
+  why: string | null;
+};
+
+/** Up to three cheaper alternatives for a product on the shelf. */
+export function findDupes(item: {
+  brand: string;
+  product: string;
+  shade?: string | null;
+  category?: string | null;
+  price_cents?: number | null;
+}): Promise<{ results: Dupe[] }> {
+  return postJson("/dupes", {
+    brand: item.brand,
+    product: item.product,
+    shade: item.shade ?? null,
+    category: item.category ?? null,
+    price_cents: item.price_cents ?? null,
+  });
+}
+
 // ── Lip palette ───────────────────────────────────────────────────────────────
 
 export type LipFamily = {
@@ -254,4 +301,20 @@ export function lookupShades(
   product: string,
 ): Promise<{ shades: ProductShade[] }> {
   return postJson("/product-shades", { brand, product });
+}
+
+// ── Product photo identification ──────────────────────────────────────────────
+
+export type IdentifiedProduct = { brand: string; product_name: string };
+
+/** Brand and product name read from a packaging photo, or null if none was legible. */
+export function identifyProduct(file: File): Promise<{ product: IdentifiedProduct | null }> {
+  const form = new FormData();
+  form.append("file", file);
+  return request("/identify-product", { method: "POST", body: form });
+}
+
+/** Brand and product name for a barcode (Open Beauty Facts), or null if unknown. */
+export function lookupBarcode(code: string): Promise<{ product: IdentifiedProduct | null }> {
+  return request(`/barcode/${encodeURIComponent(code)}`);
 }

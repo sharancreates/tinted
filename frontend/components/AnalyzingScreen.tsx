@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Page } from "@/components/ui/Page";
-import { motion } from "framer-motion";
+import { Orb } from "@/components/ui/Orb";
 import { ToneRibbon } from "@/components/ui/ToneRibbon";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { entranceGroup, entranceItem } from "@/lib/motion";
 
-// What the pipeline actually does, in order. Presented as a description of the
-// work rather than as live status: /analyze is a single request, so the client
-// genuinely does not know which stage is running. The previous version cycled
-// these on a 1.8s timer, which looked like progress reporting and wasn't —
-// "See how it works" mode (/analyze-stream) is where real per-stage feedback
-// lives.
+// What the pipeline does, in order. Shown as a description, not live status:
+// /analyze is a single request, so the client cannot know which stage is
+// running. "Show the pipeline" mode (/analyze-stream) has real per-stage
+// feedback.
 const PIPELINE = [
   "Correcting white balance",
   "Locating 468 facial landmarks",
@@ -29,6 +28,8 @@ export default function AnalyzingScreen({
   qualityErrors: string[] | null;
   onReset: () => void;
 }) {
+  const reduced = useReducedMotion() ?? false;
+  const item = entranceItem(reduced);
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
@@ -41,38 +42,36 @@ export default function AnalyzingScreen({
     return (
       <Page width="prose">
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          variants={entranceGroup(reduced)}
+          initial="hidden"
+          animate="show"
+          className="flex flex-col gap-6"
         >
-          <p className="text-label uppercase text-warn">
-            That photo won&apos;t give a good read
-          </p>
-          <h1 className="mt-2 font-display text-title text-text">
-            Let&apos;s try another
-          </h1>
+          <motion.header variants={item} className="flex flex-col gap-2">
+            <p className="text-label uppercase text-warn">That photo won&apos;t give a good read</p>
+            <h1 className="text-[clamp(2rem,3.5vw,2.5rem)] font-semibold leading-tight tracking-[-0.02em] text-text">
+              Let&apos;s try another
+            </h1>
+          </motion.header>
 
-          {/* role="alert" so this is announced — the old version rendered the
-              reasons silently. */}
-          <ul className="mt-6 space-y-3" role="alert">
+          {/* role="alert" so the reasons are announced. */}
+          <motion.ul variants={item} className="glass flex flex-col gap-3 rounded-card p-6" role="alert">
             {qualityErrors.map((error) => (
-              <li
-                key={error}
-                className="rounded-card border border-warn/30 bg-warn/10 px-4 py-3 text-text"
-              >
+              <li key={error} className="flex gap-3 text-text">
+                <span aria-hidden="true" className="mt-2 h-2 w-2 shrink-0 rounded-full bg-warn" />
                 {error}
               </li>
             ))}
-          </ul>
+          </motion.ul>
 
-          <p className="mt-6 text-small text-text-soft">
-            We check this before analysing rather than after, because a
-            confidently wrong shade is worse than asking for a second photo.
-          </p>
+          <motion.p variants={item} className="text-small text-text-soft">
+            We check before analysing, because a confidently wrong shade is worse
+            than asking for a second photo.
+          </motion.p>
 
-          <Button className="mt-6" onClick={onReset}>
-            Try another photo
-          </Button>
+          <motion.div variants={item}>
+            <Button onClick={onReset}>Try another photo</Button>
+          </motion.div>
         </motion.div>
       </Page>
     );
@@ -80,48 +79,49 @@ export default function AnalyzingScreen({
 
   return (
     <Page width="prose">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <p className="text-label uppercase text-accent">Working on it</p>
-        <h1
-          className="mt-2 font-display text-title text-text"
-          role="status"
-          aria-live="polite"
-        >
-          Reading your skin tone
-        </h1>
-        <p className="mt-2 text-small text-text-soft">
-          Usually 10–20 seconds.
-          {seconds >= 25 && " Taking longer than usual — still going."}
-        </p>
+      <motion.div
+        variants={entranceGroup(reduced)}
+        initial="hidden"
+        animate="show"
+        className="flex flex-col items-center gap-6 text-center"
+      >
+        <motion.div variants={item}>
+          <Orb size="xl" />
+        </motion.div>
+        <motion.div variants={item} className="flex flex-col gap-2">
+          <h1
+            className="text-[clamp(2rem,3.5vw,2.5rem)] font-semibold leading-tight tracking-[-0.02em] text-text"
+            role="status"
+            aria-live="polite"
+          >
+            Reading your skin tone
+          </h1>
+          <p className="text-small text-text-soft">
+            {seconds >= 25
+              ? "Taking longer than usual. The server may be waking up; still going."
+              : "Usually 10 to 20 seconds."}
+          </p>
+        </motion.div>
 
-        <div className="my-8">
-          <ToneRibbon animate size="md" />
-        </div>
+        <motion.div variants={item} className="w-full">
+          <ToneRibbon />
+        </motion.div>
 
-        <Card padding="md">
-          <h2 className="text-label uppercase text-text-muted">
-            What&apos;s happening
-          </h2>
-          <ol className="mt-3 space-y-2">
+        <motion.div variants={item} className="glass w-full rounded-card p-6 text-left">
+          <h2 className="text-label uppercase text-text-muted">What&apos;s happening</h2>
+          <ol className="mt-4 flex flex-col gap-2.5">
             {PIPELINE.map((step) => (
-              <li
-                key={step}
-                className="flex items-start gap-2.5 text-small text-text-soft"
-              >
-                <span
-                  className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent/50"
-                  aria-hidden="true"
-                />
+              <li key={step} className="flex items-start gap-3 text-small text-text-soft">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-vivid/60" aria-hidden="true" />
                 {step}
               </li>
             ))}
           </ol>
-          <p className="mt-4 border-t border-line pt-3 text-small text-text-muted">
-            Want to watch this happen live? Choose{" "}
-            <span className="text-text">Show the pipeline</span> on the upload
-            screen.
+          <p className="mt-5 border-t border-line-strong pt-4 text-small text-text-muted">
+            Want to watch it happen? Choose <span className="font-medium text-text">Show the pipeline</span> on
+            the upload screen.
           </p>
-        </Card>
+        </motion.div>
       </motion.div>
     </Page>
   );

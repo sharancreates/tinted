@@ -95,6 +95,75 @@ def get_routine_products(
     return _parse_routine(raw, result.routine_steps)
 
 
+def suggest_shelf_routines(products: list[dict]) -> dict:
+    """Order known shelf products into simple AM and PM routines.
+
+    Product identifiers are treated as untrusted model output and are retained
+    only when they match an identifier supplied in the request.
+    """
+    clean_products = []
+    for product in products[:40]:
+        if not isinstance(product, dict):
+            continue
+        product_id = str(product.get("id", "")).strip()[:80]
+        brand = str(product.get("brand", "")).strip()[:80]
+        name = str(product.get("product", "")).strip()[:120]
+        category = str(product.get("category", "other")).strip()[:50]
+        if product_id and brand and name:
+            clean_products.append({"id": product_id, "brand": brand, "product": name, "category": category})
+    if not clean_products:
+        return {"morning": [], "evening": [], "reasoning": "Add products to your shelf first."}
+
+    products_json = json.dumps(clean_products, ensure_ascii=False)
+    system = (
+        "You organize skincare products into gentle, conventional application order. "
+        "Never make medical claims. Return only valid JSON, with no markdown."
+    )
+    prompt = (
+        "Create concise AM and PM routines using only products from this list. "
+        "Follow basic layering order: cleanser, toner, treatments or serums, "
+        "moisturizer, then sunscreen in the morning. Avoid placing sunscreen at "
+        "night. Include a product only when its category reasonably fits. "
+        "The product_id must be copied exactly from the input. Do not invent products.\n\n"
+        f"Products: {products_json}\n\n"
+        'Return this shape: {"morning":[{"product_id":"...","step_name":"...","reason":"..."}], '
+        '"evening":[{"product_id":"...","step_name":"...","reason":"..."}], '
+        '"reasoning":"one short sentence"}. Use empty arrays when no suitable product exists.'
+    )
+    try:
+        raw = _invoke([{"role": "user", "content": prompt}], system)
+        parsed = json.loads(raw)
+    except Exception as exc:
+        print(f"[routine-suggest] suggestion failed: {exc}")
+        return {"morning": [], "evening": [], "reasoning": "Suggestions are temporarily unavailable."}
+
+    allowed = {product["id"] for product in clean_products}
+
+    def clean_steps(key: str) -> list[dict]:
+        raw_steps = parsed.get(key, []) if isinstance(parsed, dict) else []
+        if not isinstance(raw_steps, list):
+            return []
+        output = []
+        for step in raw_steps[:20]:
+            if not isinstance(step, dict):
+                continue
+            product_id = str(step.get("product_id", ""))
+            if product_id not in allowed:
+                continue
+            output.append({
+                "product_id": product_id,
+                "step_name": str(step.get("step_name", "Skincare"))[:80],
+                "reason": str(step.get("reason", ""))[:240],
+            })
+        return output
+
+    return {
+        "morning": clean_steps("morning"),
+        "evening": clean_steps("evening"),
+        "reasoning": str(parsed.get("reasoning", ""))[:400] if isinstance(parsed, dict) else "",
+    }
+
+
 _FIELDS = ("step", "brand", "product", "price_range",
            "key_ingredient", "why", "when", "url")
 

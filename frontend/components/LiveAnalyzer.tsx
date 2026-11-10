@@ -1,5 +1,7 @@
 "use client"
 
+import { Page } from "@/components/ui/Page"
+import { Button } from "@/components/ui/Button"
 import { useEffect, useRef, useState, useCallback } from "react"
 import type { AnalyzeResult as Results } from "@/lib/api"
 
@@ -29,7 +31,7 @@ const MONK_COLORS = [
 const STAGE_LABELS: Record<Stage, string> = {
   connecting:    "Connecting...",
   preprocessing: "Applying white balance correction...",
-  face_detected: "Face detected — mapping sample points",
+  face_detected: "Face found, mapping sample points",
   sampling:      "Evaluating skin patches",
   aggregating:   "Computing trimmed mean colour",
   classifying:   "Comparing against 10 MST references",
@@ -94,10 +96,10 @@ export default function LiveAnalyzer({ file, budget, onComplete, onReset }: Prop
     if (bboxRef.current) {
       const [bx, by, bw, bh] = bboxRef.current
       ctx.save()
-      ctx.strokeStyle = "#D9541F"
+      ctx.strokeStyle = "#e2603a"
       ctx.lineWidth   = 2
       ctx.setLineDash([5, 4])
-      ctx.shadowColor = "#D9541F"
+      ctx.shadowColor = "#e2603a"
       ctx.shadowBlur  = 8
       ctx.strokeRect(bx*sx, by*sy, bw*sx, bh*sy)
       ctx.restore()
@@ -109,8 +111,8 @@ export default function LiveAnalyzer({ file, budget, onComplete, onReset }: Prop
       ctx.save()
       ctx.beginPath()
       ctx.arc(lx*sx, ly*sy, 3.5, 0, Math.PI * 2)
-      ctx.fillStyle  = "#D9541F"
-      ctx.shadowColor = "#D9541F"
+      ctx.fillStyle  = "#e2603a"
+      ctx.shadowColor = "#e2603a"
       ctx.shadowBlur  = 8
       ctx.fill()
       ctx.restore()
@@ -297,12 +299,13 @@ export default function LiveAnalyzer({ file, budget, onComplete, onReset }: Prop
       const fd = new FormData()
       fd.append("file", file)
       fd.append("budget", budget)
+      fd.append("recommendations", "false")
 
       let res: Response
       try {
         res = await fetch(`${apiUrl}/analyze-stream`, { method: "POST", body: fd, signal: controller.signal })
       } catch {
-        setErrors(["Network error — make sure the server is running."])
+        setErrors(["We couldn\u2019t reach the server. Check your connection and try again."])
         setStage("error")
         return
       }
@@ -367,169 +370,126 @@ export default function LiveAnalyzer({ file, budget, onComplete, onReset }: Prop
   // ── Render ──────────────────────────────────────────────────────────────────
 
   const isError = stage === "error"
+  const STAGES: Stage[] = ["preprocessing","face_detected","sampling","aggregating","classifying","matching"]
+  const currentIdx = STAGES.indexOf(stage)
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col items-center justify-center px-4 py-16">
-      <div className="w-full max-w-sm">
-
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h2 className="text-text-soft text-sm font-light tracking-widest uppercase mb-1">
-            Live analysis
-          </h2>
-          <p className="text-text-muted text-xs">
+    <Page width="prose">
+      <div className="flex flex-col gap-6">
+        <header className="flex flex-col gap-2 text-center">
+          <p className="text-label uppercase text-text-muted">Live analysis</p>
+          <h1 className="text-[clamp(1.75rem,3vw,2.25rem)] font-semibold leading-tight tracking-[-0.02em] text-text" role="status" aria-live="polite">
             {isError ? "Something went wrong" : STAGE_LABELS[stage]}
-          </p>
-        </div>
+          </h1>
+        </header>
 
-        {/* Canvas */}
-        <div
-          className="relative w-full rounded-2xl overflow-hidden"
-          style={{ border: "1px solid rgba(255,255,255,0.08)", background: "#111" }}
-        >
-          <canvas
-            ref={canvasRef}
-            className="w-full h-auto block"
-            style={{ display: "block" }}
-          />
+        {/* Stage progress: colour changes only, nothing resizes. */}
+        {!isError && stage !== "complete" && (
+          <ol className="flex justify-center gap-2" aria-label="Analysis stages">
+            {STAGES.map((s, idx) => (
+              <li
+                key={s}
+                aria-current={idx === currentIdx ? "step" : undefined}
+                className={
+                  "h-2 w-8 rounded-pill transition-colors duration-(--duration-fast) " +
+                  (idx < currentIdx ? "bg-accent-vivid/45" : idx === currentIdx ? "bg-accent-vivid" : "bg-white/80")
+                }
+              >
+                <span className="sr-only">{STAGE_LABELS[s]}</span>
+              </li>
+            ))}
+          </ol>
+        )}
 
-          {/* Patch colour swatches (right overlay) */}
+        {/* The photo sits on white: it is colour being judged. */}
+        <div className="relative w-full overflow-hidden rounded-tile border-4 border-white bg-swatch-ground shadow-card">
+          <canvas ref={canvasRef} className="block h-auto w-full" />
+
           {stage === "sampling" && patchesRef.current.filter(p => p.accepted).length > 0 && (
-            <div
-              className="absolute top-3 right-3 flex flex-col gap-1"
-              style={{ pointerEvents: "none" }}
-            >
+            <div className="pointer-events-none absolute right-3 top-3 flex flex-col gap-1" aria-hidden="true">
               {patchesRef.current.filter(p => p.accepted).slice(-8).map((p, i) => (
                 <div
                   key={i}
-                  className="w-4 h-4 rounded-sm"
-                  style={{
-                    background: `rgb(${p.rgb[0]},${p.rgb[1]},${p.rgb[2]})`,
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    boxShadow: `0 0 6px rgba(${p.rgb[0]},${p.rgb[1]},${p.rgb[2]},0.4)`,
-                  }}
+                  className="h-4 w-4 rounded-sm ring-1 ring-white"
+                  style={{ background: `rgb(${p.rgb[0]},${p.rgb[1]},${p.rgb[2]})` }}
                 />
               ))}
             </div>
           )}
         </div>
 
-        {/* Stage info below canvas */}
-        <div className="mt-5 space-y-4">
-
-          {/* Patch counter */}
-          {(stage === "sampling" || stage === "aggregating") && (
-            <div className="flex items-center justify-between">
-              <span className="text-text-muted text-xs">Patches evaluated</span>
-              <span className="text-accent text-xs font-mono">
-                {patchStats.accepted} accepted / {patchStats.total - patchStats.accepted} rejected
-              </span>
-            </div>
-          )}
-
-          {/* MST distance bar (classifying stage) */}
-          {stage === "classifying" && distances.length > 0 && (
-            <div>
-              <p className="text-text-muted text-[10px] tracking-widest uppercase mb-3">
-                MST distance comparison
-              </p>
-              <div className="flex gap-1 items-end" style={{ height: "72px" }}>
-                {distances.map(({ mst, distance }, i) => {
-                  const maxDist = Math.max(...distances.map(d => d.distance))
-                  const barH   = Math.max(4, (1 - distance / maxDist) * 56 + 4)
-                  const winner = mst === mstLevel
-                  const shown  = i < distShown
-                  return (
-                    <div key={mst} className="flex flex-col items-center gap-1 flex-1" style={{ opacity: shown ? 1 : 0, transition: "opacity 0.15s" }}>
-                      {winner && shown && (
-                        <div className="text-[8px] text-accent leading-none">▼</div>
-                      )}
-                      <div
-                        className="w-full rounded-sm"
-                        style={{
-                          height:     `${barH}px`,
-                          background: winner ? "#D9541F" : MONK_COLORS[mst - 1],
-                          opacity:    winner ? 1 : 0.55,
-                          boxShadow:  winner ? `0 0 10px ${MONK_COLORS[mst-1]}` : "none",
-                          alignSelf:  "flex-end",
-                          transition: "height 0.2s ease-out",
-                        }}
-                      />
-                      <div className="text-[8px] text-text-muted">{mst}</div>
-                    </div>
-                  )
-                })}
+        {(stage === "sampling" || stage === "aggregating" || (stage === "classifying" && distances.length > 0) || isError) && (
+          <div className="glass flex flex-col gap-4 rounded-card p-5">
+            {(stage === "sampling" || stage === "aggregating") && (
+              <div className="flex items-center justify-between gap-3 text-small">
+                <span className="text-text-muted">Patches evaluated</span>
+                <span className="font-semibold tabular-nums text-text">
+                  {patchStats.accepted} kept · {patchStats.total - patchStats.accepted} rejected
+                </span>
               </div>
-              {mstLevel && distShown >= 10 && (
-                <p className="text-center text-accent text-xs mt-3">
-                  MST-{mstLevel} — closest match
-                </p>
-              )}
-            </div>
-          )}
+            )}
 
-          {/* Aggregating info */}
-          {stage === "aggregating" && meanRgbRef.current && (
-            <div className="flex items-center gap-3">
-              <div
-                className="w-8 h-8 rounded-full flex-shrink-0"
-                style={{
-                  background: `rgb(${meanRgbRef.current[0]},${meanRgbRef.current[1]},${meanRgbRef.current[2]})`,
-                  boxShadow:  `0 0 12px rgb(${meanRgbRef.current[0]},${meanRgbRef.current[1]},${meanRgbRef.current[2]})`,
-                }}
-              />
-              <span className="text-text-soft text-xs">
-                Using {patchStats.accepted} of {patchStats.total} patches (10% luminance trim)
-              </span>
-            </div>
-          )}
+            {stage === "aggregating" && meanRgbRef.current && (
+              <div className="flex items-center gap-3">
+                <span
+                  className="h-8 w-8 shrink-0 rounded-full ring-2 ring-white"
+                  style={{ background: `rgb(${meanRgbRef.current[0]},${meanRgbRef.current[1]},${meanRgbRef.current[2]})` }}
+                  aria-hidden="true"
+                />
+                <span className="text-small text-text-soft">
+                  Using {patchStats.accepted} of {patchStats.total} patches (10% luminance trim)
+                </span>
+              </div>
+            )}
 
-          {/* Error state */}
-          {isError && (
-            <div className="rounded-xl p-4 space-y-2" style={{ background: "rgba(248,113,113,0.07)", border: "1px solid rgba(248,113,113,0.2)" }}>
-              {errors.map((e, i) => (
-                <p key={i} className="text-red-300/80 text-xs leading-relaxed">{e}</p>
-              ))}
-            </div>
-          )}
+            {stage === "classifying" && distances.length > 0 && (
+              <div>
+                <p className="mb-3 text-label uppercase text-text-muted">Distance to each Monk tone</p>
+                <div className="flex h-[72px] items-end gap-1">
+                  {distances.map(({ mst, distance }, i) => {
+                    const maxDist = Math.max(...distances.map(d => d.distance))
+                    const barH = Math.max(4, (1 - distance / maxDist) * 56 + 4)
+                    const winner = mst === mstLevel
+                    return (
+                      <div
+                        key={mst}
+                        className="flex flex-1 flex-col items-center gap-1 transition-opacity duration-(--duration-fast)"
+                        style={{ opacity: i < distShown ? 1 : 0 }}
+                      >
+                        <div
+                          className={"w-full self-end rounded-sm " + (winner ? "ring-2 ring-accent-vivid ring-offset-1 ring-offset-white" : "opacity-60")}
+                          style={{ height: `${barH}px`, background: MONK_COLORS[mst - 1] }}
+                        />
+                        <div className={"text-[0.6875rem] tabular-nums " + (winner ? "font-semibold text-accent" : "text-text-muted")}>{mst}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+                {mstLevel && distShown >= 10 && (
+                  <p className="mt-3 text-center text-small font-semibold text-accent">
+                    Monk {mstLevel} is the closest match
+                  </p>
+                )}
+              </div>
+            )}
 
-          {/* Progress indicator dots */}
-          {!isError && stage !== "complete" && (
-            <div className="flex justify-center gap-1.5 pt-1">
-              {(["preprocessing","face_detected","sampling","aggregating","classifying","matching"] as Stage[]).map(s => {
-                const stages: Stage[] = ["preprocessing","face_detected","sampling","aggregating","classifying","matching"]
-                const current = stages.indexOf(stage)
-                const idx     = stages.indexOf(s)
-                const done    = idx < current
-                const active  = idx === current
-                return (
-                  <div
-                    key={s}
-                    className="rounded-full transition-all duration-300"
-                    style={{
-                      width:      active ? "16px" : "4px",
-                      height:     "4px",
-                      background: done   ? "rgba(198,134,66,0.4)"
-                                : active ? "#D9541F"
-                                :          "rgba(255,255,255,0.12)",
-                    }}
-                  />
-                )
-              })}
-            </div>
-          )}
-        </div>
+            {isError && (
+              <ul className="flex flex-col gap-2" role="alert">
+                {errors.map((e, i) => (
+                  <li key={i} className="flex gap-3 text-small text-text">
+                    <span aria-hidden="true" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-danger" />
+                    {e}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
 
-        {/* Reset button */}
-        <div className="flex justify-center mt-10">
-          <button
-            onClick={onReset}
-            className="text-sm text-text-muted hover:text-text-soft transition-colors"
-          >
-            ← try another photo
-          </button>
+        <div className="flex justify-center">
+          <Button variant="ghost" onClick={onReset}>Try another photo</Button>
         </div>
       </div>
-    </div>
+    </Page>
   )
 }

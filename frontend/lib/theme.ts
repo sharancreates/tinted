@@ -1,7 +1,7 @@
 export type ThemeMode = "system" | "light" | "dark";
 
 export const THEME_STORAGE_KEY = "tinted-theme";
-export const THEME_COLOR_LIGHT = "#f7f8f9";
+export const THEME_COLOR_LIGHT = "#faf6f1";
 export const THEME_COLOR_DARK = "#0b0b0c";
 
 let cachedMetaTag: HTMLMetaElement | null = null;

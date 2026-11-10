@@ -8,6 +8,8 @@ import { Page } from "@/components/ui/Page";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { FIELD, FIELD_LABEL, CHECKBOX } from "@/components/ui/field";
 import { SignInGate } from "@/components/vanity/SignInGate";
 import { InventoryGrid } from "@/components/vanity/InventoryGrid";
 import {
@@ -30,20 +32,17 @@ import {
 export default function LooksPage() {
   return (
     <Page width="grid">
-      <header className="mb-(--space-section)">
-        <p className="text-label uppercase text-accent">Looks</p>
-        <h1 className="mt-2 font-display text-display text-text">
-          Build a routine you can repeat.
-        </h1>
-        <p className="mt-3 max-w-prose text-text-soft">
-          Pick products off your shelf, put them in the order you apply them,
-          and share the result — cost included.
-        </p>
-      </header>
+      <PageHeader
+        label="Looks"
+        title="Build a look you can repeat."
+        description="Pick products off your shelf, put them in the order you apply them, and share the result with the cost included."
+      />
 
       <SignInGate
         title="Sign in to build looks"
         reason="Looks are built from your saved shelf, so they live with your account."
+        cta="Sign in to build a look"
+        aura="looks"
       >
         <Suspense fallback={<div className="h-40 animate-pulse rounded-card bg-raised" />}>
           <LooksContent />
@@ -73,7 +72,7 @@ function LooksContent() {
     } catch (caught) {
       setError(
         caught instanceof Error && /relation .* does not exist/i.test(caught.message)
-          ? "The database tables don't exist yet. Run supabase/migrations/0001_inventory_and_routines.sql in your Supabase SQL editor."
+          ? "The shelf schema is out of date. Apply the Supabase migrations in supabase/migrations/ before building looks."
           : "Couldn't load your looks.",
       );
       setState("error");
@@ -110,14 +109,14 @@ function LooksContent() {
   return (
     <>
       {inventory.length === 0 && (
-        <div className="mb-(--space-block) rounded-card border border-dashed border-line-strong bg-surface p-8 text-center">
+        <div className="mb-(--space-block) rounded-card border border-dashed border-line-strong bg-white/40 p-8 text-center">
           <p className="font-medium text-text">Your shelf is empty</p>
           <p className="mx-auto mt-2 max-w-prose text-small text-text-soft">
             A look is built from products you own, so start there.
           </p>
-          <Link href="/vanity" className="mt-4 inline-block">
-            <Button size="sm">Add products</Button>
-          </Link>
+          <Button size="sm" className="mt-4" onClick={() => router.push("/vanity")}>
+            Add products
+          </Button>
         </div>
       )}
 
@@ -137,7 +136,7 @@ function LooksContent() {
               <li key={routine.id} className="flex flex-col gap-2">
                 <Link
                   href={`/vanity/looks?id=${routine.id}`}
-                  className="flex flex-1 flex-col rounded-card border border-line bg-surface p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-lift"
+                  className="flex flex-1 flex-col glass rounded-card p-5 transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-0.5 hover:shadow-lift"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-medium text-text">{routine.title}</p>
@@ -157,7 +156,7 @@ function LooksContent() {
                       void load();
                     }
                   }}
-                  className="self-start text-label uppercase text-text-muted hover:text-danger"
+                  className="min-h-11 self-start px-1 text-small text-text-muted transition-colors duration-(--duration-fast) hover:text-danger"
                 >
                   Delete
                 </button>
@@ -183,12 +182,9 @@ function NewLookForm({
   const [occasion, setOccasion] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const field =
-    "min-h-12 w-full rounded-card border border-line bg-surface px-4 text-text placeholder:text-text-muted focus:border-accent focus:outline-none";
-
   return (
     <form
-      className="rounded-card border border-line bg-raised p-5"
+      className="glass rounded-card p-5 md:p-6"
       onSubmit={async (event) => {
         event.preventDefault();
         if (!title.trim()) return;
@@ -207,18 +203,18 @@ function NewLookForm({
     >
       <div className="grid gap-3 sm:grid-cols-[2fr_1fr_auto] sm:items-end">
         <label className="block">
-          <span className="text-label uppercase text-text-muted">New look</span>
+          <span className={FIELD_LABEL}>New look</span>
           <input
-            className={`mt-1 ${field}`}
+            className={`mt-2 ${FIELD}`}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Going out"
           />
         </label>
         <label className="block">
-          <span className="text-label uppercase text-text-muted">Occasion</span>
+          <span className={FIELD_LABEL}>Occasion</span>
           <input
-            className={`mt-1 ${field}`}
+            className={`mt-2 ${FIELD}`}
             value={occasion}
             onChange={(e) => setOccasion(e.target.value)}
             placeholder="evening"
@@ -319,19 +315,19 @@ function LookEditor({
           <button
             type="button"
             onClick={onClose}
-            className="text-label uppercase text-text-muted hover:text-text"
+            className="inline-flex min-h-11 items-center gap-1 text-small font-medium text-text-muted transition-colors duration-(--duration-fast) hover:text-text"
           >
-            ← All looks
+            <span aria-hidden="true">←</span> All looks
           </button>
-          <h2 className="mt-2 font-display text-title text-text">{routine.title}</h2>
+          <h2 className="mt-1 text-display font-semibold text-text">{routine.title}</h2>
           {routine.occasion && (
             <p className="text-small text-text-muted">{routine.occasion}</p>
           )}
         </div>
 
-        <div className="rounded-card border border-line bg-surface px-5 py-3 text-right shadow-card">
+        <div className="glass rounded-card px-5 py-3 text-right">
           <p className="text-label uppercase text-text-muted">Look total</p>
-          <p className="font-display text-title text-text tabular-nums">
+          <p className="text-title font-semibold text-text tabular-nums">
             {formatCents(total)}
           </p>
           {unpriced > 0 && (
@@ -344,7 +340,7 @@ function LookEditor({
 
       {/* Colour strip of the look so far — reads before any product name. */}
       {stepProducts.some((p) => p?.hex) && (
-        <div className="mt-6 flex h-10 overflow-hidden rounded-pill ring-1 ring-line">
+        <div className="mt-6 flex h-10 overflow-hidden rounded-pill border-4 border-white shadow-card">
           {stepProducts.map((p, i) =>
             p?.hex ? (
               <div key={i} className="flex-1" style={{ backgroundColor: p.hex }} />
@@ -356,7 +352,7 @@ function LookEditor({
       <Section id="steps" title="Steps" aside={`${steps.length}`}>
         {steps.length === 0 ? (
           <p className="text-small text-text-muted">
-            Nothing added yet — pick from your shelf below.
+            Nothing added yet. Pick from your shelf below.
           </p>
         ) : (
           <ol className="space-y-2">
@@ -365,7 +361,7 @@ function LookEditor({
               return (
                 <li
                   key={step.id}
-                  className="flex items-center gap-3 rounded-card border border-line bg-surface p-3 shadow-card"
+                  className="glass flex items-center gap-3 rounded-tile p-3"
                 >
                   <span
                     className="h-10 w-10 shrink-0 rounded-full border border-line-strong"
@@ -389,7 +385,7 @@ function LookEditor({
                       onClick={() => void move(index, -1)}
                       disabled={index === 0}
                       aria-label={`Move step ${index + 1} earlier`}
-                      className="flex h-11 w-11 items-center justify-center rounded-card border border-line text-text-soft hover:border-accent hover:text-accent disabled:opacity-30"
+                      className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-line bg-raised text-text-soft transition-colors duration-(--duration-fast) hover:border-accent hover:text-accent disabled:cursor-default disabled:opacity-30"
                     >
                       ↑
                     </button>
@@ -398,7 +394,7 @@ function LookEditor({
                       onClick={() => void move(index, 1)}
                       disabled={index === steps.length - 1}
                       aria-label={`Move step ${index + 1} later`}
-                      className="flex h-11 w-11 items-center justify-center rounded-card border border-line text-text-soft hover:border-accent hover:text-accent disabled:opacity-30"
+                      className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-line bg-raised text-text-soft transition-colors duration-(--duration-fast) hover:border-accent hover:text-accent disabled:cursor-default disabled:opacity-30"
                     >
                       ↓
                     </button>
@@ -426,8 +422,8 @@ function LookEditor({
       </Section>
 
       <Section id="share" title="Sharing">
-        <div className="rounded-card border border-line bg-surface p-5 shadow-card">
-          <label className="flex items-start gap-3">
+        <div className="glass rounded-card p-5">
+          <label className="flex cursor-pointer items-start gap-3">
             <input
               type="checkbox"
               checked={routine.is_public}
@@ -441,7 +437,7 @@ function LookEditor({
                   setRoutine({ ...routine, is_public: !next });
                 }
               }}
-              className="mt-1 h-5 w-5 accent-[var(--color-accent)]"
+              className={`mt-0.5 ${CHECKBOX}`}
             />
             <span>
               <span className="font-medium text-text">
@@ -456,7 +452,7 @@ function LookEditor({
 
           {shareUrl && (
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <code className="min-w-0 flex-1 truncate rounded-card border border-line bg-raised px-4 py-3 font-mono text-small text-text-soft">
+              <code className="min-w-0 flex-1 truncate rounded-pill border border-line bg-white px-5 py-3 font-mono text-small text-text-soft">
                 {shareUrl}
               </code>
               <Button

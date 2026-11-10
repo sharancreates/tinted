@@ -1,58 +1,40 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Tinted design system
+   Tinted design system: warm editorial, coloured by skin.
+   Cream paper, a coral accent, Playfair Display headings over DM Sans, and
+   four colour-coded pastels for category cards. The full spec is MASTER.md.
 
-   Why near-neutral canvases:
-   this app's entire job is to show colour accurately. A tinted background
-   shifts perceived skin tone — a warm page makes every swatch read warmer, and
-   the undertone call is the product. So the surfaces are deliberately close to
-   neutral grey (a hint cool, to counter the warmth of the accent), and the only
-   saturated colour on screen belongs to the shades and the product photos.
-
-   The colour-accuracy argument still holds: shades and product photos are shown
-   on plain white (--color-swatch-ground) so nothing tints the judgement.
-
-   Every text/surface pair below is verified at WCAG AA (4.5:1) for body text.
-
-   Dark theme (default / data-theme="dark"):
-   Measured against --color-bg (#0b0b0c) / --color-surface (#141416) / --color-raised (#1c1c1f):
-     text           17.90 / 16.74 / 15.47
-     text-soft       9.20 /  8.60 /  7.95
-     text-muted      5.49 /  5.13 /  4.74
-     accent          6.45 /  6.04 /  5.58
-     accent-bright   8.79 /  8.22 /  7.59
-     accent-vivid    5.31 /  4.96 /  4.59
-     accent-hover    8.79 /  8.22 /  7.59
-     success         8.90 /  8.32 /  7.69
-     warn           10.06 /  9.41 /  8.70
-     danger          7.17 /  6.70 /  6.19
-     button (text-bg on accent): 6.45
-     button-hover (text-bg on hover): 8.79
-
-   Light theme (prefers-color-scheme: light / data-theme="light"):
-   Measured against --color-bg (#f7f8f9) / --color-surface (#ffffff) / --color-raised (#e8eaea):
-     text           17.18 / 18.27 / 15.13
-     text-soft       8.35 /  8.88 /  7.35
-     text-muted      5.65 /  6.01 /  4.98
-     accent          6.19 /  6.58 /  5.45
-     accent-bright   8.37 /  8.90 /  7.37
-     accent-vivid    5.47 /  5.81 /  4.81
-     accent-hover   10.28 / 10.93 /  9.05
-     success         6.09 /  6.47 /  5.36
-     warn            5.80 /  6.16 /  5.10
-     danger          5.78 /  6.15 /  5.09
-     button (text-bg on accent): 6.19
-     button-hover (text-bg on hover): 10.28
-   If you change a value here, re-check it before committing.
+   Theme Support:
+   - Light theme (prefers-color-scheme: light / data-theme="light"):
+     Cream ground (#faf6f1), mist accents, coral ink, frosted glass.
+     Verified at WCAG AA for body text on #faf6f1:
+       text: 14.18 | text-soft: 6.85 | text-muted: 5.67 | accent: 5.33
+       accent-hover: 6.72 | success: 5.99 | warn: 6.30 | danger: 6.07
+   - Dark theme (default / data-theme="dark"):
+     Near-neutral dark canvas (#0b0b0c / #141416 / #1c1c1f) to prevent
+     background tint from distorting skin tone assessment.
+     Verified at WCAG AA for body text on #0b0b0c / #141416 / #1c1c1f:
+       text: 17.90 / 16.74 / 15.47
+       text-soft: 9.20 / 8.60 / 7.95
+       text-muted: 5.49 / 5.13 / 4.74
+       accent: 6.45 / 6.04 / 5.58
+       accent-hover: 8.79 / 8.22 / 7.59
+       accent-vivid: 5.31 / 4.96 / 4.59
+       success: 8.90 / 8.32 / 7.69
+       warn: 10.06 / 9.41 / 8.70
+       danger: 7.17 / 6.70 / 6.19
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @theme {
   /* ── Dynamic Surfaces ─────────────────────────────────────────────────── */
   --color-bg: var(--theme-color-bg);
+  --color-mist-peach: var(--theme-color-mist-peach);
+  --color-mist-lavender: var(--theme-color-mist-lavender);
   --color-surface: var(--theme-color-surface);
   --color-raised: var(--theme-color-raised);
   --color-overlay: var(--theme-color-overlay);
+  /* Anything whose colour is being judged sits on this, never on glass. */
   --color-swatch-ground: var(--theme-color-swatch-ground);
 
   /* ── Dynamic Text ─────────────────────────────────────────────────────── */
@@ -77,48 +59,82 @@
   --color-line: var(--theme-color-line);
   --color-line-strong: var(--theme-color-line-strong);
 
-  /* ── Type ─────────────────────────────────────────────────────────────── */
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, serif;
+  /* ── Category Pastels ─────────────────────────────────────────────────── */
+  --color-lavender: var(--theme-color-lavender);
+  --color-lavender-mid: var(--theme-color-lavender-mid);
+  --color-lavender-ink: var(--theme-color-lavender-ink);
+  --color-sage: var(--theme-color-sage);
+  --color-sage-mid: var(--theme-color-sage-mid);
+  --color-sage-ink: var(--theme-color-sage-ink);
+  --color-peach: var(--theme-color-peach);
+  --color-peach-mid: var(--theme-color-peach-mid);
+  --color-peach-ink: var(--theme-color-peach-ink);
+  --color-sky: var(--theme-color-sky);
+  --color-sky-mid: var(--theme-color-sky-mid);
+  --color-sky-ink: var(--theme-color-sky-ink);
+  --color-blush: var(--theme-color-blush);
+  --color-blush-mid: var(--theme-color-blush-mid);
+  --color-blush-ink: var(--theme-color-blush-ink);
 
-  --text-hero: clamp(2.75rem, 7vw, 5.5rem);
-  --text-hero--line-height: 0.95;
-  --text-hero--letter-spacing: -0.045em;
-  --text-display: clamp(2rem, 4.5vw, 3.5rem);
-  --text-display--line-height: 1.03;
-  --text-display--letter-spacing: -0.03em;
-  --text-title: 1.75rem;
-  --text-title--line-height: 1.15;
-  --text-title--letter-spacing: -0.02em;
-  --text-heading: 1.125rem;
+  /* ── Monk Skin Tone scale: the source of every aura ───────────────────── */
+  --color-mst-1: #f6ede4;
+  --color-mst-2: #f3e7db;
+  --color-mst-3: #f7ead0;
+  --color-mst-4: #eadaba;
+  --color-mst-5: #d7bd96;
+  --color-mst-6: #a07850;
+  --color-mst-7: #825c43;
+  --color-mst-8: #604134;
+  --color-mst-9: #3a312a;
+  --color-mst-10: #292420;
+
+  /* ── Type ─────────────────────────────────────────────────────────────── */
+  --font-sans: var(--font-dm-sans), "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+
+  --text-hero: clamp(2.5rem, 5vw, 3.5rem);
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.025em;
+  --text-display: clamp(1.875rem, 3.5vw, 2.5rem);
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.02em;
+  --text-title: 1.375rem;
+  --text-title--line-height: 1.25;
+  --text-title--letter-spacing: -0.015em;
+  --text-heading: 1.0625rem;
   --text-heading--line-height: 1.35;
   --text-heading--letter-spacing: -0.01em;
-  --text-body: 1rem;
-  --text-body--line-height: 1.6;
-  --text-small: 0.875rem;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.55;
+  --text-small: 0.8125rem;
   --text-small--line-height: 1.5;
-  --text-label: 0.75rem;
+  --text-label: 0.6875rem;
   --text-label--line-height: 1.4;
-  --text-label--letter-spacing: 0.09em;
+  --text-label--letter-spacing: 0.08em;
 
   /* ── Radii ────────────────────────────────────────────────────────────── */
-  --radius-card: 0.875rem;
+  --radius-sm: 0.75rem;
+  --radius-tile: 1rem;
+  --radius-card: 1.25rem;
+  --radius-window: 1.75rem;
   --radius-pill: 999px;
 
   /* ── Dynamic Elevation ────────────────────────────────────────────────── */
   --shadow-card: var(--theme-shadow-card);
   --shadow-lift: var(--theme-shadow-lift);
+  --shadow-window: var(--theme-shadow-window);
   --shadow-glow: var(--theme-shadow-glow);
 
   /* ── Rhythm ───────────────────────────────────────────────────────────── */
-  --space-section: 5rem;
+  --space-section: 3.5rem;
   --space-block: 1.5rem;
 
   /* ── Motion ───────────────────────────────────────────────────────────── */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration-fast: 140ms;
-  --duration-base: 260ms;
-  --duration-slow: 520ms;
+  --duration-fast: 220ms;
+  --duration-base: 360ms;
+  --duration-slow: 360ms;
+  --duration-reduced: 120ms;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -127,41 +143,59 @@
 
 :root {
   /* ── Single Source of Truth: Light Theme Values ────────────────────────── */
-  --light-color-bg: #f7f8f9;
-  --light-color-surface: #ffffff;
-  --light-color-raised: #e8eaea;
-  --light-color-overlay: rgba(247, 248, 249, 0.80);
+  --light-color-bg: #faf6f1;
+  --light-color-mist-peach: #f6e4d8;
+  --light-color-mist-lavender: #ece5f3;
+  --light-color-surface: rgba(255, 253, 250, 0.6);
+  --light-color-raised: rgba(255, 253, 250, 0.82);
+  --light-color-overlay: rgba(43, 36, 32, 0.35);
   --light-color-swatch-ground: #ffffff;
 
-  --light-color-text: #141517;
-  --light-color-text-soft: #484a4e;
-  --light-color-text-muted: #616368;
+  --light-color-text: #2b2420;
+  --light-color-text-soft: #5e544c;
+  --light-color-text-muted: #6b6058;
 
-  --light-color-accent: #875018;
-  --light-color-accent-bright: #6e3e0e;
-  --light-color-accent-vivid: #b23f13;
-  --light-color-accent-hover: #5e310c;
-  --light-color-accent-dim: rgba(135, 80, 24, 0.12);
+  --light-color-accent: #a64b2c;
+  --light-color-accent-bright: #c25936;
+  --light-color-accent-vivid: #d4765c;
+  --light-color-accent-hover: #8f3f24;
+  --light-color-accent-dim: rgba(212, 118, 92, 0.14);
 
-  --light-color-success: #226b40;
-  --light-color-warn: #8f5303;
-  --light-color-danger: #b82c1e;
+  --light-color-success: #1f6b4a;
+  --light-color-warn: #7a5408;
+  --light-color-danger: #b3261e;
 
-  --light-color-line: rgba(0, 0, 0, 0.08);
-  --light-color-line-strong: rgba(0, 0, 0, 0.16);
+  --light-color-line: rgba(255, 255, 255, 0.85);
+  --light-color-line-strong: rgba(94, 84, 76, 0.18);
 
-  --light-shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06),
-                       0 4px 12px -2px rgba(0, 0, 0, 0.08);
-  --light-shadow-lift: 0 4px 16px -2px rgba(0, 0, 0, 0.10),
-                       0 12px 28px -6px rgba(0, 0, 0, 0.12);
-  --light-shadow-glow: 0 0 0 1px rgba(135, 80, 24, 0.30),
-                       0 8px 24px -6px rgba(135, 80, 24, 0.25);
+  --light-color-lavender: #e9e3f5;
+  --light-color-lavender-mid: #b9a8e0;
+  --light-color-lavender-ink: #5b4a8a;
+  --light-color-sage: #e3ede2;
+  --light-color-sage-mid: #9dbf9a;
+  --light-color-sage-ink: #3f6346;
+  --light-color-peach: #fbe4d6;
+  --light-color-peach-mid: #f2b394;
+  --light-color-peach-ink: #8a4a2b;
+  --light-color-sky: #dfebf5;
+  --light-color-sky-mid: #9cc3e3;
+  --light-color-sky-ink: #2f5a7d;
+  --light-color-blush: #f8e1e7;
+  --light-color-blush-mid: #e9a3b5;
+  --light-color-blush-ink: #8c3553;
+
+  --light-shadow-card: 0 1px 2px rgba(70, 45, 30, 0.06), 0 8px 24px rgba(70, 45, 30, 0.06);
+  --light-shadow-lift: 0 2px 4px rgba(70, 45, 30, 0.06), 0 18px 48px rgba(70, 45, 30, 0.1);
+  --light-shadow-window: 0 4px 8px rgba(70, 45, 30, 0.05), 0 24px 64px rgba(70, 45, 30, 0.12);
+  --light-shadow-glow: 0 0 0 1px rgba(166, 75, 44, 0.30), 0 8px 24px -6px rgba(166, 75, 44, 0.25);
 
   /* ── Single Source of Truth: Dark Theme Values ─────────────────────────── */
   --dark-color-bg: #0b0b0c;
-  --dark-color-surface: #141416;
-  --dark-color-raised: #1c1c1f;
-  --dark-color-overlay: rgba(6, 6, 7, 0.72);
+  --dark-color-mist-peach: rgba(45, 25, 20, 0.35);
+  --dark-color-mist-lavender: rgba(30, 20, 45, 0.35);
+  --dark-color-surface: rgba(20, 20, 22, 0.72);
+  --dark-color-raised: rgba(28, 28, 31, 0.85);
+  --dark-color-overlay: rgba(6, 6, 7, 0.75);
   --dark-color-swatch-ground: #ffffff;
 
   --dark-color-text: #f5f4f2;
@@ -178,15 +212,29 @@
   --dark-color-warn: #e8b04b;
   --dark-color-danger: #f0796b;
 
-  --dark-color-line: rgba(255, 255, 255, 0.09);
-  --dark-color-line-strong: rgba(255, 255, 255, 0.16);
+  --dark-color-line: rgba(255, 255, 255, 0.10);
+  --dark-color-line-strong: rgba(255, 255, 255, 0.18);
 
-  --dark-shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
-                      0 12px 32px -16px rgba(0, 0, 0, 0.9);
-  --dark-shadow-lift: 0 1px 0 0 rgba(255, 255, 255, 0.07) inset,
-                      0 24px 48px -20px rgba(0, 0, 0, 0.95);
-  --dark-shadow-glow: 0 0 0 1px rgba(198, 134, 66, 0.35),
-                      0 16px 40px -20px rgba(198, 134, 66, 0.45);
+  --dark-color-lavender: #261f36;
+  --dark-color-lavender-mid: #8a75b8;
+  --dark-color-lavender-ink: #d4c8f0;
+  --dark-color-sage: #1b2b20;
+  --dark-color-sage-mid: #608f65;
+  --dark-color-sage-ink: #b8deb5;
+  --dark-color-peach: #362319;
+  --dark-color-peach-mid: #b87754;
+  --dark-color-peach-ink: #f5c4ab;
+  --dark-color-sky: #182838;
+  --dark-color-sky-mid: #5e8bb5;
+  --dark-color-sky-ink: #bad5ed;
+  --dark-color-blush: #381c25;
+  --dark-color-blush-mid: #b56079;
+  --dark-color-blush-ink: #f0bfce;
+
+  --dark-shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 12px 32px -16px rgba(0, 0, 0, 0.9);
+  --dark-shadow-lift: 0 1px 0 0 rgba(255, 255, 255, 0.07) inset, 0 24px 48px -20px rgba(0, 0, 0, 0.95);
+  --dark-shadow-window: 0 1px 0 0 rgba(255, 255, 255, 0.08) inset, 0 32px 64px -24px rgba(0, 0, 0, 0.95);
+  --dark-shadow-glow: 0 0 0 1px rgba(198, 134, 66, 0.35), 0 16px 40px -20px rgba(198, 134, 66, 0.45);
 }
 
 /* ── Dark Theme Mapping (Default & Explicit) ────────────────────────────── */
@@ -195,6 +243,8 @@
 html[data-theme="dark"] {
   color-scheme: dark;
   --theme-color-bg: var(--dark-color-bg);
+  --theme-color-mist-peach: var(--dark-color-mist-peach);
+  --theme-color-mist-lavender: var(--dark-color-mist-lavender);
   --theme-color-surface: var(--dark-color-surface);
   --theme-color-raised: var(--dark-color-raised);
   --theme-color-overlay: var(--dark-color-overlay);
@@ -217,8 +267,25 @@ html[data-theme="dark"] {
   --theme-color-line: var(--dark-color-line);
   --theme-color-line-strong: var(--dark-color-line-strong);
 
+  --theme-color-lavender: var(--dark-color-lavender);
+  --theme-color-lavender-mid: var(--dark-color-lavender-mid);
+  --theme-color-lavender-ink: var(--dark-color-lavender-ink);
+  --theme-color-sage: var(--dark-color-sage);
+  --theme-color-sage-mid: var(--dark-color-sage-mid);
+  --theme-color-sage-ink: var(--dark-color-sage-ink);
+  --theme-color-peach: var(--dark-color-peach);
+  --theme-color-peach-mid: var(--dark-color-peach-mid);
+  --theme-color-peach-ink: var(--dark-color-peach-ink);
+  --theme-color-sky: var(--dark-color-sky);
+  --theme-color-sky-mid: var(--dark-color-sky-mid);
+  --theme-color-sky-ink: var(--dark-color-sky-ink);
+  --theme-color-blush: var(--dark-color-blush);
+  --theme-color-blush-mid: var(--dark-color-blush-mid);
+  --theme-color-blush-ink: var(--dark-color-blush-ink);
+
   --theme-shadow-card: var(--dark-shadow-card);
   --theme-shadow-lift: var(--dark-shadow-lift);
+  --theme-shadow-window: var(--dark-shadow-window);
   --theme-shadow-glow: var(--dark-shadow-glow);
 }
 
@@ -227,6 +294,8 @@ html[data-theme="dark"] {
 html[data-theme="light"] {
   color-scheme: light;
   --theme-color-bg: var(--light-color-bg);
+  --theme-color-mist-peach: var(--light-color-mist-peach);
+  --theme-color-mist-lavender: var(--light-color-mist-lavender);
   --theme-color-surface: var(--light-color-surface);
   --theme-color-raised: var(--light-color-raised);
   --theme-color-overlay: var(--light-color-overlay);
@@ -249,8 +318,25 @@ html[data-theme="light"] {
   --theme-color-line: var(--light-color-line);
   --theme-color-line-strong: var(--light-color-line-strong);
 
+  --theme-color-lavender: var(--light-color-lavender);
+  --theme-color-lavender-mid: var(--light-color-lavender-mid);
+  --theme-color-lavender-ink: var(--light-color-lavender-ink);
+  --theme-color-sage: var(--light-color-sage);
+  --theme-color-sage-mid: var(--light-color-sage-mid);
+  --theme-color-sage-ink: var(--light-color-sage-ink);
+  --theme-color-peach: var(--light-color-peach);
+  --theme-color-peach-mid: var(--light-color-peach-mid);
+  --theme-color-peach-ink: var(--light-color-peach-ink);
+  --theme-color-sky: var(--light-color-sky);
+  --theme-color-sky-mid: var(--light-color-sky-mid);
+  --theme-color-sky-ink: var(--light-color-sky-ink);
+  --theme-color-blush: var(--light-color-blush);
+  --theme-color-blush-mid: var(--light-color-blush-mid);
+  --theme-color-blush-ink: var(--light-color-blush-ink);
+
   --theme-shadow-card: var(--light-shadow-card);
   --theme-shadow-lift: var(--light-shadow-lift);
+  --theme-shadow-window: var(--light-shadow-window);
   --theme-shadow-glow: var(--light-shadow-glow);
 }
 
@@ -258,6 +344,8 @@ html[data-theme="light"] {
   :root:not([data-theme="dark"]) {
     color-scheme: light;
     --theme-color-bg: var(--light-color-bg);
+    --theme-color-mist-peach: var(--light-color-mist-peach);
+    --theme-color-mist-lavender: var(--light-color-mist-lavender);
     --theme-color-surface: var(--light-color-surface);
     --theme-color-raised: var(--light-color-raised);
     --theme-color-overlay: var(--light-color-overlay);
@@ -280,8 +368,25 @@ html[data-theme="light"] {
     --theme-color-line: var(--light-color-line);
     --theme-color-line-strong: var(--light-color-line-strong);
 
+    --theme-color-lavender: var(--light-color-lavender);
+    --theme-color-lavender-mid: var(--light-color-lavender-mid);
+    --theme-color-lavender-ink: var(--light-color-lavender-ink);
+    --theme-color-sage: var(--light-color-sage);
+    --theme-color-sage-mid: var(--light-color-sage-mid);
+    --theme-color-sage-ink: var(--light-color-sage-ink);
+    --theme-color-peach: var(--light-color-peach);
+    --theme-color-peach-mid: var(--light-color-peach-mid);
+    --theme-color-peach-ink: var(--light-color-peach-ink);
+    --theme-color-sky: var(--light-color-sky);
+    --theme-color-sky-mid: var(--light-color-sky-mid);
+    --theme-color-sky-ink: var(--light-color-sky-ink);
+    --theme-color-blush: var(--light-color-blush);
+    --theme-color-blush-mid: var(--light-color-blush-mid);
+    --theme-color-blush-ink: var(--light-color-blush-ink);
+
     --theme-shadow-card: var(--light-shadow-card);
     --theme-shadow-lift: var(--light-shadow-lift);
+    --theme-shadow-window: var(--light-shadow-window);
     --theme-shadow-glow: var(--light-shadow-glow);
   }
 }
@@ -290,8 +395,17 @@ html[data-theme="light"] {
    Base
    ═══════════════════════════════════════════════════════════════════════════ */
 
-body {
+html {
   background: var(--color-bg);
+}
+
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(75% 65% at 0% 100%, var(--color-mist-peach), transparent 72%),
+    radial-gradient(70% 70% at 100% 100%, var(--color-mist-lavender), transparent 72%),
+    var(--color-bg);
+  background-attachment: fixed;
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: var(--text-body);
@@ -300,12 +414,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Visible, consistent focus. Never remove this without replacing it — keyboard
-   users have no other way to tell where they are. */
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-  border-radius: 4px;
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+/* In the base layer so utilities such as outline-none can override it.
+   Containers focused only by script (tabindex=-1, to move screen readers on a
+   step change) never show the ring: there is nothing to operate there. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+  [tabindex="-1"]:focus {
+    outline: none;
+  }
 }
 
 ::selection {
@@ -317,16 +441,106 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--color-line-strong);
-  border: 3px solid var(--color-bg);
+  border: 3px solid transparent;
+  background-clip: padding-box;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Glass
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@utility glass {
+  background: var(--color-surface);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-card);
+}
+
+@utility glass-strong {
+  background: var(--color-raised);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-card);
+}
+
+/* The app window: thinner than a card, so the mist shows through it and the
+   cards inside still read as a layer above. */
+@utility glass-window {
+  background: var(--color-surface);
+  -webkit-backdrop-filter: blur(32px) saturate(150%);
+  backdrop-filter: blur(32px) saturate(150%);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-lift);
+}
+
+/* The tone panel: more see-through than a card, tinted by the mist, so the
+   dot texture and the orb's glow carry it. */
+@utility tone-panel {
+  background:
+    linear-gradient(180deg, var(--color-surface), rgba(236, 229, 243, 0.2));
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-card);
+}
+
+/* Faint dot grid, used only behind the tone panel. */
+@utility dots {
+  background-image: radial-gradient(var(--color-line-strong) 1px, transparent 1.3px);
+  background-size: 12px 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Aura tiles: blurred blends of Monk tones and pastels
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.aura {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--a0);
+}
+/* Painterly streaks: long, soft ellipses smeared at a slight angle, like a
+   long-exposure photo of colour. Light Monk tones sit among the pastels. */
+.aura::before {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  z-index: -2;
+  transform: rotate(-9deg);
+  filter: blur(22px) saturate(135%);
+  background:
+    radial-gradient(70% 22% at 40% 22%, var(--a1), transparent 70%),
+    radial-gradient(60% 26% at 70% 42%, var(--a2), transparent 70%),
+    radial-gradient(80% 20% at 30% 58%, var(--a3), transparent 70%),
+    radial-gradient(45% 30% at 80% 70%, var(--a4), transparent 70%),
+    radial-gradient(50% 18% at 20% 38%, var(--a2), transparent 70%);
+}
+/* Lift at the bottom so the label reads on any aura. */
+.aura::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, var(--color-surface) 0%, transparent 48%);
+}
+/* Small thumbnails carry no label, so they skip the lift. */
+.aura-thumb::after { display: none; }
+.aura-thumb::before { inset: -10%; filter: blur(4px) saturate(140%); }
+
+.aura-match  { --a0: #f1d6e4; --a1: #f29bc0; --a2: #c7a0ea; --a3: #f7c3a1; --a4: var(--color-mst-5); }
+.aura-quiz   { --a0: #e4f0df; --a1: #96d08f; --a2: #f5b384; --a3: #fbe6c6; --a4: var(--color-mst-4); }
+.aura-vanity { --a0: #ebe2f6; --a1: #b3a2ef; --a2: #f2a58b; --a3: #f8dccb; --a4: var(--color-mst-5); }
+.aura-looks  { --a0: #fbe2d4; --a1: #f2976a; --a2: #f4c46b; --a3: #eba6ca; --a4: var(--color-mst-4); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
    Utilities
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Always hidden visually, always present to assistive tech. */
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
@@ -337,9 +551,7 @@ body {
   border: 0;
 }
 
-/* Screen-reader-only *until focused*, then shown as a real control. Only the
-   skip link should use this — on anything that can take focus it pops up as a
-   floating box in the corner. */
+/* Screen-reader-only until focused. Only the skip link uses this. */
 .sr-only-focusable {
   position: absolute;
   width: 1px; height: 1px;
@@ -356,19 +568,15 @@ body {
   margin: 0;
   overflow: visible;
   clip: auto;
-  background: var(--color-raised);
+  background: var(--color-surface);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-pill);
   z-index: 200;
 }
 
-/* A horizontally scrolling strip shouldn't show a scrollbar over its own
-   rounded edge — the tab rail relies on this. */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Line clamping. Product blurbs vary in length, which left a grid of cards
-   with ragged bottom edges — the clamp is what makes a row read as a row. */
 .clamp-1, .clamp-2, .clamp-3 {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -378,8 +586,6 @@ body {
 .clamp-2 { -webkit-line-clamp: 2; }
 .clamp-3 { -webkit-line-clamp: 3; }
 
-/* Signals that a horizontally scrolling rail continues past the edge, instead
-   of letting content look arbitrarily cut off. */
 .fade-edges {
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 1.25rem,
                        #000 calc(100% - 1.25rem), transparent 100%);
@@ -387,8 +593,7 @@ body {
                #000 calc(100% - 1.25rem), transparent 100%);
 }
 
-/* Checkerboard behind cut-out product photos, so a transparent PNG doesn't
-   vanish into the page. */
+/* Checkerboard behind cut-out product photos. */
 .bg-swatch-check {
   background-image:
     linear-gradient(45deg, var(--color-line-strong) 25%, transparent 25%),
@@ -400,75 +605,31 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Animation
+   Motion. One curve; entrances play once. No infinite loops anywhere.
    ═══════════════════════════════════════════════════════════════════════════ */
-
-@keyframes shimmer-sweep {
-  0%   { transform: translateX(-200%); }
-  100% { transform: translateX(400%); }
-}
 
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 0.2; }
-  50%      { opacity: 0.8; }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.animate-shimmer-sweep {
-  animation: shimmer-sweep 2.8s var(--ease-out-soft) infinite;
-}
 .animate-fade-in-up {
-  animation: fade-in-up var(--duration-slow) var(--ease-out-soft) both;
-}
-.animate-pulse-dot {
-  animation: pulse-dot 1.4s ease-in-out infinite;
+  animation: fade-in-up var(--duration-base) var(--ease-out-soft) both;
 }
 
-/* Motion is decoration here — every animation above conveys state that is also
-   conveyed statically, so switching them off costs nothing. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: var(--duration-reduced) !important;
+    transition-property: opacity, color, background-color, border-color !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Editorial touches
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* Slight rotation on alternating cards, straightening on hover. Cheap, and it
-   is most of what separates an editorial layout from a dashboard grid. */
-.tilt-a { transform: rotate(-1.4deg); }
-.tilt-b { transform: rotate(1.1deg); }
-.tilt-a, .tilt-b { transition: transform var(--duration-base) var(--ease-out-soft); }
-.tilt-a:hover, .tilt-b:hover { transform: rotate(0deg) translateY(-4px); }
-
-@media (prefers-reduced-motion: reduce) {
-  .tilt-a, .tilt-b { transform: none; }
-  .tilt-a:hover, .tilt-b:hover { transform: none; }
-}
-
-/* Warm bloom behind hero sections, so the cream ground is not flat. */
-.hero-wash {
-  position: relative;
-}
-.hero-wash::before {
-  content: "";
-  position: absolute;
-  inset: -20% -10% auto -10%;
-  height: 70%;
-  background:
-    radial-gradient(60% 60% at 20% 30%, rgba(217, 84, 31, 0.09), transparent 70%),
-    radial-gradient(50% 50% at 80% 20%, rgba(168, 57, 94, 0.07), transparent 70%);
-  pointer-events: none;
-  z-index: -1;
+  .animate-fade-in-up {
+    animation: fade-in var(--duration-reduced) linear both;
+  }
 }

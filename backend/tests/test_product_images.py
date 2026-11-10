@@ -126,3 +126,110 @@ def test_cache_key_is_case_and_whitespace_insensitive():
 
 def test_cache_key_separates_distinct_products():
     assert cache_key("NARS", "Sheer Glow") != cache_key("NARS", "Light Reflecting")
+
+
+# ── Seen in production: wrong photo for a real product ────────────────────────
+
+def test_shade_chart_sharing_a_brand_word_is_rejected():
+    """Black Opal True Color was shown as a '100+ shades of black' chart."""
+    assert not accepted(
+        "https://shop.example/x.jpg",
+        "100+ Shades of Black colour chart",
+        brand="Black Opal",
+        product="True Color Flawless Liquid Foundation",
+    )
+
+
+def test_one_brand_word_is_not_a_brand_match():
+    """Only the whole distinctive brand counts, so 'black' alone earns nothing."""
+    partial = score("https://shop.example/x.jpg", "Black liquid", brand="Black Opal",
+                    product="True Color Flawless Liquid Foundation")
+    full = score("https://shop.example/x.jpg", "Black Opal liquid", brand="Black Opal",
+                 product="True Color Flawless Liquid Foundation")
+    assert full > partial
+
+
+def test_generic_brand_words_are_not_required():
+    assert accepted(
+        "https://media.ulta.com/x.jpg",
+        "Fenty Pro Filt'r Soft Matte Longwear Foundation",
+        brand="Fenty Beauty",
+        product="Pro Filt'r Soft Matte Longwear Foundation",
+    )
+
+
+def test_punctuated_brand_matches():
+    assert accepted(
+        "https://shop.example/x.jpg",
+        "M·A·C Face and Body Foundation 120ml",
+        brand="MAC",
+        product="Face and Body Foundation",
+    )
+
+
+def test_a_different_product_type_is_rejected():
+    assert not accepted("https://media.ulta.com/x.jpg", "Maybelline Fit Me Mascara")
+
+
+def test_wide_banner_is_rejected_when_size_is_known():
+    image = {"image": "https://media.ulta.com/x.jpg",
+             "title": "Maybelline Fit Me Liquid Foundation", "width": 1600, "height": 500}
+    assert _score_candidate(image, BRAND, PRODUCT) < _MIN_SCORE
+
+
+def test_portrait_product_shot_is_accepted_when_size_is_known():
+    image = {"image": "https://media.ulta.com/x.jpg",
+             "title": "Maybelline Fit Me Liquid Foundation", "width": 800, "height": 1000}
+    assert _score_candidate(image, BRAND, PRODUCT) >= _MIN_SCORE
+
+
+# ── Packshot check: a bottle on white, not a swatch photo ─────────────────────
+
+from PIL import Image, ImageDraw  # noqa: E402
+
+from api.product_images import is_packshot, packshot_metrics  # noqa: E402
+
+SKIN = (200, 150, 120)
+
+
+def _passes(image) -> bool:
+    return is_packshot(*packshot_metrics(image))
+
+
+def test_bottle_on_white_is_a_packshot():
+    img = Image.new("RGB", (400, 400), "white")
+    ImageDraw.Draw(img).rectangle([160, 80, 240, 340], fill=(40, 40, 40))
+    assert _passes(img)
+
+
+def test_foundation_coloured_bottle_on_white_is_still_a_packshot():
+    img = Image.new("RGB", (400, 400), "white")
+    ImageDraw.Draw(img).rectangle([150, 60, 250, 340], fill=SKIN)
+    assert _passes(img)
+
+
+def test_arms_filling_the_frame_are_rejected():
+    img = Image.new("RGB", (400, 400), (230, 230, 230))
+    draw = ImageDraw.Draw(img)
+    for x in range(0, 400, 80):
+        draw.rectangle([x, 0, x + 60, 400], fill=SKIN)
+    assert not _passes(img)
+
+
+def test_busy_background_is_rejected():
+    img = Image.new("RGB", (400, 400), (90, 120, 160))
+    ImageDraw.Draw(img).rectangle([160, 80, 240, 340], fill=(40, 40, 40))
+    assert not _passes(img)
+
+
+def test_transparent_packshot_is_judged_on_white():
+    img = Image.new("RGBA", (400, 400), (0, 0, 0, 0))
+    ImageDraw.Draw(img).rectangle([160, 80, 240, 340], fill=(40, 40, 40, 255))
+    assert _passes(img)
+
+
+def test_retailer_alt_image_ranks_below_the_main_one():
+    title = "Maybelline Fit Me Liquid Foundation"
+    main = score("https://media.ulta.com/i/ulta/2523148?w=800", title)
+    alt = score("https://media.ulta.com/i/ulta/2523148cm_alt01?w=800", title)
+    assert main > alt

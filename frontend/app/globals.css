@@ -5,26 +5,32 @@
    Cream paper, a coral accent, Playfair Display headings over DM Sans, and
    four colour-coded pastels for category cards. The full spec is MASTER.md.
 
-   Theme Support:
-   - Light theme (prefers-color-scheme: light / data-theme="light"):
-     Cream ground (#faf6f1), mist accents, coral ink, frosted glass.
-     Verified at WCAG AA for body text on #faf6f1:
-       text: 14.18 | text-soft: 6.85 | text-muted: 5.67 | accent: 5.33
-       accent-hover: 6.72 | success: 5.99 | warn: 6.30 | danger: 6.07
-   - Dark theme (default / data-theme="dark"):
-     Near-neutral dark canvas (#0b0b0c / #141416 / #1c1c1f) to prevent
-     background tint from distorting skin tone assessment.
-     Verified at WCAG AA for body text on #0b0b0c / #141416 / #1c1c1f:
-       text: 17.90 / 16.74 / 15.47
-       text-soft: 9.20 / 8.60 / 7.95
-       text-muted: 5.49 / 5.13 / 4.74
-       accent: 6.45 / 6.04 / 5.58
-       accent-hover: 8.79 / 8.22 / 7.59
-       accent-vivid: 5.31 / 4.96 / 4.59
-       success: 8.90 / 8.32 / 7.69
-       warn: 10.06 / 9.41 / 8.70
-       danger: 7.17 / 6.70 / 6.19
-   ═══════════════════════════════════════════════════════════════════════════ */
+ * Theme Support:
+ * - Light theme (prefers-color-scheme: light / data-theme="light"):
+ *   Neutral canvas (#f5f5f5), restrained mist accents, coral ink,
+ *   and frosted glass surfaces.
+ *
+ *   Accessibility requirements:
+ *   - WCAG AA: minimum 4.5:1 for normal text.
+ *   - WCAG AA: minimum 3:1 for large text.
+ *   - Verify foreground/background combinations on:
+ *       * Base canvas
+ *       * Surface
+ *       * Raised surface
+ *       * Overlay
+ *       * Category pastel surfaces
+ *       * Interactive and status surfaces
+ *   - Calculate contrast using the final composited background,
+ *     including transparency and gradients.
+ *   - Do not treat a passing ratio against the base canvas
+ *     as proof of compliance on other surfaces.
+ *
+ *   Skin-tone assessment:
+ *   - Use the opaque, neutral swatch ground.
+ *   - Never apply decorative tinting or backdrop filters
+ *     to the assessment background.
+ */
+
 
 @theme {
   /* ── Dynamic Surfaces ─────────────────────────────────────────────────── */
@@ -143,13 +149,13 @@
 
 :root {
   /* ── Single Source of Truth: Light Theme Values ────────────────────────── */
-  --light-color-bg: #faf6f1;
+  --light-color-bg: ##f5f5f5;
   --light-color-mist-peach: #f6e4d8;
   --light-color-mist-lavender: #ece5f3;
   --light-color-surface: rgba(255, 253, 250, 0.6);
   --light-color-raised: rgba(255, 253, 250, 0.82);
   --light-color-overlay: rgba(43, 36, 32, 0.35);
-  --light-color-swatch-ground: #ffffff;
+  --light-color-swatch-ground: #f5f5f5;
 
   --light-color-text: #2b2420;
   --light-color-text-soft: #5e544c;

@@ -149,7 +149,7 @@
 
 :root {
   /* ── Single Source of Truth: Light Theme Values ────────────────────────── */
-  --light-color-bg: ##f5f5f5;
+  --light-color-bg: #f5f5f5;
   --light-color-mist-peach: #f6e4d8;
   --light-color-mist-lavender: #ece5f3;
   --light-color-surface: rgba(255, 253, 250, 0.6);

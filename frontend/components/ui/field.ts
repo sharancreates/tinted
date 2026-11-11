@@ -7,7 +7,7 @@ const BASE =
   "w-full border border-line bg-raised text-small text-text placeholder:text-text-muted " +
   "shadow-[inset_0_1px_2px_rgba(60,40,70,0.06)] " +
   "transition-[border-color,background-color] duration-(--duration-fast) ease-(--ease-out-soft) " +
-  "focus:border-accent focus:bg-white focus:outline-none disabled:opacity-50";
+  "focus:border-accent focus:bg-surface focus:outline-none disabled:opacity-50";
 
 export const FIELD = `${BASE} min-h-12 rounded-pill px-5`;
 

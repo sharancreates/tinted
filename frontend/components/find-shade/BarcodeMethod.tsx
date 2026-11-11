@@ -96,7 +96,7 @@ export function BarcodeMethod({ onPick }: { onPick: (p: Product) => void }) {
         <button
           type="button"
           onClick={() => (scanning ? void stop().then(() => setStatus("idle")) : void start())}
-          className="inline-flex min-h-11 items-center gap-2 rounded-pill bg-text px-5 text-small font-semibold text-white transition-[background-color,transform] duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-text-soft motion-safe:hover:-translate-y-0.5"
+          className="inline-flex min-h-11 items-center gap-2 rounded-pill bg-text px-5 text-small font-semibold text-bg transition-[background-color,transform] duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-text-soft motion-safe:hover:-translate-y-0.5"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <path d="M4 7V5h3M17 5h3v2M20 17v2h-3M7 19H4v-2M8 9v6M11 9v6M14 9v6M17 9v6" />

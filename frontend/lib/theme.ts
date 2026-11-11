@@ -6,6 +6,118 @@ export const THEME_COLOR_DARK = "#0b0b0c";
 
 let cachedMetaTag: HTMLMetaElement | null = null;
 
+// Shared reactive state across components and responsive toggles
+let activeTheme: ThemeMode = "system";
+let storageFailure = false;
+let initialized = false;
+const listeners = new Set<() => void>();
+
+/**
+ * Initializes the in-memory theme state from localStorage or pre-hydration DOM state.
+ */
+function initThemeState(): void {
+  if (typeof window === "undefined" || initialized) return;
+  initialized = true;
+
+  const stored = getStoredTheme();
+  if (stored) {
+    activeTheme = stored;
+  } else {
+    const attr = document.documentElement.getAttribute("data-theme");
+    if (attr === "light" || attr === "dark") {
+      activeTheme = attr;
+    }
+  }
+
+  // Cross-tab synchronization: listen for storage changes from other tabs
+  window.addEventListener("storage", (event: StorageEvent) => {
+    if (event.key === THEME_STORAGE_KEY) {
+      const val = event.newValue;
+      const next: ThemeMode =
+        val === "light" || val === "dark" || val === "system" ? val : "system";
+      if (next !== activeTheme) {
+        activeTheme = next;
+        storageFailure = false;
+        syncDomTheme(next);
+        notifyListeners();
+      }
+    }
+  });
+
+  // Centralized system theme change listener: updates meta tag and notifies toggles
+  if (window.matchMedia) {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: light)");
+    const handleSystemChange = () => {
+      if (activeTheme === "system") {
+        updateMetaThemeColor("system");
+        notifyListeners();
+      }
+    };
+    if ("addEventListener" in mediaQuery) {
+      mediaQuery.addEventListener("change", handleSystemChange);
+    } else {
+      (mediaQuery as MediaQueryList).addListener(handleSystemChange);
+    }
+  }
+}
+
+function notifyListeners(): void {
+  listeners.forEach((listener) => {
+    try {
+      listener();
+    } catch {
+      // Ignore errors in subscriber callbacks
+    }
+  });
+}
+
+function syncDomTheme(theme: ThemeMode): void {
+  if (typeof window === "undefined") return;
+  const root = document.documentElement;
+  const attr = getThemeAttribute(theme);
+  if (attr) {
+    root.setAttribute("data-theme", attr);
+  } else {
+    root.removeAttribute("data-theme");
+  }
+  updateMetaThemeColor(theme);
+}
+
+/**
+ * Subscribes a listener to theme changes (both local, cross-tab, and system changes).
+ * Returns an unsubscribe cleanup function.
+ */
+export function subscribeTheme(listener: () => void): () => void {
+  initThemeState();
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+/**
+ * Returns a snapshot of the current shared theme state.
+ */
+export function getThemeSnapshot(): { theme: ThemeMode; storageFailed: boolean } {
+  initThemeState();
+  return { theme: activeTheme, storageFailed: storageFailure };
+}
+
+/**
+ * Returns the currently active ThemeMode.
+ */
+export function getActiveTheme(): ThemeMode {
+  initThemeState();
+  return activeTheme;
+}
+
+/**
+ * Returns whether persisting the theme preference to storage previously failed.
+ */
+export function hasStorageFailed(): boolean {
+  return storageFailure;
+}
+
 /**
  * Returns the HTML data-theme attribute value for a given theme mode or raw stored string,
  * or null if theme is "system", missing, or unrecognised.
@@ -49,8 +161,8 @@ export function getStoredTheme(): ThemeMode | null {
     if (stored === "light" || stored === "dark" || stored === "system") {
       return stored;
     }
-  } catch (e) {
-    // Return null in restricted environments
+  } catch {
+    storageFailure = true;
   }
   return null;
 }
@@ -78,28 +190,28 @@ export function updateMetaThemeColor(theme: ThemeMode): void {
 }
 
 /**
- * Applies the specified theme mode to document.documentElement and meta[name="theme-color"].
- * Explicitly handles "system", "light", and "dark".
+ * Applies the specified theme mode to document.documentElement and meta[name="theme-color"],
+ * synchronizes all responsive toggles and other tabs, and attempts to persist to localStorage.
+ * Returns true if saved to storage, false if persistence failed (e.g. restricted environment).
  */
-export function applyTheme(theme: ThemeMode): void {
-  if (typeof window === "undefined") return;
+export function applyTheme(theme: ThemeMode): boolean {
+  if (typeof window === "undefined") return false;
 
-  const root = document.documentElement;
-  const attr = getThemeAttribute(theme);
+  initThemeState();
+  activeTheme = theme;
+  syncDomTheme(theme);
 
-  if (attr) {
-    root.setAttribute("data-theme", attr);
-  } else {
-    root.removeAttribute("data-theme");
-  }
-
+  let persisted = true;
   try {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
-  } catch (e) {
-    // Ignore storage write errors in restricted environments
+    storageFailure = false;
+  } catch {
+    persisted = false;
+    storageFailure = true;
   }
 
-  updateMetaThemeColor(theme);
+  notifyListeners();
+  return persisted;
 }
 
 /**

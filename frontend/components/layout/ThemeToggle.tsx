@@ -1,37 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import {
   ThemeMode,
-  getStoredTheme,
   applyTheme,
-  subscribeToSystemTheme,
+  getThemeSnapshot,
+  subscribeTheme,
 } from "@/lib/theme";
 
-export function ThemeToggle({ className }: { className?: string }) {
-  const [theme, setTheme] = useState<ThemeMode>("system");
-  const [mounted, setMounted] = useState(false);
+const SERVER_SNAPSHOT = { theme: "system" as ThemeMode, storageFailed: false };
 
-  // Keep a ref to the latest active theme mode to allow a persistent matchMedia listener without re-attaching
-  const themeRef = useRef(theme);
-  themeRef.current = theme;
+export function ThemeToggle({ className }: { className?: string }) {
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const stored = getStoredTheme() ?? "system";
-    setTheme(stored);
-    applyTheme(stored);
-
-    return subscribeToSystemTheme(() => {
-      if (themeRef.current === "system") {
-        applyTheme("system");
-      }
-    });
   }, []);
 
+  const { theme, storageFailed } = useSyncExternalStore(
+    subscribeTheme,
+    getThemeSnapshot,
+    () => SERVER_SNAPSHOT,
+  );
+
   const updateThemeMode = (nextTheme: ThemeMode) => {
-    setTheme(nextTheme);
     applyTheme(nextTheme);
   };
 
@@ -67,19 +60,23 @@ export function ThemeToggle({ className }: { className?: string }) {
     );
   }
 
-  const label =
+  const baseLabel =
     theme === "system"
       ? "Theme: System (switch to Light)"
       : theme === "light"
       ? "Theme: Light (switch to Dark)"
       : "Theme: Dark (switch to System)";
 
+  const title = storageFailed
+    ? `${baseLabel} — session only (browser storage is unavailable)`
+    : baseLabel;
+
   return (
     <button
       type="button"
       onClick={cycleTheme}
-      aria-label={label}
-      title={label}
+      aria-label={title}
+      title={title}
       className={cn(
         "inline-flex h-9 items-center gap-1.5 rounded-pill border border-line bg-raised/60 px-2.5 py-1",
         "text-small font-medium text-text-soft transition-colors duration-[var(--duration-fast)]",
@@ -137,6 +134,13 @@ export function ThemeToggle({ className }: { className?: string }) {
           </svg>
           <span className="hidden sm:inline text-xs">Auto</span>
         </>
+      )}
+      {storageFailed && (
+        <span
+          className="h-1.5 w-1.5 rounded-full bg-warn"
+          title="Preference applies to this session only because browser storage is disabled"
+          aria-label="Storage unavailable; preference applies to this session only"
+        />
       )}
     </button>
   );

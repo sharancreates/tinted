@@ -213,7 +213,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                           "transition-[background-color,box-shadow,color] duration-(--duration-fast) ease-(--ease-out-soft)",
                           active
                             ? "bg-raised font-semibold text-text shadow-card [&_svg]:text-accent-vivid"
-                            : "text-text-soft hover:bg-white/50 hover:text-text",
+                            : "text-text-soft hover:bg-raised/60 hover:text-text",
                         )}
                       >
                         <span className="relative">{item.icon}{item.href === "/vanity" && hasAlerts && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-surface bg-warn" aria-label="Products need replenishment" />}</span>
@@ -249,10 +249,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   className={cn(
                     "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-pill text-[0.6875rem] font-medium",
                     "transition-[background-color,color] duration-(--duration-fast) ease-(--ease-out-soft)",
-                    active ? "bg-white text-text shadow-card [&_svg]:text-accent-vivid" : "text-text-muted",
+                    active ? "bg-raised text-text shadow-card [&_svg]:text-accent-vivid" : "text-text-muted",
                   )}
                 >
-                  <span className="relative">{item.icon}{item.href === "/vanity" && hasAlerts && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-white bg-warn" aria-label="Products need replenishment" />}</span>
+                  <span className="relative">{item.icon}{item.href === "/vanity" && hasAlerts && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-surface bg-warn" aria-label="Products need replenishment" />}</span>
                   {item.short}
                 </Link>
               </li>

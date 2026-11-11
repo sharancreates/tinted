@@ -183,8 +183,8 @@ export function AddProduct({
                   type="button"
                   onClick={() => choose(match)}
                   className={cn(
-                    "flex w-full cursor-pointer items-center gap-3 rounded-tile border border-white bg-white/60 p-3 text-left",
-                    "transition-[background-color,border-color] duration-(--duration-fast) hover:border-accent-vivid hover:bg-white",
+                    "flex w-full cursor-pointer items-center gap-3 rounded-tile border border-line bg-raised/60 p-3 text-left",
+                    "transition-[background-color,border-color] duration-(--duration-fast) hover:border-accent-vivid hover:bg-raised",
                   )}
                 >
                   <span

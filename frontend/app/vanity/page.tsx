@@ -232,7 +232,7 @@ function VanityContent() {
         )}
 
         {shelf.length === 0 && !adding ? (
-          <div className="rounded-card border border-dashed border-line-strong bg-white/40 p-10 text-center">
+          <div className="rounded-card border border-dashed border-line-strong bg-raised/40 p-10 text-center">
             <p className="font-medium text-text">Your shelf is empty</p>
             <p className="mx-auto mt-2 max-w-prose text-small text-text-soft">
               Add the products you already own. Once a few are in, you can group
@@ -314,7 +314,7 @@ function VanityContent() {
         }
       >
         {routines.length === 0 ? (
-          <div className="rounded-card border border-dashed border-line-strong bg-white/40 p-8 text-center">
+          <div className="rounded-card border border-dashed border-line-strong bg-raised/40 p-8 text-center">
             <p className="text-small text-text-soft">
               {shelf.length === 0
                 ? "Add a few products first, then build your first look."
@@ -409,7 +409,7 @@ function ShelfSummary({
                 <button
                   type="button"
                   onClick={() => onOpen(item)}
-                  className="flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-tile border border-white bg-white/70 px-3 py-2 text-left transition-[background-color,box-shadow] duration-(--duration-fast) hover:bg-white hover:shadow-card"
+                  className="flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-tile border border-line bg-raised/70 px-3 py-2 text-left transition-[background-color,box-shadow] duration-(--duration-fast) hover:bg-raised hover:shadow-card"
                 >
                   <span aria-hidden="true" className={`h-2.5 w-2.5 shrink-0 rounded-full ${flags[item.id] === "empty" ? "bg-danger" : "bg-warn"}`} />
                   <span className="min-w-0 flex-1">
@@ -465,7 +465,7 @@ function ProductSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby="product-sheet-title"
-        className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[88dvh] max-w-xl overflow-y-auto rounded-t-window border border-white bg-white/95 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 shadow-lift backdrop-blur-xl"
+        className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[88dvh] max-w-xl overflow-y-auto rounded-t-window border border-line bg-raised/95 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 shadow-lift backdrop-blur-xl"
         initial={reduced ? { opacity: 0 } : { y: "100%" }}
         animate={reduced ? { opacity: 1 } : { y: 0 }}
         exit={reduced ? { opacity: 0 } : { y: "100%" }}

@@ -33,7 +33,7 @@ export function MethodSheet({
     <div className="sticky bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-30 mt-10 lg:bottom-6">
       <section
         aria-label="Find a product"
-        className="mx-auto max-w-2xl rounded-window border border-white/90 bg-[#fffdfa]/95 shadow-[0_-8px_40px_rgba(70,45,30,0.12)] backdrop-blur-xl"
+        className="mx-auto max-w-2xl rounded-window border border-line bg-raised/95 shadow-lift backdrop-blur-xl"
       >
         <button
           type="button"

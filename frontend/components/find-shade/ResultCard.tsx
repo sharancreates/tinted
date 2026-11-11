@@ -60,7 +60,7 @@ export function ResultCard({
   };
 
   return (
-    <article className="overflow-hidden rounded-card border border-white/90 bg-[#fffdfa] shadow-lift">
+    <article className="overflow-hidden rounded-card border border-line bg-surface shadow-lift">
       <div className="grid gap-6 p-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:p-8">
         {/* Shade disc, with the skin reading tucked against it for comparison. */}
         <div className="relative mx-auto h-36 w-36 shrink-0 sm:mx-0">
@@ -72,7 +72,7 @@ export function ResultCard({
           <span
             aria-hidden="true"
             title="Your skin reading"
-            className="absolute -bottom-1 -right-1 h-14 w-14 rounded-full border-4 border-[#fffdfa] shadow-card"
+            className="absolute -bottom-1 -right-1 h-14 w-14 rounded-full border-4 border-surface shadow-card"
             style={{ background: skinHex }}
           />
         </div>
@@ -101,7 +101,7 @@ export function ResultCard({
           <p className="text-small font-semibold text-text">Next closest</p>
           <ul className="mt-3 flex flex-wrap gap-2">
             {matches.slice(1, 4).map((m) => (
-              <li key={m.id} className="flex items-center gap-2 rounded-pill bg-[#fbf7f2] py-1.5 pl-1.5 pr-3.5 text-small">
+              <li key={m.id} className="flex items-center gap-2 rounded-pill bg-raised py-1.5 pl-1.5 pr-3.5 text-small">
                 <span aria-hidden="true" className="h-6 w-6 rounded-full ring-1 ring-black/5" style={{ background: m.shade_hex }} />
                 <span className="font-medium text-text">{m.shade_name}</span>
                 <span className="tabular-nums text-text-muted">ΔE {m.deltaE.toFixed(1)}</span>
@@ -111,13 +111,13 @@ export function ResultCard({
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-strong bg-[#fbf7f2] px-6 py-4 sm:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line-strong bg-raised px-6 py-4 sm:px-8">
         <p className="text-small text-text-muted">Shade colours are approximations of the product, not manufacturer data.</p>
         <button
           type="button"
           onClick={() => void save()}
           disabled={loading || state === "saving" || state === "saved"}
-          className="inline-flex min-h-12 items-center rounded-pill bg-accent px-6 font-semibold text-white transition-[background-color,box-shadow,transform] duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-accent-hover hover:shadow-lift disabled:opacity-60 motion-safe:enabled:hover:-translate-y-0.5"
+          className="inline-flex min-h-12 items-center rounded-pill bg-accent px-6 font-semibold text-bg transition-[background-color,box-shadow,transform] duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-accent-hover hover:shadow-lift disabled:opacity-60 motion-safe:enabled:hover:-translate-y-0.5"
         >
           {state === "saved" ? "Saved to your wishlist" : state === "saving" ? "Saving…" : "Save to shelf"}
         </button>

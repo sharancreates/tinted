@@ -70,7 +70,7 @@ export function ShadeSwatch({
         "transition-[background-color,border-color] duration-(--duration-fast) ease-(--ease-out-soft)",
         selected
           ? "border-accent-vivid bg-accent-dim"
-          : "border-transparent hover:bg-white/60",
+          : "border-transparent hover:bg-raised",
         className,
       )}
     >

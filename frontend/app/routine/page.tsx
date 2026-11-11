@@ -238,7 +238,7 @@ export default function RoutinePage() {
                 ))}
               </ol>
               {routineSteps.length === 0 && (
-                <p className="mt-4 rounded-tile border border-dashed border-line-strong bg-white/40 p-6 text-center text-small text-text-muted">
+                <p className="mt-4 rounded-tile border border-dashed border-line-strong bg-raised/40 p-6 text-center text-small text-text-muted">
                   Add products in the order you use them.
                 </p>
               )}

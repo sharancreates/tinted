@@ -1,35 +1,47 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Tinted design system: warm editorial, coloured by skin.
-   Cream paper, a coral accent, Playfair Display headings over DM Sans, and
-   four colour-coded pastels for category cards. The full spec is MASTER.md.
+   Tinted design system: near-neutral canvases, coloured by skin.
 
- * Theme Support:
- * - Light theme (prefers-color-scheme: light / data-theme="light"):
- *   Neutral canvas (#f5f5f5), restrained mist accents, coral ink,
- *   and frosted glass surfaces.
- *
- *   Accessibility requirements:
- *   - WCAG AA: minimum 4.5:1 for normal text.
- *   - WCAG AA: minimum 3:1 for large text.
- *   - Verify foreground/background combinations on:
- *       * Base canvas
- *       * Surface
- *       * Raised surface
- *       * Overlay
- *       * Category pastel surfaces
- *       * Interactive and status surfaces
- *   - Calculate contrast using the final composited background,
- *     including transparency and gradients.
- *   - Do not treat a passing ratio against the base canvas
- *     as proof of compliance on other surfaces.
- *
- *   Skin-tone assessment:
- *   - Use the opaque, neutral swatch ground.
- *   - Never apply decorative tinting or backdrop filters
- *     to the assessment background.
- */
+   Why near-neutral canvases:
+   this app's entire job is to show colour accurately. A tinted background
+   shifts perceived skin tone — a warm page makes every swatch read warmer, and
+   the undertone call is the product. So the surfaces are deliberately close to
+   neutral (#f7f8f9 in light, #0b0b0c in dark) so that the only warm,
+   saturated colour on screen belongs to the shades and the product photos.
+
+   Theme Support:
+   - Light theme (prefers-color-scheme: light / data-theme="light"):
+     Near-neutral light canvas (#f7f8f9), opaque surfaces (#ffffff / #e8eaea).
+     Verified at WCAG AA for body text on #f7f8f9 / #ffffff / #e8eaea:
+       text: 17.18 / 18.27 / 15.13
+       text-soft: 8.35 / 8.88 / 7.35
+       text-muted: 5.65 / 6.01 / 4.98
+       accent: 6.19 / 6.58 / 5.45
+       accent-bright: 8.37 / 8.90 / 7.37
+       accent-vivid: 5.47 / 5.81 / 4.81
+       accent-hover: 10.28 / 10.93 / 9.05
+       success: 6.09 / 6.47 / 5.36
+       warn: 5.80 / 6.16 / 5.10
+       danger: 5.78 / 6.15 / 5.09
+   - Dark theme (default / data-theme="dark"):
+     Near-neutral dark canvas (#0b0b0c / #141416 / #1c1c1f) to prevent
+     background tint from distorting skin tone assessment.
+     Verified at WCAG AA for body text on #0b0b0c / #141416 / #1c1c1f:
+       text: 17.90 / 16.74 / 15.47
+       text-soft: 9.20 / 8.60 / 7.95
+       text-muted: 5.49 / 5.13 / 4.74
+       accent: 6.45 / 6.04 / 5.58
+       accent-bright: 8.79 / 8.22 / 7.59
+       accent-vivid: 5.31 / 4.96 / 4.59
+       accent-hover: 8.79 / 8.22 / 7.59
+       success: 8.90 / 8.32 / 7.69
+       warn: 10.06 / 9.41 / 8.70
+       danger: 7.17 / 6.70 / 6.19
+   - Controls & Buttons:
+     Filled controls using bg-text or bg-accent must use dynamic text-bg
+     or text-on-accent to ensure WCAG AA contrast (>= 4.5:1) in both themes.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 
 @theme {
@@ -54,6 +66,7 @@
   --color-accent-vivid: var(--theme-color-accent-vivid);
   --color-accent-hover: var(--theme-color-accent-hover);
   --color-accent-dim: var(--theme-color-accent-dim);
+  --color-on-accent: var(--theme-color-on-accent);
   --color-rose: #a8395e;
 
   /* ── Dynamic Status ───────────────────────────────────────────────────── */
@@ -149,30 +162,31 @@
 
 :root {
   /* ── Single Source of Truth: Light Theme Values ────────────────────────── */
-  --light-color-bg: #f5f5f5;
-  --light-color-mist-peach: #f6e4d8;
-  --light-color-mist-lavender: #ece5f3;
-  --light-color-surface: rgba(255, 253, 250, 0.6);
-  --light-color-raised: rgba(255, 253, 250, 0.82);
-  --light-color-overlay: rgba(43, 36, 32, 0.35);
-  --light-color-swatch-ground: #f5f5f5;
+  --light-color-bg: #f7f8f9;
+  --light-color-mist-peach: rgba(238, 240, 242, 0.6);
+  --light-color-mist-lavender: rgba(232, 235, 240, 0.6);
+  --light-color-surface: #ffffff;
+  --light-color-raised: #e8eaea;
+  --light-color-overlay: rgba(247, 248, 249, 0.80);
+  --light-color-swatch-ground: #ffffff;
 
-  --light-color-text: #2b2420;
-  --light-color-text-soft: #5e544c;
-  --light-color-text-muted: #6b6058;
+  --light-color-text: #141517;
+  --light-color-text-soft: #484a4e;
+  --light-color-text-muted: #616368;
 
-  --light-color-accent: #a64b2c;
-  --light-color-accent-bright: #c25936;
-  --light-color-accent-vivid: #d4765c;
-  --light-color-accent-hover: #8f3f24;
-  --light-color-accent-dim: rgba(212, 118, 92, 0.14);
+  --light-color-accent: #875018;
+  --light-color-accent-bright: #6e3e0e;
+  --light-color-accent-vivid: #b23f13;
+  --light-color-accent-hover: #5e310c;
+  --light-color-accent-dim: rgba(135, 80, 24, 0.12);
+  --light-color-on-accent: #f7f8f9;
 
-  --light-color-success: #1f6b4a;
-  --light-color-warn: #7a5408;
-  --light-color-danger: #b3261e;
+  --light-color-success: #226b40;
+  --light-color-warn: #8f5303;
+  --light-color-danger: #b82c1e;
 
-  --light-color-line: rgba(255, 255, 255, 0.85);
-  --light-color-line-strong: rgba(94, 84, 76, 0.18);
+  --light-color-line: rgba(0, 0, 0, 0.08);
+  --light-color-line-strong: rgba(0, 0, 0, 0.16);
 
   --light-color-lavender: #e9e3f5;
   --light-color-lavender-mid: #b9a8e0;
@@ -190,10 +204,10 @@
   --light-color-blush-mid: #e9a3b5;
   --light-color-blush-ink: #8c3553;
 
-  --light-shadow-card: 0 1px 2px rgba(70, 45, 30, 0.06), 0 8px 24px rgba(70, 45, 30, 0.06);
-  --light-shadow-lift: 0 2px 4px rgba(70, 45, 30, 0.06), 0 18px 48px rgba(70, 45, 30, 0.1);
-  --light-shadow-window: 0 4px 8px rgba(70, 45, 30, 0.05), 0 24px 64px rgba(70, 45, 30, 0.12);
-  --light-shadow-glow: 0 0 0 1px rgba(166, 75, 44, 0.30), 0 8px 24px -6px rgba(166, 75, 44, 0.25);
+  --light-shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+  --light-shadow-lift: 0 4px 16px -2px rgba(0, 0, 0, 0.10), 0 12px 28px -6px rgba(0, 0, 0, 0.12);
+  --light-shadow-window: 0 4px 8px rgba(0, 0, 0, 0.05), 0 24px 64px rgba(0, 0, 0, 0.10);
+  --light-shadow-glow: 0 0 0 1px rgba(135, 80, 24, 0.30), 0 8px 24px -6px rgba(135, 80, 24, 0.25);
 
   /* ── Single Source of Truth: Dark Theme Values ─────────────────────────── */
   --dark-color-bg: #0b0b0c;
@@ -213,6 +227,7 @@
   --dark-color-accent-vivid: #de5c27;
   --dark-color-accent-hover: #e0a063;
   --dark-color-accent-dim: rgba(198, 134, 66, 0.14);
+  --dark-color-on-accent: #0b0b0c;
 
   --dark-color-success: #6fbf8b;
   --dark-color-warn: #e8b04b;
@@ -265,6 +280,7 @@ html[data-theme="dark"] {
   --theme-color-accent-vivid: var(--dark-color-accent-vivid);
   --theme-color-accent-hover: var(--dark-color-accent-hover);
   --theme-color-accent-dim: var(--dark-color-accent-dim);
+  --theme-color-on-accent: var(--dark-color-on-accent);
 
   --theme-color-success: var(--dark-color-success);
   --theme-color-warn: var(--dark-color-warn);
@@ -316,6 +332,7 @@ html[data-theme="light"] {
   --theme-color-accent-vivid: var(--light-color-accent-vivid);
   --theme-color-accent-hover: var(--light-color-accent-hover);
   --theme-color-accent-dim: var(--light-color-accent-dim);
+  --theme-color-on-accent: var(--light-color-on-accent);
 
   --theme-color-success: var(--light-color-success);
   --theme-color-warn: var(--light-color-warn);
@@ -366,6 +383,7 @@ html[data-theme="light"] {
     --theme-color-accent-vivid: var(--light-color-accent-vivid);
     --theme-color-accent-hover: var(--light-color-accent-hover);
     --theme-color-accent-dim: var(--light-color-accent-dim);
+    --theme-color-on-accent: var(--light-color-on-accent);
 
     --theme-color-success: var(--light-color-success);
     --theme-color-warn: var(--light-color-warn);

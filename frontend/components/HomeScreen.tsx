@@ -47,7 +47,7 @@ function Arrow() {
   return (
     <span
       aria-hidden="true"
-      className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-accent-vivid shadow-card transition-[background-color,color] duration-(--duration-fast) ease-(--ease-out-soft) group-hover:bg-accent-vivid group-hover:text-white"
+      className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-raised text-accent-vivid shadow-card transition-[background-color,color] duration-(--duration-fast) ease-(--ease-out-soft) group-hover:bg-accent-vivid group-hover:text-bg"
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
         <path d="M7 17 17 7M9 7h8v8" />
@@ -76,12 +76,12 @@ function Hero({ item }: { item: ReturnType<typeof entranceItem> }) {
         <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
           <Link
             href="/match"
-            className="group inline-flex min-h-16 items-center gap-3 rounded-pill bg-accent pl-8 pr-3 text-[1.0625rem] font-semibold text-white shadow-card transition-[background-color,box-shadow,transform] duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-accent-hover hover:shadow-lift motion-safe:hover:-translate-y-0.5"
+            className="group inline-flex min-h-16 items-center gap-3 rounded-pill bg-accent pl-8 pr-3 text-[1.0625rem] font-semibold text-bg shadow-card transition-[background-color,box-shadow,transform] duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-accent-hover hover:shadow-lift motion-safe:hover:-translate-y-0.5"
           >
             Find your shade
             <span
               aria-hidden="true"
-              className="grid h-11 w-11 place-items-center rounded-full bg-white/20 transition-transform duration-(--duration-fast) ease-(--ease-out-soft) motion-safe:group-hover:translate-x-0.5"
+              className="grid h-11 w-11 place-items-center rounded-full bg-bg/20 transition-transform duration-(--duration-fast) ease-(--ease-out-soft) motion-safe:group-hover:translate-x-0.5"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M13 6l6 6-6 6" />
@@ -108,7 +108,7 @@ function Hero({ item }: { item: ReturnType<typeof entranceItem> }) {
         {/* Floating editorial card, overlapping the art's left edge. */}
         <aside
           aria-label="Example reading"
-          className="absolute bottom-6 left-6 w-64 rounded-card border border-white/90 bg-[#fffdfa]/95 p-5 shadow-lift backdrop-blur-md transition-transform duration-(--duration-base) ease-(--ease-out-soft) motion-safe:hover:-translate-y-1 lg:-left-12 lg:bottom-12"
+          className="absolute bottom-6 left-6 w-64 rounded-card border border-line bg-surface/95 p-5 shadow-lift backdrop-blur-md transition-transform duration-(--duration-base) ease-(--ease-out-soft) motion-safe:hover:-translate-y-1 lg:-left-12 lg:bottom-12"
         >
           <p className="text-label uppercase text-text-muted">Example reading</p>
           <div className="mt-3 flex items-center gap-3">

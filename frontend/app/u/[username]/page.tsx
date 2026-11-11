@@ -148,7 +148,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
           <h2 className="mt-1 text-display font-semibold text-text">Products in rotation</h2>
         </div>
         {groupedProducts.length === 0 ? (
-          <p className="rounded-card border border-dashed border-line-strong bg-white/40 p-8 text-center text-small text-text-muted">No products are public yet.</p>
+          <p className="rounded-card border border-dashed border-line-strong bg-raised/40 p-8 text-center text-small text-text-muted">No products are public yet.</p>
         ) : groupedProducts.map(([category, categoryProducts]) => (
           <div key={category} className="mb-10">
             <h3 className="mb-3 text-heading font-semibold capitalize text-text">{category}</h3>

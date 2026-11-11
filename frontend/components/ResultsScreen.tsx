@@ -411,7 +411,7 @@ export default function ResultsScreen({
               onChange={(event) => setFoundInput(event.target.value)}
               onKeyDown={(event) => event.key === "Enter" && runFoundationMatch()}
               placeholder="e.g. Maybelline Fit Me 220"
-              className="min-h-12 flex-1 rounded-pill border border-white bg-raised px-5 text-text shadow-card placeholder:text-text-muted focus:border-accent focus:outline-none"
+              className="min-h-12 flex-1 rounded-pill border border-line bg-raised px-5 text-text shadow-card placeholder:text-text-muted focus:border-accent focus:outline-none"
             />
             <Button onClick={runFoundationMatch} disabled={matching || !foundInput.trim()}>
               {matching ? "Matching…" : "Find matches"}

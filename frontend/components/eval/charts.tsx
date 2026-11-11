@@ -27,7 +27,7 @@ export function Tip({
       {children}
       <span
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-60 -translate-x-1/2 translate-y-1 rounded-tile border border-white bg-[#fffdfa] px-3.5 py-2.5 text-left text-small text-text opacity-0 shadow-lift transition-[opacity,transform] duration-(--duration-fast) ease-(--ease-out-soft) group-hover/tip:translate-y-0 group-hover/tip:opacity-100 group-focus-visible/tip:translate-y-0 group-focus-visible/tip:opacity-100"
+        className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max max-w-60 -translate-x-1/2 translate-y-1 rounded-tile border border-line bg-surface px-3.5 py-2.5 text-left text-small text-text opacity-0 shadow-lift transition-[opacity,transform] duration-(--duration-fast) ease-(--ease-out-soft) group-hover/tip:translate-y-0 group-hover/tip:opacity-100 group-focus-visible/tip:translate-y-0 group-focus-visible/tip:opacity-100"
       >
         {tip}
       </span>

@@ -95,7 +95,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           role="presentation"
         >
           <motion.div
-            className="relative w-full max-w-md rounded-card border border-white bg-white/95 p-8 shadow-lift backdrop-blur-xl"
+            className="relative w-full max-w-md rounded-card border border-line bg-surface/95 p-8 shadow-lift backdrop-blur-xl"
             initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}

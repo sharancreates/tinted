@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "How accurately Tinted reads skin tone across Monk levels and lighting, measured.",
 };
 
-const CARD = "rounded-card border border-white/90 bg-[#fffdfa] p-5 shadow-card sm:p-8";
+const CARD = "rounded-card border border-line bg-surface p-5 shadow-card sm:p-8";
 
 /** Each lighting condition wears one category pastel, everywhere it appears. */
 const LIGHT_TINT: Record<LightingKey, string> = {
@@ -169,7 +169,7 @@ export default function EvalPage() {
                           {pct(person.within1)} of answers within one level
                         </>
                       }
-                      className="flex items-center gap-3 rounded-tile bg-[#fbf7f2] px-3 py-2.5 transition-colors duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-peach/70"
+                      className="flex items-center gap-3 rounded-tile bg-raised px-3 py-2.5 transition-colors duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-peach/70"
                     >
                       <span className="w-9 text-small tabular-nums text-text-muted">{person.id}</span>
                       <LevelPill hex={MST_HEX[person.mst - 1]} level={person.mst} />
@@ -438,12 +438,12 @@ export default function EvalPage() {
             ].map((f) => (
               <li
                 key={f.title}
-                className="rounded-card border border-white/90 bg-[#fffdfa] p-6 shadow-card transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:shadow-lift motion-safe:hover:-translate-y-1"
+                className="rounded-card border border-line bg-surface p-6 shadow-card transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:shadow-lift motion-safe:hover:-translate-y-1"
               >
                 <span
                   className={cn(
                     "inline-flex rounded-pill px-3 py-1 text-label uppercase",
-                    f.tag === "Fixed" ? "bg-accent text-white" : "border border-line-strong text-text-muted",
+                    f.tag === "Fixed" ? "bg-accent text-bg" : "border border-line-strong text-text-muted",
                   )}
                 >
                   {f.tag}
@@ -475,7 +475,7 @@ export default function EvalPage() {
                 body: "MST-E may be used for evaluation but not to train models, and tuning on it would also flatter the result. Any calibration has to come from other consented, labelled data, with MST-E held back as the honest final check.",
               },
             ].map((f, i) => (
-              <div key={f.title} className="rounded-card border border-white/90 bg-[#fffdfa] p-6 shadow-card">
+              <div key={f.title} className="rounded-card border border-line bg-surface p-6 shadow-card">
                 <p className="font-display text-[2.5rem] font-semibold leading-none text-accent-vivid">{i + 1}</p>
                 <p className="mt-4 font-display text-[1.25rem] font-semibold leading-tight text-text">{f.title}</p>
                 <p className="mt-2 text-small text-text-soft">{f.body}</p>
@@ -529,7 +529,7 @@ export default function EvalPage() {
             </ul>
             <Link
               href="/match"
-              className="mt-8 inline-flex min-h-12 items-center rounded-pill bg-accent px-6 font-semibold text-white transition-[background-color,transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-accent-hover hover:shadow-lift motion-safe:hover:-translate-y-0.5"
+              className="mt-8 inline-flex min-h-12 items-center rounded-pill bg-accent px-6 font-semibold text-bg transition-[background-color,transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:bg-accent-hover hover:shadow-lift motion-safe:hover:-translate-y-0.5"
             >
               Try the shade match
             </Link>

@@ -119,7 +119,7 @@ export default function UploadScreen({
               )}
             >
               <Aura variant="match" className="flex min-h-72 flex-col items-center justify-center gap-4 p-8 text-center">
-                <span className="glass-strong grid h-16 w-16 place-items-center rounded-full text-accent-vivid transition-[background-color,color] duration-(--duration-fast) group-hover:bg-accent-vivid group-hover:text-white">
+                <span className="glass-strong grid h-16 w-16 place-items-center rounded-full text-accent-vivid transition-[background-color,color] duration-(--duration-fast) group-hover:bg-accent-vivid group-hover:text-bg">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="17,8 12,3 7,8" />

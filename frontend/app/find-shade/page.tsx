@@ -82,12 +82,12 @@ export default function FindShadePage() {
       />
 
       {/* ── Whose skin we are matching ─────────────────────────────────── */}
-      <section aria-label="Your skin reading" className="rounded-card border border-white/90 bg-[#fffdfa] p-5 shadow-card sm:p-6">
+      <section aria-label="Your skin reading" className="rounded-card border border-line bg-surface p-5 shadow-card sm:p-6">
         {!ready ? (
           <div className="h-12 animate-pulse rounded-tile bg-peach/50" />
         ) : profile ? (
           <div className="flex flex-wrap items-center gap-4">
-            <span aria-hidden="true" className="h-12 w-12 rounded-full shadow-card ring-2 ring-white" style={{ background: profile.avgHex }} />
+            <span aria-hidden="true" className="h-12 w-12 rounded-full shadow-card ring-2 ring-line-strong" style={{ background: profile.avgHex }} />
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-text">
                 Matching to your reading: MST {profile.mstLevel}, {profile.undertone} undertone

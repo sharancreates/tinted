@@ -52,8 +52,8 @@ export function QuestionStep({
                 "flex min-h-16 cursor-pointer flex-col justify-center rounded-tile border p-4 text-left",
                 "transition-[transform,box-shadow,background-color,border-color] duration-(--duration-fast) ease-(--ease-out-soft)",
                 isSelected
-                  ? "border-accent-vivid bg-white shadow-lift"
-                  : "border-white bg-white/60 shadow-card hover:-translate-y-0.5 hover:bg-white hover:shadow-lift",
+                  ? "border-accent-vivid bg-raised shadow-lift"
+                  : "border-line bg-surface/70 shadow-card hover:-translate-y-0.5 hover:bg-surface hover:shadow-lift",
               )}
             >
               <span className="flex items-center gap-2.5">

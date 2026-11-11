@@ -109,7 +109,7 @@ function LooksContent() {
   return (
     <>
       {inventory.length === 0 && (
-        <div className="mb-(--space-block) rounded-card border border-dashed border-line-strong bg-white/40 p-8 text-center">
+        <div className="mb-(--space-block) rounded-card border border-dashed border-line-strong bg-raised/40 p-8 text-center">
           <p className="font-medium text-text">Your shelf is empty</p>
           <p className="mx-auto mt-2 max-w-prose text-small text-text-soft">
             A look is built from products you own, so start there.
@@ -452,7 +452,7 @@ function LookEditor({
 
           {shareUrl && (
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <code className="min-w-0 flex-1 truncate rounded-pill border border-line bg-white px-5 py-3 font-mono text-small text-text-soft">
+              <code className="min-w-0 flex-1 truncate rounded-pill border border-line bg-raised px-5 py-3 font-mono text-small text-text-soft">
                 {shareUrl}
               </code>
               <Button

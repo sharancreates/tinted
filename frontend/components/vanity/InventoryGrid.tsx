@@ -16,7 +16,7 @@ const FAMILY_CARD: Record<CategoryFamily, string> = {
   skincare: "bg-sage",
   lips: "bg-blush",
   eyes: "bg-lavender",
-  other: "bg-[#fffdfa]",
+  other: "bg-surface",
 };
 
 /**
@@ -98,7 +98,7 @@ export function InventoryGrid({
                 FAMILY_CARD[family],
                 selected
                   ? "border-accent-vivid shadow-lift ring-2 ring-accent-vivid/30"
-                  : "border-white/70 hover:shadow-lift motion-safe:hover:-translate-y-0.5",
+                  : "border-line-strong hover:shadow-lift motion-safe:hover:-translate-y-0.5",
                 item.is_finished && "opacity-70",
               )}
             >
@@ -120,7 +120,7 @@ export function InventoryGrid({
                   </span>
                 )}
                 {flags[item.id] && (
-                  <span className={`absolute left-2 top-2 rounded-pill px-2 py-0.5 text-[0.6875rem] font-semibold text-white ${flags[item.id] === "empty" ? "bg-danger" : "bg-warn"}`}>
+                  <span className={`absolute left-2 top-2 rounded-pill px-2 py-0.5 text-[0.6875rem] font-semibold text-bg ${flags[item.id] === "empty" ? "bg-danger" : "bg-warn"}`}>
                     {flags[item.id] === "empty" ? "Empty" : "Low"}
                   </span>
                 )}
@@ -152,7 +152,7 @@ export function InventoryGrid({
                   </span>
                 </div>
                 {!selectable && (
-                  <span className="mt-2.5 inline-flex w-fit items-center gap-1.5 rounded-pill bg-white/85 px-2.5 py-1 text-[0.6875rem] font-semibold text-text shadow-[0_1px_2px_rgba(70,45,30,0.06)]">
+                  <span className="mt-2.5 inline-flex w-fit items-center gap-1.5 rounded-pill bg-raised/85 px-2.5 py-1 text-[0.6875rem] font-semibold text-text shadow-[0_1px_2px_rgba(70,45,30,0.06)]">
                     <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", STATUS_DOT[item.status] ?? STATUS_DOT.using)} />
                     {PRODUCT_STATUS_LABELS[item.status] ?? PRODUCT_STATUS_LABELS.using}
                   </span>

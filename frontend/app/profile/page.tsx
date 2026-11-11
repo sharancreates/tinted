@@ -132,7 +132,7 @@ export default function ProfilePage() {
           <div className="flex w-full flex-wrap gap-2 sm:w-auto">
             {shelfSummary.length
               ? shelfSummary.map(([category, count]) => (
-                  <span key={category} className="rounded-pill border border-white bg-white/70 px-3 py-1 text-small capitalize text-text-soft">
+                  <span key={category} className="rounded-pill border border-line bg-raised/70 px-3 py-1 text-small capitalize text-text-soft">
                     {category} · {count}
                   </span>
                 ))
@@ -183,7 +183,7 @@ export default function ProfilePage() {
           <p className="mt-1 text-small text-text-muted">Copied from your latest analysis when you save.</p>
         </div>
 
-        <label className="mt-6 flex min-h-11 cursor-pointer items-center gap-3 rounded-pill border border-white bg-white/60 px-5 text-small font-medium text-text">
+        <label className="mt-6 flex min-h-11 cursor-pointer items-center gap-3 rounded-pill border border-line bg-raised/60 px-5 text-small font-medium text-text">
           <input type="checkbox" className={CHECKBOX} checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
           Make my profile public
         </label>

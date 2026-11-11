@@ -392,7 +392,7 @@ export default function LiveAnalyzer({ file, budget, onComplete, onReset }: Prop
                 aria-current={idx === currentIdx ? "step" : undefined}
                 className={
                   "h-2 w-8 rounded-pill transition-colors duration-(--duration-fast) " +
-                  (idx < currentIdx ? "bg-accent-vivid/45" : idx === currentIdx ? "bg-accent-vivid" : "bg-white/80")
+                  (idx < currentIdx ? "bg-accent-vivid/45" : idx === currentIdx ? "bg-accent-vivid" : "bg-line-strong")
                 }
               >
                 <span className="sr-only">{STAGE_LABELS[s]}</span>

@@ -30,7 +30,7 @@ function NextSteps() {
           </span>
           <span
             aria-hidden="true"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-accent-vivid shadow-card transition-[background-color,color] duration-(--duration-fast) group-hover:bg-accent-vivid group-hover:text-white"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-raised text-accent-vivid shadow-card transition-[background-color,color] duration-(--duration-fast) group-hover:bg-accent-vivid group-hover:text-bg"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
               <path d="M7 17 17 7M9 7h8v8" />
@@ -94,7 +94,7 @@ export function ToneCard({ className }: { className?: string }) {
           <NextSteps />
           <Link
             href="/match"
-            className="mt-auto inline-flex min-h-12 w-full items-center justify-center rounded-pill bg-text px-6 text-small font-semibold text-white shadow-card transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-px hover:shadow-lift"
+            className="mt-auto inline-flex min-h-12 w-full items-center justify-center rounded-pill bg-text px-6 text-small font-semibold text-bg shadow-card transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-px hover:shadow-lift"
           >
             Match again
           </Link>
@@ -114,7 +114,7 @@ export function ToneCard({ className }: { className?: string }) {
           <NextSteps />
           <Link
             href="/match"
-            className="mt-auto inline-flex min-h-12 w-full items-center justify-center rounded-pill bg-text px-6 text-small font-semibold text-white shadow-card transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-px hover:shadow-lift"
+            className="mt-auto inline-flex min-h-12 w-full items-center justify-center rounded-pill bg-text px-6 text-small font-semibold text-bg shadow-card transition-[transform,box-shadow] duration-(--duration-fast) ease-(--ease-out-soft) hover:-translate-y-px hover:shadow-lift"
           >
             Find my shade
           </Link>

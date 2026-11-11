@@ -155,7 +155,7 @@ export function ProductPanel({
             type="button"
             onClick={onClose}
             aria-label="Close product details"
-            className="-mr-2 -mt-2 flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg text-text-soft transition-colors duration-(--duration-fast) hover:bg-white/60 hover:text-text"
+            className="-mr-2 -mt-2 flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg text-text-soft transition-colors duration-(--duration-fast) hover:bg-raised hover:text-text"
           >
             ×
           </button>
@@ -212,7 +212,7 @@ export function ProductPanel({
       </fieldset>
 
       {/* Replenishment */}
-      <div className="flex items-center justify-between gap-3 rounded-tile border border-white bg-white/60 p-4">
+      <div className="flex items-center justify-between gap-3 rounded-tile border border-line bg-raised/60 p-4">
         <div className="min-w-0">
           <p className="text-small font-medium text-text">
             {flag === "empty" ? "Empty" : flag === "low" ? "Running low" : "Stocked"}
@@ -256,7 +256,7 @@ export function ProductPanel({
               const key = `${dupe.brand}|${dupe.product}`;
               const added = wishlisted.includes(key);
               return (
-                <li key={key} className="rounded-tile border border-white bg-white p-4 shadow-card">
+                <li key={key} className="rounded-tile border border-line bg-raised/80 p-4 shadow-card">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-label uppercase text-text-muted">{dupe.brand}</p>
